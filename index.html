@@ -1,0 +1,1915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MARS — Система Мониторинга</title>
+    <style>
+        :root {
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --success: #10B981;
+            --success-hover: #059669;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --danger-hover: #DC2626;
+            --slate-50: #F8FAFC;
+            --slate-100: #F1F5F9;
+            --slate-200: #E2E8F0;
+            --slate-300: #CBD5E1;
+            --slate-400: #94A3B8;
+            --slate-500: #64748B;
+            --slate-600: #475569;
+            --slate-700: #334155;
+            --slate-800: #1E293B;
+            --slate-900: #0F172A;
+            --blue-50: #EFF6FF;
+            --blue-100: #DBEAFE;
+            --blue-200: #BFDBFE;
+            --blue-700: #1D4ED8;
+            --blue-800: #1E40AF;
+            --green-50: #F0FDF4;
+            --green-100: #DCFCE7;
+            --green-700: #15803D;
+            --amber-50: #FFFBEB;
+            --amber-100: #FEF3C7;
+            --amber-200: #FDE68A;
+            --amber-700: #B45309;
+            --amber-800: #92400E;
+            --purple-100: #EDE9FE;
+            --purple-600: #7C3AED;
+            --purple-700: #6D28D9;
+            --red-50: #FEF2F2;
+            --red-100: #FEE2E2;
+            --red-200: #FECACA;
+            --red-600: #DC2626;
+            --red-700: #B91C1C;
+            --red-800: #991B1B;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--slate-100);
+            color: var(--slate-800);
+            min-height: 100vh;
+        }
+
+        .fade-in { animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        nav {
+            background: white;
+            border-bottom: 1px solid var(--slate-200);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left { display: flex; align-items: center; gap: 24px; }
+        .nav-brand { font-size: 20px; font-weight: 700; color: var(--slate-900); }
+        .nav-tabs { display: flex; gap: 4px; }
+
+        .nav-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            color: var(--slate-600);
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover { color: var(--primary); }
+        .nav-item.active { color: var(--primary); font-weight: 600; border-bottom-color: var(--primary); }
+
+        .avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .section-content { display: none; }
+        .section-content.active { display: block; }
+
+        .main-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title { font-size: 24px; font-weight: 600; color: var(--slate-800); }
+        .page-subtitle { font-size: 14px; color: var(--slate-500); margin-top: 4px; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: var(--success-hover); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-outline { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+        .btn-outline:hover { background: var(--slate-50); }
+        .btn-ghost { background: transparent; color: var(--slate-700); }
+        .btn-ghost:hover { background: var(--slate-100); }
+        .btn-sm { padding: 4px 12px; font-size: 12px; }
+        .btn-xs { padding: 4px 8px; font-size: 11px; }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .panel-header {
+            padding: 16px 24px;
+            background: var(--blue-50);
+            border-bottom: 1px solid var(--blue-200);
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .panel-header-icon { font-size: 20px; }
+        .panel-header-text { font-size: 14px; color: var(--blue-800); }
+        .panel-header-text strong { font-weight: 600; }
+
+        .panel-toolbar {
+            padding: 12px 24px;
+            background: var(--slate-50);
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-left { display: flex; align-items: center; gap: 16px; }
+        .toolbar-right { display: flex; align-items: center; gap: 8px; }
+
+        .checkbox-wrapper {
+            position: relative;
+            width: 20px; height: 20px;
+        }
+
+        .checkbox-wrapper input {
+            position: absolute;
+            width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .checkbox-box {
+            width: 20px; height: 20px;
+            border: 2px solid var(--slate-300);
+            border-radius: 4px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .checkbox-wrapper input:checked + .checkbox-box {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .checkbox-wrapper input:checked + .checkbox-box svg { display: block; }
+        .checkbox-box svg { display: none; width: 12px; height: 12px; color: white; }
+
+        .stats-text { font-size: 14px; color: var(--slate-600); }
+        .stats-text .count { font-weight: 600; color: var(--primary); }
+
+        .panel-filters {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .input, .select {
+            padding: 8px 12px;
+            border: 1px solid var(--slate-300);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input:focus, .select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .input { width: 256px; }
+
+        .panel-content {
+            padding: 16px 24px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .panel-footer {
+            padding: 16px 24px;
+            background: var(--green-50);
+            border-top: 1px solid var(--green-100);
+            border-radius: 0 0 12px 12px;
+            font-size: 14px;
+            color: var(--green-700);
+        }
+
+        .host-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .host-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(59,130,246,0.1); }
+        .host-card.selected { background: var(--blue-50); border-color: var(--primary); }
+        .host-card.expanded { background: var(--slate-50); border-color: var(--primary); }
+
+        .host-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+        }
+
+        .host-card-left { display: flex; align-items: center; gap: 16px; flex: 1; }
+        .host-card-info { flex: 1; min-width: 0; }
+        .host-card-name { font-family: monospace; font-size: 14px; font-weight: 500; }
+        .host-card-address { font-size: 14px; color: var(--slate-500); }
+
+        .host-card-actions { display: flex; align-items: center; gap: 16px; }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-slate { background: var(--slate-100); color: var(--slate-700); }
+        .badge-green { background: var(--green-100); color: var(--green-700); }
+        .badge-amber { background: var(--amber-100); color: var(--amber-700); }
+        .badge-blue { background: var(--blue-100); color: var(--blue-700); }
+        .badge-purple { background: var(--purple-100); color: var(--purple-700); }
+        .badge-red { background: var(--red-100); color: var(--red-700); }
+
+        .detail-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .detail-content.open { max-height: 2000px; }
+
+        .detail-inner {
+            padding: 16px;
+            border-top: 1px solid var(--slate-200);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .detail-host-info { display: flex; align-items: center; gap: 12px; }
+        .detail-host-icon { font-size: 24px; }
+        .detail-host-name { font-size: 18px; font-weight: 600; }
+        .detail-host-address { font-family: monospace; font-size: 14px; color: var(--slate-500); }
+
+        .detail-actions { display: flex; gap: 8px; }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            width: 100%;
+            max-width: 768px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal.modal-sm { max-width: 512px; }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--slate-50);
+        }
+
+        .modal-header-left { display: flex; align-items: center; gap: 12px; }
+        .modal-icon { font-size: 24px; }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-subtitle { font-size: 14px; color: var(--slate-500); }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--slate-400);
+            padding: 4px;
+        }
+
+        .modal-close:hover { color: var(--slate-600); }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--slate-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--slate-50);
+        }
+
+        .modal-footer-right { display: flex; gap: 8px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--slate-700); }
+        .form-input { width: 100%; padding: 10px 12px; border: 1px solid var(--slate-300); border-radius: 8px; font-size: 14px; outline: none; }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .form-hint { font-size: 12px; color: var(--slate-500); margin-top: 4px; }
+        .form-select { width: 100%; padding: 10px 12px; border: 1px solid var(--slate-300); border-radius: 8px; font-size: 14px; outline: none; background: white; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-address { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: start; }
+
+        .auth-fields { border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px; background: var(--slate-50); }
+        .auth-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: var(--amber-50);
+            border: 1px solid var(--amber-200);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--primary); }
+        .checkbox-label-text { font-size: 14px; font-weight: 500; color: var(--amber-800); }
+
+        .wizard-steps {
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--slate-200);
+            background: var(--slate-50);
+        }
+
+        .wizard-step-indicators {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .wizard-step-item { display: flex; align-items: center; gap: 8px; }
+
+        .wizard-step-circle {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--slate-300);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--slate-400);
+        }
+
+        .wizard-step-circle.active { border-color: var(--primary); color: var(--primary); }
+        .wizard-step-circle.completed { background: var(--success); border-color: var(--success); color: white; }
+
+        .wizard-step-label { font-size: 14px; color: var(--slate-500); }
+        .wizard-step-label.active { color: var(--primary); font-weight: 500; }
+
+        .wizard-step-line { flex: 1; height: 1px; background: var(--slate-200); margin: 0 8px; }
+
+        .wizard-content { padding: 24px; overflow-y: auto; flex: 1; }
+
+        .service-select-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .service-select-card:hover { border-color: var(--primary); }
+        .service-select-card.selected { background: var(--blue-50); border-color: var(--primary); }
+
+        .collection-select-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .collection-select-card:hover { border-color: var(--primary); }
+        .collection-select-card.selected { background: var(--blue-50); border-color: var(--primary); }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--slate-800);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-icon { font-size: 20px; }
+        .toast-title { font-size: 14px; font-weight: 600; }
+        .toast-message { font-size: 12px; color: var(--slate-400); }
+
+        .tab-buttons { display: flex; gap: 4px; padding: 12px 24px; border-bottom: 1px solid var(--slate-200); }
+        .tab-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            background: none;
+        }
+        .tab-btn.active { background: white; border: 1px solid var(--slate-200); color: var(--primary); }
+        .tab-btn:not(.active) { color: var(--slate-600); }
+        .tab-btn:not(.active):hover { background: var(--slate-50); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--slate-200); background: var(--slate-50); }
+        .stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+        .stat-card { background: white; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px; }
+        .stat-label { font-size: 14px; color: var(--slate-500); margin-bottom: 4px; }
+        .stat-value { font-size: 24px; font-weight: 700; color: var(--slate-800); }
+        .stat-value.purple { color: var(--purple-600); }
+        .stat-value.green { color: var(--success); }
+        .stat-value.amber { color: var(--warning); }
+
+        .service-list-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-list-left { display: flex; align-items: center; gap: 16px; }
+        .service-list-icon { font-size: 32px; }
+        .service-list-info { }
+        .service-list-name { font-weight: 600; font-size: 16px; }
+        .service-list-meta { font-size: 14px; color: var(--slate-500); margin-top: 4px; }
+        .service-list-meta code { font-family: monospace; }
+        .service-list-actions { display: flex; gap: 8px; }
+
+        .collection-list-card {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .collection-list-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .collection-list-left { display: flex; align-items: flex-start; gap: 12px; flex: 1; }
+        .collection-icon { font-size: 32px; }
+        .collection-name { font-weight: 600; font-size: 16px; }
+        .collection-desc { font-size: 14px; color: var(--slate-500); margin-top: 4px; }
+        .collection-services { font-size: 12px; color: var(--slate-400); margin-top: 8px; }
+
+        .delete-modal-header {
+            background: var(--red-50);
+            border-bottom-color: var(--red-100);
+        }
+
+        .delete-modal-icon { font-size: 24px; }
+        .delete-modal-title { font-size: 18px; font-weight: 600; color: var(--slate-800); }
+        .delete-modal-message { font-size: 14px; color: var(--slate-600); margin-top: 4px; }
+
+        .delete-details {
+            background: var(--red-50);
+            border: 1px solid var(--red-200);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .delete-details-item { font-size: 14px; margin-bottom: 4px; }
+        .delete-warning { color: var(--red-700); margin-top: 8px; font-size: 14px; }
+
+        .empty-state { text-align: center; padding: 32px; color: var(--slate-500); }
+
+        .hidden { display: none !important; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .gap-2 { gap: 8px; }
+        .gap-3 { gap: 12px; }
+        .gap-4 { gap: 16px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-4 { margin-top: 16px; }
+        .ml-2 { margin-left: 8px; }
+        .text-sm { font-size: 14px; }
+        .text-xs { font-size: 12px; }
+        .font-mono { font-family: monospace; }
+        .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; }
+        .text-slate-400 { color: var(--slate-400); }
+        .text-slate-500 { color: var(--slate-500); }
+        .text-slate-600 { color: var(--slate-600); }
+        .text-slate-700 { color: var(--slate-700); }
+        .text-slate-800 { color: var(--slate-800); }
+        .text-primary { color: var(--primary); }
+        .text-success { color: var(--success); }
+        .text-danger { color: var(--danger); }
+        .text-amber-600 { color: var(--amber-700); }
+        .text-amber-700 { color: var(--amber-700); }
+        .text-amber-800 { color: var(--amber-800); }
+        .bg-slate-50 { background: var(--slate-50); }
+        .bg-slate-100 { background: var(--slate-100); }
+        .bg-blue-50 { background: var(--blue-50); }
+        .bg-blue-100 { background: var(--blue-100); }
+        .bg-red-50 { background: var(--red-50); }
+        .bg-amber-50 { background: var(--amber-50); }
+        .border { border: 1px solid var(--slate-200); }
+        .border-b { border-bottom: 1px solid var(--slate-200); }
+        .border-t { border-top: 1px solid var(--slate-200); }
+        .rounded-lg { border-radius: 8px; }
+        .rounded { border-radius: 4px; }
+        .p-3 { padding: 12px; }
+        .p-4 { padding: 16px; }
+        .px-3 { padding-left: 12px; padding-right: 12px; }
+        .py-1 { padding-top: 4px; padding-bottom: 4px; }
+        .py-2 { padding-top: 8px; padding-bottom: 8px; }
+        .w-full { width: 100%; }
+        .max-h-64 { max-height: 256px; }
+        .overflow-y-auto { overflow-y: auto; }
+        .space-y-2 > * + * { margin-top: 8px; }
+        .space-y-3 > * + * { margin-top: 12px; }
+        .space-y-4 > * + * { margin-top: 16px; }
+
+        /* Service item in host attachments */
+        .service-item {
+            background: white;
+            border: 1px solid var(--slate-200);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .service-item-header { display: flex; justify-content: space-between; align-items: center; }
+        .service-item-left { display: flex; align-items: center; gap: 12px; }
+        .service-icon { font-size: 24px; }
+        .service-name { font-weight: 500; }
+        .service-target { font-family: monospace; font-size: 14px; color: var(--slate-500); }
+        .service-item-actions { display: flex; align-items: center; gap: 8px; }
+
+        .port-override-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--slate-200);
+            flex-wrap: wrap;
+        }
+        .port-override-label { font-size: 13px; color: var(--slate-500); white-space: nowrap; }
+        .port-override-input {
+            width: 80px;
+            padding: 6px 10px;
+            border: 1px solid var(--slate-300);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+            outline: none;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .port-override-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .port-override-hint { font-size: 12px; color: var(--slate-400); }
+        .port-override-pending { border-color: var(--warning) !important; background: var(--amber-50) !important; }
+
+        /* Address type badge */
+        .addr-type-ip { background: var(--blue-100); color: var(--blue-700); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-right: 6px; }
+        .addr-type-fqdn { background: var(--green-100); color: var(--green-700); font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-right: 6px; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-left">
+                <span class="nav-brand">🖥️ MARS</span>
+                <div class="nav-tabs">
+                    <div class="nav-item active" onclick="switchSection('hosts')" id="nav-hosts">Хосты</div>
+                    <div class="nav-item" onclick="switchSection('services')" id="nav-services">🔌 Сервисы</div>
+                    <div class="nav-item" onclick="switchSection('collections')" id="nav-collections">📦 Коллекции</div>
+                </div>
+            </div>
+            <div class="avatar">A</div>
+        </div>
+    </nav>
+
+    <!-- HOSTS SECTION -->
+    <div id="section-hosts" class="section-content active">
+        <div class="main-container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">Управление Хостами</h1>
+                    <p class="page-subtitle">Присоединение сервисов и коллекций к хостам</p>
+                </div>
+                <button class="btn btn-primary" onclick="openHostModal()">➕ Создать хост</button>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-header-icon">🖥️</span>
+                    <p class="panel-header-text"><strong>Контекст: Хост</strong> — Присоединение сервисов/коллекций.</p>
+                </div>
+                <div class="panel-toolbar">
+                    <div class="toolbar-left">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="select-all" onchange="toggleSelectAll(this)">
+                            <div class="checkbox-box">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                        </div>
+                        <span class="stats-text">Выбрано: <span class="count" id="selected-count">0</span> из <span class="count" id="total-count">0</span></span>
+                    </div>
+                    <div class="toolbar-right">
+                        <button id="attach-svc-btn" class="btn btn-sm btn-ghost btn-disabled" onclick="openAttachWizard('service')">⚡ <span id="attach-svc-text">Присоединить сервис</span></button>
+                        <button id="attach-col-btn" class="btn btn-sm btn-ghost btn-disabled" onclick="openAttachWizard('collection')">📦 <span id="attach-col-text">Присоединить коллекцию</span></button>
+                        <button id="bulk-delete-hosts-btn" class="btn btn-sm btn-danger hidden" onclick="openBulkDeleteHostsModal()">🗑️ <span>Удалить</span></button>
+                    </div>
+                </div>
+                <div class="panel-filters">
+                    <span class="text-slate-500">🔍</span>
+                    <input type="text" id="host-search" class="input" placeholder="Поиск..." oninput="renderHosts()">
+                    <select id="host-segment" class="select" onchange="renderHosts()">
+                        <option value="all">Все сегменты</option>
+                        <option value="prod-dmz">Production DMZ</option>
+                        <option value="analytics">Analytics</option>
+                        <option value="k8s">K8s Cluster</option>
+                    </select>
+                </div>
+                <div class="panel-content" id="hosts-list"></div>
+                <div class="panel-footer">💡 <strong>Иерархия:</strong> Сервис/Коллекция → Хост (Переопределение порта) → Attachment</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICES SECTION -->
+    <div id="section-services" class="section-content">
+        <div class="main-container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">🔌 Библиотека Сервисов</h1>
+                    <p class="page-subtitle">Шаблоны для сбора метрик. Настрой один раз — применяй везде.</p>
+                </div>
+                <button class="btn btn-primary" onclick="openServiceModal()">➕ Создать сервис</button>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-header-icon">📚</span>
+                    <div>
+                        <p class="panel-header-text"><strong>Что такое Сервис?</strong></p>
+                        <p style="font-size:14px;color:var(--green-700);margin-top:4px;">Шаблон конфигурации для сбора метрик. Порт по умолчанию можно переопределить для каждого хоста.</p>
+                    </div>
+                </div>
+                <div class="tab-buttons">
+                    <button class="tab-btn active" id="svc-tab-my" onclick="switchServiceTab('my')">🔒 Мои сервисы</button>
+                    <button class="tab-btn" id="svc-tab-public" onclick="switchServiceTab('public')">🌍 Публичные шаблоны</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Мои сервисы</div><div class="stat-value" id="svc-count-my">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Публичные шаблоны</div><div class="stat-value purple" id="svc-count-public">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value green" id="svc-count-used">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Всего портов</div><div class="stat-value amber" id="svc-count-ports">0</div></div>
+                </div>
+                <div class="panel-content" id="services-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLLECTIONS SECTION -->
+    <div id="section-collections" class="section-content">
+        <div class="main-container">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">📦 Библиотека Коллекций</h1>
+                    <p class="page-subtitle">Группы сервисов для пакетного присоединения</p>
+                </div>
+                <button class="btn btn-primary" onclick="openCollectionModal()">➕ Создать коллекцию</button>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-header-icon">📚</span>
+                    <div>
+                        <p class="panel-header-text"><strong>Что такое Коллекция?</strong></p>
+                        <p style="font-size:14px;color:var(--green-700);margin-top:4px;">Набор сервисов. Не хранит настройки портов — только ссылается на сервисы.</p>
+                    </div>
+                </div>
+                <div class="stats-grid stats-grid-3">
+                    <div class="stat-card"><div class="stat-label">Всего коллекций</div><div class="stat-value" id="col-count">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value green" id="col-count-used">0</div></div>
+                    <div class="stat-card"><div class="stat-label">Среднее сервисов</div><div class="stat-value" id="col-count-avg">0</div></div>
+                </div>
+                <div class="panel-content" id="collections-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOST CREATION MODAL -->
+    <div id="host-modal" class="modal-overlay hidden fade-in">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="modal-icon">🖥️</span>
+                    <div>
+                        <h3 class="modal-title">Создать хост</h3>
+                        <p class="modal-subtitle">Паспорт объекта</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeHostModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Имя хоста *</label>
+                    <input type="text" id="host-name" class="form-input" placeholder="web-prod-01" oninput="validateHostName(this.value)">
+                    <div id="host-name-val" style="font-size:12px;margin-top:4px;min-height:16px;font-weight:500;"></div>
+                    <p class="form-hint">💡 Уникальное имя хоста в системе.</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Адрес хоста (FQDN / IP) *</label>
+                    <div class="form-row-address">
+                        <select id="host-addr-type" class="form-select" onchange="validateHostAddress(document.getElementById('host-address').value)">
+                            <option value="ip">🌐 IP-адрес</option>
+                            <option value="fqdn">🔗 FQDN</option>
+                        </select>
+                        <input type="text" id="host-address" class="form-input" placeholder="10.0.1.50 или server.example.com" oninput="validateHostAddress(this.value)">
+                    </div>
+                    <div id="host-address-val" style="font-size:12px;margin-top:4px;min-height:16px;font-weight:500;"></div>
+                    <p class="form-hint">💡 Введите IP-адрес (например, 10.0.1.50) или FQDN (например, server.example.com).</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Сегмент *</label>
+                    <select id="host-segment-sel" class="form-select" onchange="checkHostForm()">
+                        <option value="">Выберите сегмент...</option>
+                        <option value="prod-dmz">Production DMZ</option>
+                        <option value="analytics">Analytics</option>
+                        <option value="k8s">K8s Cluster</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeHostModal()">Отмена</button>
+                <button id="save-host-btn" class="btn btn-primary" onclick="saveHost()" disabled>Создать хост</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICE CREATION/EDIT MODAL -->
+    <div id="service-modal" class="modal-overlay hidden fade-in">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="modal-icon" id="svc-modal-icon">🔌</span>
+                    <div>
+                        <h3 class="modal-title" id="svc-modal-title">Создание сервиса</h3>
+                        <p class="modal-subtitle" id="svc-modal-subtitle">Настрой один раз — применяй везде.</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeServiceModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group" style="grid-column:span 2;">
+                        <label class="form-label">Название *</label>
+                        <input type="text" id="svc-form-name" class="form-input" placeholder="Production Nginx Monitoring">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Тип агента *</label>
+                        <select id="svc-form-agent" class="form-select" onchange="toggleAuthFields()">
+                            <option value="ExporterScrape">ExporterScrape (HTTP)</option>
+                            <option value="SQL">SQL Agent</option>
+                            <option value="BlackBox">BlackBox (TCP/ICMP)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Иконка</label>
+                        <select id="svc-form-icon" class="form-select">
+                            <option value="🌐"> Web</option>
+                            <option value="🐘"> Database</option>
+                            <option value="🔴"> Cache</option>
+                            <option value="📊"> Monitoring</option>
+                            <option value="🐰"> Queue</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Порт по умолчанию *</label>
+                    <input type="number" id="svc-form-port" class="form-input" placeholder="80" value="80" min="1" max="65535">
+                    <p class="form-hint">💡 Порт по умолчанию для этого сервиса. Можно переопределить для каждого хоста.</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Путь к метрикам</label>
+                    <input type="text" id="svc-form-metrics" class="form-input" value="/metrics" style="font-family:monospace;">
+                </div>
+                <div id="auth-fields" class="hidden auth-fields">
+                    <h4 class="auth-title">🔐 Аутентификация</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="svc-form-username" class="form-input" placeholder="monitor">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" id="svc-form-password" class="form-input" placeholder="••••••">
+                        </div>
+                    </div>
+                </div>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="svc-form-public">
+                    <span class="checkbox-label-text">Опубликовать как публичный шаблон</span>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeServiceModal()">Отмена</button>
+                <div style="display:flex;gap:8px;">
+                    <button id="svc-btn-template" class="btn btn-outline" onclick="saveService(true)">🌍 Шаблон</button>
+                    <button onclick="saveService(false)" class="btn btn-primary" id="save-svc-btn" disabled>Сохранить сервис</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COLLECTION CREATION MODAL -->
+    <div id="collection-modal" class="modal-overlay hidden fade-in">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="modal-icon">📦</span>
+                    <div>
+                        <h3 class="modal-title">Создание коллекции</h3>
+                        <p class="modal-subtitle">Выберите сервисы из библиотеки</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeCollectionModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Название *</label>
+                    <input type="text" id="col-form-name" class="form-input" placeholder="Web Stack">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание</label>
+                    <textarea id="col-form-desc" class="form-input" rows="2" placeholder="Стандартный стек"></textarea>
+                </div>
+                <div class="space-y-4">
+                    <h4 class="text-sm font-semibold">🔧 Состав коллекции:</h4>
+                    <div id="col-services-list" style="max-height:256px;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px;padding:12px;background:var(--slate-50);"></div>
+                    <button class="btn btn-outline w-full" onclick="openServicePickerForCollection()" style="border-style:dashed;">➕ Добавить сервис</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeCollectionModal()">Отмена</button>
+                <button onclick="saveCollection()" class="btn btn-primary" id="save-col-btn" disabled>Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SERVICE PICKER FOR COLLECTION -->
+    <div id="service-picker-modal" class="modal-overlay hidden fade-in">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 class="modal-title">Выберите сервис</h3>
+                <button class="modal-close" onclick="closeServicePicker()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div style="padding:16px;">
+                <input type="text" id="svc-picker-search" class="form-input" placeholder="Поиск..." oninput="renderServicePickerList()">
+            </div>
+            <div id="svc-picker-list" style="padding:0 16px 16px;max-height:256px;overflow-y:auto;"></div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeServicePicker()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ATTACH WIZARD MODAL -->
+    <div id="attach-wizard-modal" class="modal-overlay hidden fade-in">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-header-left">
+                    <span class="modal-icon" id="att-icon">⚡</span>
+                    <div>
+                        <h3 class="modal-title" id="att-title">Присоединение</h3>
+                        <p class="modal-subtitle" id="att-subtitle">-</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeAttachWizard()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="wizard-steps">
+                <div class="wizard-step-indicators">
+                    <div class="wizard-step-item">
+                        <div id="att-step-1" class="wizard-step-circle active">1</div>
+                        <span class="wizard-step-label active">Выбор</span>
+                    </div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step-item">
+                        <div id="att-step-2" class="wizard-step-circle">2</div>
+                        <span class="wizard-step-label">Настройки</span>
+                    </div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step-item">
+                        <div id="att-step-3" class="wizard-step-circle">3</div>
+                        <span class="wizard-step-label">Auth</span>
+                    </div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step-item">
+                        <div id="att-step-4" class="wizard-step-circle">4</div>
+                        <span class="wizard-step-label">Превью</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wizard-content" id="att-wizard-content"></div>
+            <div class="modal-footer">
+                <button id="att-back" class="btn btn-ghost hidden" onclick="prevAttachStep()">← Назад</button>
+                <div style="flex:1;"></div>
+                <button class="btn btn-ghost" onclick="closeAttachWizard()">Отмена</button>
+                <button id="att-next" class="btn btn-primary" onclick="nextAttachStep()">Далее →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="delete-confirm-modal" class="modal-overlay hidden fade-in">
+        <div class="modal modal-sm">
+            <div class="modal-header delete-modal-header">
+                <div class="modal-header-left">
+                    <span class="delete-modal-icon">⚠️</span>
+                    <div>
+                        <h3 class="delete-modal-title" id="delete-modal-title">Подтверждение удаления</h3>
+                        <p class="delete-modal-message" id="delete-modal-message">Вы уверены, что хотите удалить?</p>
+                    </div>
+                </div>
+                <button class="modal-close" onclick="closeDeleteModal()">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="delete-modal-details" class="space-y-2"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeDeleteModal()">Отмена</button>
+                <button id="delete-confirm-btn" class="btn btn-danger" onclick="executeDelete()">Удалить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div id="toast" class="toast">
+        <span class="toast-icon">✓</span>
+        <div>
+            <div class="toast-title">Успешно</div>
+            <div class="toast-message" id="toast-msg">-</div>
+        </div>
+    </div>
+
+    <script>
+        // ===== STATE =====
+        let hosts = [];
+        let services = [];
+        let collections = [];
+        let selectedHostIds = new Set();
+        let expandedHostId = null;
+        let currentAttachHostId = null;
+        let pendingDeleteAction = null;
+        let attachStep = 1;
+        let attachType = 'service';
+        let attachSelectedItem = null;
+        let attachAuthValues = [];
+        let collectionServiceIds = [];
+        let isEditingService = false;
+        let editingServiceId = null;
+        let serviceTab = 'my';
+
+        // Pending port overrides: key = "hostId-attachmentIndex", value = pending value (null means no change)
+        let pendingPortOverrides = {};
+
+        // ===== INIT =====
+        function init() {
+            services = [
+                { id: 'svc-1', name: 'PostgreSQL', agent: 'SQL', icon: '🐘', defaultPort: 5432, metrics: '/metrics', auth: { username: 'monitor', password: '' }, isTemplate: false, usedBy: 12 },
+                { id: 'svc-2', name: 'Nginx', agent: 'ExporterScrape', icon: '🌐', defaultPort: 80, metrics: '/nginx_metrics', auth: null, isTemplate: false, usedBy: 24 },
+                { id: 'svc-3', name: 'Redis Cache', agent: 'ExporterScrape', icon: '🔴', defaultPort: 6379, metrics: '/metrics', auth: null, isTemplate: false, usedBy: 8 },
+                { id: 'tpl-1', name: 'Nginx Standard', agent: 'ExporterScrape', icon: '🌐', defaultPort: 80, metrics: '/metrics', auth: null, isTemplate: true, usedBy: 347, team: 'Team-Infra', views: 347 },
+                { id: 'tpl-2', name: 'PostgreSQL Advanced', agent: 'SQL', icon: '🐘', defaultPort: 5432, metrics: '/metrics', auth: null, isTemplate: true, usedBy: 134, team: 'Team-Data', views: 512 },
+                { id: 'tpl-3', name: 'RabbitMQ', agent: 'BlackBox', icon: '🐰', defaultPort: 15672, metrics: '/metrics', auth: { username: '', password: '' }, isTemplate: true, usedBy: 45, team: 'Team-Infra', views: 189 }
+            ];
+
+            collections = [
+                { id: 'col-1', name: 'Web Stack', description: 'Nginx + PostgreSQL', serviceIds: ['svc-1', 'svc-2'], usedBy: 12 },
+                { id: 'col-2', name: 'Cache Stack', description: 'Redis + Nginx', serviceIds: ['svc-2', 'svc-3'], usedBy: 8 }
+            ];
+
+            hosts = [
+                { id: 1, name: 'web-prod-01', addressType: 'ip', address: '10.0.1.50', segment: 'prod-dmz', status: 'UP', attachments: [
+                    { serviceId: 'svc-1', auth: { username: 'admin', password: 'secret' }, portOverride: null },
+                    { serviceId: 'svc-2', auth: null, portOverride: null }
+                ]},
+                { id: 2, name: 'db-analytics', addressType: 'fqdn', address: 'db-analytics.internal.example.com', segment: 'analytics', status: 'WARN', attachments: [
+                    { serviceId: 'svc-1', auth: { username: 'admin', password: 'pass123' }, portOverride: null }
+                ]},
+                { id: 3, name: 'cache-01', addressType: 'ip', address: '192.168.1.10', segment: 'k8s', status: 'UP', attachments: [
+                    { serviceId: 'svc-3', auth: null, portOverride: null }
+                ]}
+            ];
+
+            renderHosts();
+            updateServicesStats();
+            updateCollectionsStats();
+        }
+
+        // Get effective port for an attachment
+        function getEffectivePort(attachment, service) {
+            return attachment.portOverride || service.defaultPort;
+        }
+
+        // Calculate target address
+        function calculateTarget(host, attachment, service) {
+            var port = getEffectivePort(attachment, service);
+            var base = host.address;
+            return base + ':' + port;
+        }
+
+        // ===== DELETE MODAL =====
+        function openDeleteModal(title, message, detailsHtml, action) {
+            pendingDeleteAction = action;
+            document.getElementById('delete-modal-title').textContent = title;
+            document.getElementById('delete-modal-message').textContent = message;
+            document.getElementById('delete-modal-details').innerHTML = detailsHtml;
+            document.getElementById('delete-confirm-modal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-confirm-modal').classList.add('hidden');
+            pendingDeleteAction = null;
+        }
+
+        function executeDelete() {
+            if (pendingDeleteAction) pendingDeleteAction();
+            closeDeleteModal();
+        }
+
+        // ===== RENDER HOSTS =====
+        function renderHosts() {
+            var search = document.getElementById('host-search').value.toLowerCase();
+            var seg = document.getElementById('host-segment').value;
+            var filtered = hosts.filter(function(h) {
+                var addrMatch = h.address.toLowerCase().includes(search);
+                var nameMatch = h.name.toLowerCase().includes(search);
+                return (nameMatch || addrMatch) && (seg === 'all' || h.segment === seg);
+            });
+
+            document.getElementById('selected-count').textContent = selectedHostIds.size;
+            document.getElementById('total-count').textContent = filtered.length;
+
+            var list = document.getElementById('hosts-list');
+            list.innerHTML = '';
+            if (filtered.length === 0) { list.innerHTML = '<div class="empty-state">Хосты не найдены</div>'; return; }
+
+            filtered.forEach(function(h) {
+                var isExpanded = expandedHostId === h.id;
+                var isSelected = selectedHostIds.has(h.id);
+                var addrBadge = h.addressType === 'ip' 
+                    ? '<span class="addr-type-ip">IP</span>' 
+                    : '<span class="addr-type-fqdn">FQDN</span>';
+
+                var card = document.createElement('div');
+                card.className = 'host-card' + (isSelected ? ' selected' : '') + (isExpanded ? ' expanded' : '');
+                card.innerHTML =
+                    '<div class="host-card-header">' +
+                        '<div class="host-card-left">' +
+                            '<div class="checkbox-wrapper" onclick="event.stopPropagation()">' +
+                                '<input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onchange="toggleHostSelection(' + h.id + ')">' +
+                                '<div class="checkbox-box"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>' +
+                            '</div>' +
+                            '<div class="host-card-info">' +
+                                '<div class="host-card-name">' + h.name + '</div>' +
+                                '<div class="host-card-address">' + addrBadge + h.address + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="host-card-actions">' +
+                            '<span class="badge badge-slate">' + h.attachments.length + ' сервисов</span>' +
+                            '<span class="badge ' + (h.status === 'UP' ? 'badge-green' : 'badge-amber') + '">' + (h.status === 'UP' ? '🟢 UP' : '🟡 WARN') + '</span>' +
+                            '<button class="btn btn-xs btn-ghost" onclick="toggleHostExpand(' + h.id + ')">' + (isExpanded ? '▲ Свернуть' : '→ Детали') + '</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="detail-content ' + (isExpanded ? 'open' : '') + '">' +
+                        '<div class="detail-inner">' +
+                            '<div class="detail-header">' +
+                                '<div class="detail-host-info">' +
+                                    '<span class="detail-host-icon">🖥️</span>' +
+                                    '<div><div class="detail-host-name">' + h.name + '</div><div class="detail-host-address">' + addrBadge + ' ' + h.address + '</div></div>' +
+                                '</div>' +
+                                '<div class="detail-actions">' +
+                                    '<button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="openDeleteHostModal(' + h.id + ')">🗑️ Удалить хост</button>' +
+                                '</div>' +
+                            '</div>' +
+                            '<div id="host-tab-content-' + h.id + '"></div>' +
+                        '</div>' +
+                    '</div>';
+                list.appendChild(card);
+                if (isExpanded) renderHostTabContent(h);
+            });
+            updateHostButtons();
+        }
+
+        function renderHostTabContent(h) {
+            var container = document.getElementById('host-tab-content-' + h.id);
+            if (!container) return;
+
+            if (h.attachments.length === 0) {
+                container.innerHTML = '<p style="font-size:14px;color:var(--slate-500);font-style:italic;">Нет присоединённых сервисов.</p>';
+                return;
+            }
+            var html = '<div class="space-y-3">';
+            h.attachments.forEach(function(att, idx) {
+                var svc = services.find(function(s) { return s.id === att.serviceId; });
+                if (!svc) return;
+                var target = calculateTarget(h, att, svc);
+                var effectivePort = getEffectivePort(att, svc);
+                var isOverridden = att.portOverride !== null;
+                var pendingKey = h.id + '-' + idx;
+                var hasPending = pendingPortOverrides.hasOwnProperty(pendingKey);
+                var pendingValue = pendingPortOverrides[pendingKey];
+                var inputValue = hasPending ? (pendingValue !== null ? pendingValue : '') : effectivePort;
+                var inputClass = 'port-override-input' + (hasPending && pendingValue !== null ? ' port-override-pending' : '');
+
+                html += '<div class="service-item">' +
+                    '<div class="service-item-header">' +
+                        '<div class="service-item-left">' +
+                            '<span class="service-icon">' + svc.icon + '</span>' +
+                            '<div>' +
+                                '<div class="service-name">' + svc.name + '</div>' +
+                                '<div class="service-target">Target: ' + target + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="service-item-actions">' +
+                            (svc.auth ? '<span style="font-size:12px;color:var(--amber-700);">🔐 Auth</span>' : '<span style="font-size:12px;color:var(--slate-500);">🔓 No Auth</span>') +
+                            '<button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-weight:500;" onclick="detachService(' + h.id + ', ' + idx + ')">🔌 Отсоединить</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="port-override-row">' +
+                        '<span class="port-override-label">Порт:</span>' +
+                        '<input type="number" class="' + inputClass + '" value="' + inputValue + '" ' +
+                            'data-host="' + h.id + '" data-idx="' + idx + '" ' +
+                            'min="1" max="65535" ' +
+                            'placeholder="' + svc.defaultPort + '" ' +
+                            'title="Оставьте пустым для порта по умолчанию (' + svc.defaultPort + ')">' +
+                        '<button class="btn btn-xs btn-success" onclick="applyPortOverride(' + h.id + ', ' + idx + ', this)" style="padding:4px 10px;font-size:11px;">✓ Применить</button>' +
+                        '<button class="btn btn-xs btn-outline" onclick="resetPortOverride(' + h.id + ', ' + idx + ')" style="padding:4px 10px;font-size:11px;">↺ Сбросить</button>' +
+                        '<span class="port-override-hint">' + (isOverridden ? '(переопределён: ' + att.portOverride + ')' : '(по умолчанию: ' + svc.defaultPort + ')') + '</span>' +
+                    '</div>' +
+                '</div>';
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ===== PORT OVERRIDE FUNCTIONS =====
+        function applyPortOverride(hostId, attachmentIndex, btnEl) {
+            var h = hosts.find(function(x) { return x.id === hostId; });
+            if (!h || !h.attachments[attachmentIndex]) return;
+            
+            var input = btnEl.previousElementSibling;
+            var val = input.value.trim();
+            
+            if (val === '' || val === null) {
+                h.attachments[attachmentIndex].portOverride = null;
+            } else {
+                var num = parseInt(val);
+                if (isNaN(num) || num < 1 || num > 65535) {
+                    showToast('Некорректное значение порта');
+                    return;
+                }
+                h.attachments[attachmentIndex].portOverride = num;
+            }
+            
+            delete pendingPortOverrides[hostId + '-' + attachmentIndex];
+            renderHostTabContent(h);
+            showToast('Порт обновлён');
+        }
+
+        function resetPortOverride(hostId, attachmentIndex) {
+            var h = hosts.find(function(x) { return x.id === hostId; });
+            if (!h || !h.attachments[attachmentIndex]) return;
+            
+            h.attachments[attachmentIndex].portOverride = null;
+            delete pendingPortOverrides[hostId + '-' + attachmentIndex];
+            renderHostTabContent(h);
+            showToast('Порт сброшен к значению по умолчанию');
+        }
+
+        // ===== HOST CRUD & DELETE =====
+        function openHostModal() {
+            document.getElementById('host-modal').classList.remove('hidden');
+            document.getElementById('host-name').value = '';
+            document.getElementById('host-addr-type').value = 'ip';
+            document.getElementById('host-address').value = '';
+            document.getElementById('host-segment-sel').value = '';
+            document.getElementById('host-name-val').textContent = '';
+            document.getElementById('host-address-val').textContent = '';
+            document.getElementById('save-host-btn').disabled = true;
+        }
+        function closeHostModal() { document.getElementById('host-modal').classList.add('hidden'); }
+
+        var hostValTimeout = null;
+        function validateHostName(val) {
+            var msg = document.getElementById('host-name-val');
+            var btn = document.getElementById('save-host-btn');
+            clearTimeout(hostValTimeout);
+            if (!val.trim()) { msg.textContent = ''; btn.disabled = true; return; }
+            if (!/^[a-z0-9-]+$/i.test(val)) { msg.textContent = '❌ Только латиница, цифры и дефис'; msg.style.color = 'var(--danger)'; btn.disabled = true; return; }
+            msg.textContent = '⏳ Проверка...'; msg.style.color = 'var(--slate-500)';
+            hostValTimeout = setTimeout(function() {
+                var exists = hosts.some(function(h) { return h.name.toLowerCase() === val.toLowerCase(); });
+                if (exists) { msg.textContent = '❌ Хост "' + val + '" уже существует'; msg.style.color = 'var(--danger)'; btn.disabled = true; }
+                else { msg.textContent = '✅ Имя уникально'; msg.style.color = 'var(--success)'; checkHostForm(); }
+            }, 500);
+        }
+
+        function validateHostAddress(val) {
+            var msg = document.getElementById('host-address-val');
+            var btn = document.getElementById('save-host-btn');
+            var addrType = document.getElementById('host-addr-type').value;
+            
+            if (!val.trim()) { 
+                msg.textContent = '⚠️ Адрес обязателен'; 
+                msg.style.color = 'var(--warning)'; 
+                btn.disabled = true; 
+                return; 
+            }
+            
+            if (addrType === 'ip') {
+                if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(val)) { 
+                    msg.textContent = '⚠️ Неверный формат IP-адреса'; 
+                    msg.style.color = 'var(--warning)'; 
+                    btn.disabled = true;
+                    return;
+                }
+            } else {
+                if (!/^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/.test(val)) {
+                    msg.textContent = '⚠️ Неверный формат FQDN';
+                    msg.style.color = 'var(--warning)';
+                    btn.disabled = true;
+                    return;
+                }
+            }
+            
+            msg.textContent = '✅ Адрес корректен';
+            msg.style.color = 'var(--success)';
+            checkHostForm();
+        }
+
+        function checkHostForm() {
+            var nameOk = /^[a-z0-9-]+$/i.test(document.getElementById('host-name').value) && !hosts.some(function(h) { return h.name.toLowerCase() === document.getElementById('host-name').value.toLowerCase(); });
+            var addrOk = document.getElementById('host-address').value.trim() !== '';
+            var segOk = document.getElementById('host-segment-sel').value !== '';
+            document.getElementById('save-host-btn').disabled = !(nameOk && addrOk && segOk);
+        }
+
+        function saveHost() {
+            var name = document.getElementById('host-name').value.trim();
+            var addrType = document.getElementById('host-addr-type').value;
+            var address = document.getElementById('host-address').value.trim();
+            var segment = document.getElementById('host-segment-sel').value;
+            if (!name || !address || !segment) return;
+            hosts.push({ id: Date.now(), name: name, addressType: addrType, address: address, segment: segment, status: 'UP', attachments: [] });
+            closeHostModal();
+            renderHosts();
+            showToast('Хост ' + name + ' создан');
+        }
+
+        function openDeleteHostModal(id) {
+            var h = hosts.find(function(x) { return x.id === id; });
+            if (!h) return;
+            openDeleteModal(
+                'Удаление хоста',
+                'Вы уверены, что хотите удалить хост "' + h.name + '"?',
+                '<div class="delete-details">' +
+                    '<div class="delete-details-item">🖥️ <strong>' + h.name + '</strong> (' + h.address + ')</div>' +
+                    '<div class="delete-details-item">Присоединённых сервисов: ' + h.attachments.length + '</div>' +
+                    '<div class="delete-warning">⚠️ Все присоединённые сервисы будут отсоединены.</div>' +
+                '</div>',
+                function() {
+                    hosts = hosts.filter(function(x) { return x.id !== id; });
+                    if (selectedHostIds.has(id)) selectedHostIds.delete(id);
+                    if (expandedHostId === id) expandedHostId = null;
+                    renderHosts();
+                    showToast('Хост "' + h.name + '" удалён');
+                }
+            );
+        }
+
+        function openBulkDeleteHostsModal() {
+            if (selectedHostIds.size === 0) return;
+            var selectedHosts = hosts.filter(function(h) { return selectedHostIds.has(h.id); });
+            var details = selectedHosts.map(function(h) { return '<div class="delete-details-item">🖥️ ' + h.name + ' (' + h.address + ')</div>'; }).join('');
+            openDeleteModal(
+                'Удаление хостов',
+                'Вы уверены, что хотите удалить ' + selectedHosts.length + ' хост(ов)?',
+                '<div class="space-y-2">' + details + '</div><div class="delete-warning">⚠️ Все присоединённые сервисы будут отсоединены.</div>',
+                function() {
+                    hosts = hosts.filter(function(h) { return !selectedHostIds.has(h.id); });
+                    var count = selectedHostIds.size;
+                    selectedHostIds.clear();
+                    expandedHostId = null;
+                    renderHosts();
+                    showToast('Удалено ' + count + ' хост(ов)');
+                }
+            );
+        }
+
+        // ===== DETACH SERVICE =====
+        function detachService(hostId, attachmentIndex) {
+            var h = hosts.find(function(x) { return x.id === hostId; });
+            if (!h || !h.attachments[attachmentIndex]) return;
+            var svc = services.find(function(s) { return s.id === h.attachments[attachmentIndex].serviceId; });
+            var svcName = svc ? svc.name : 'Сервис';
+            
+            h.attachments.splice(attachmentIndex, 1);
+            
+            var pendingKey = hostId + '-' + attachmentIndex;
+            delete pendingPortOverrides[pendingKey];
+            for (var i = attachmentIndex + 1; i < h.attachments.length + 1; i++) {
+                var oldKey = hostId + '-' + i;
+                var newKey = hostId + '-' + (i - 1);
+                if (pendingPortOverrides.hasOwnProperty(oldKey)) {
+                    pendingPortOverrides[newKey] = pendingPortOverrides[oldKey];
+                    delete pendingPortOverrides[oldKey];
+                }
+            }
+            
+            if (expandedHostId === hostId) {
+                renderHostTabContent(h);
+            }
+            renderHosts();
+            showToast('Сервис "' + svcName + '" отсоединён от ' + h.name);
+        }
+
+        // ===== SERVICES =====
+        function switchServiceTab(tab) {
+            serviceTab = tab;
+            document.getElementById('svc-tab-my').className = 'tab-btn' + (tab === 'my' ? ' active' : '');
+            document.getElementById('svc-tab-public').className = 'tab-btn' + (tab === 'public' ? ' active' : '');
+            renderServices();
+        }
+
+        function renderServices() {
+            var list = document.getElementById('services-list');
+            var filtered = services.filter(function(s) { return serviceTab === 'my' ? !s.isTemplate : s.isTemplate; });
+            if (filtered.length === 0) { list.innerHTML = '<div class="empty-state">Нет сервисов</div>'; return; }
+            var html = '';
+            filtered.forEach(function(svc) {
+                html += '<div class="service-list-card">' +
+                    '<div class="service-list-left">' +
+                        '<span class="service-list-icon">' + svc.icon + '</span>' +
+                        '<div class="service-list-info">' +
+                            '<div class="service-list-name">' + svc.name + ' ' + (svc.isTemplate ? '<span class="badge badge-purple" style="font-size:11px;">🌍 Публичный</span>' : '<span class="badge badge-blue" style="font-size:11px;">🔒 Приватный</span>') + '</div>' +
+                            '<div class="service-list-meta">' + svc.agent + ' | Порт: <code>' + svc.defaultPort + '</code> | Метрики: ' + svc.metrics + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="service-list-actions">' +
+                        '<span class="badge badge-slate">' + svc.usedBy + ' хостов</span>' +
+                        (!svc.isTemplate ? '<button class="btn btn-xs btn-outline" onclick="openEditServiceModal(\'' + svc.id + '\')">✏️ Редактировать</button><button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="openDeleteServiceModal(\'' + svc.id + '\')">🗑️ Удалить</button>' : '') +
+                    '</div>' +
+                '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function updateServicesStats() {
+            document.getElementById('svc-count-my').textContent = services.filter(function(s) { return !s.isTemplate; }).length;
+            document.getElementById('svc-count-public').textContent = services.filter(function(s) { return s.isTemplate; }).length;
+            document.getElementById('svc-count-used').textContent = services.reduce(function(sum, s) { return sum + s.usedBy; }, 0);
+            document.getElementById('svc-count-ports').textContent = services.length;
+        }
+
+        function openServiceModal() {
+            isEditingService = false;
+            editingServiceId = null;
+            document.getElementById('service-modal').classList.remove('hidden');
+            document.getElementById('svc-modal-title').textContent = 'Создание сервиса';
+            document.getElementById('svc-modal-subtitle').textContent = 'Настрой один раз — применяй везде.';
+            document.getElementById('svc-modal-icon').textContent = '🔌';
+            document.getElementById('svc-form-name').value = '';
+            document.getElementById('svc-form-port').value = '80';
+            document.getElementById('svc-form-metrics').value = '/metrics';
+            document.getElementById('svc-form-username').value = '';
+            document.getElementById('svc-form-password').value = '';
+            document.getElementById('svc-form-public').checked = false;
+            document.getElementById('save-svc-btn').textContent = 'Сохранить сервис';
+            document.getElementById('save-svc-btn').disabled = true;
+            document.getElementById('svc-btn-template').style.display = 'inline-flex';
+            toggleAuthFields();
+        }
+
+        function openEditServiceModal(id) {
+            var svc = services.find(function(s) { return s.id === id; });
+            if (!svc) return;
+            isEditingService = true;
+            editingServiceId = id;
+            document.getElementById('service-modal').classList.remove('hidden');
+            document.getElementById('svc-modal-title').textContent = 'Редактирование сервиса';
+            document.getElementById('svc-modal-subtitle').textContent = 'Измените параметры шаблона.';
+            document.getElementById('svc-modal-icon').textContent = '✏️';
+            document.getElementById('svc-form-name').value = svc.name;
+            document.getElementById('svc-form-agent').value = svc.agent;
+            document.getElementById('svc-form-icon').value = svc.icon;
+            document.getElementById('svc-form-port').value = svc.defaultPort;
+            document.getElementById('svc-form-metrics').value = svc.metrics;
+            document.getElementById('svc-form-username').value = svc.auth ? svc.auth.username || '' : '';
+            document.getElementById('svc-form-password').value = '';
+            document.getElementById('svc-form-public').checked = svc.isTemplate;
+            toggleAuthFields();
+            document.getElementById('save-svc-btn').textContent = 'Сохранить изменения';
+            document.getElementById('save-svc-btn').disabled = false;
+            document.getElementById('svc-btn-template').style.display = 'none';
+        }
+
+        function closeServiceModal() { document.getElementById('service-modal').classList.add('hidden'); }
+        function toggleAuthFields() { document.getElementById('auth-fields').className = document.getElementById('svc-form-agent').value === 'SQL' ? 'auth-fields' : 'auth-fields hidden'; }
+
+        function saveService(isPublic) {
+            var name = document.getElementById('svc-form-name').value.trim();
+            var agent = document.getElementById('svc-form-agent').value;
+            var port = parseInt(document.getElementById('svc-form-port').value);
+            var metrics = document.getElementById('svc-form-metrics').value.trim();
+            var icon = document.getElementById('svc-form-icon').value;
+            var auth = agent === 'SQL' ? { username: document.getElementById('svc-form-username').value, password: document.getElementById('svc-form-password').value } : null;
+            if (!name || isNaN(port) || port < 1 || port > 65535) { showToast('Заполните обязательные поля'); return; }
+            if (isEditingService) {
+                var idx = services.findIndex(function(s) { return s.id === editingServiceId; });
+                if (idx !== -1) {
+                    services[idx] = { id: services[idx].id, name: name, agent: agent, icon: icon, defaultPort: port, metrics: metrics, auth: auth, isTemplate: isPublic, usedBy: services[idx].usedBy };
+                    showToast('Сервис обновлен');
+                }
+            } else {
+                services.push({ id: 'svc-' + Date.now(), name: name, agent: agent, icon: icon, defaultPort: port, metrics: metrics, auth: auth, isTemplate: isPublic, usedBy: 0 });
+                showToast(isPublic ? 'Шаблон "' + name + '" создан' : 'Сервис "' + name + '" создан');
+            }
+            closeServiceModal();
+            renderServices();
+            updateServicesStats();
+        }
+
+        function openDeleteServiceModal(id) {
+            var svc = services.find(function(s) { return s.id === id; });
+            if (!svc) return;
+            openDeleteModal(
+                'Удаление сервиса',
+                'Вы уверены, что хотите удалить сервис "' + svc.name + '"?',
+                '<div class="delete-details">' +
+                    '<div class="delete-details-item">' + svc.icon + ' <strong>' + svc.name + '</strong></div>' +
+                    '<div class="delete-details-item">Порт: ' + svc.defaultPort + ' | Агент: ' + svc.agent + '</div>' +
+                    '<div class="delete-details-item">Используется на хостах: ' + svc.usedBy + '</div>' +
+                    '<div class="delete-warning">⚠️ Сервис будет удалён из библиотеки.</div>' +
+                '</div>',
+                function() {
+                    services = services.filter(function(s) { return s.id !== id; });
+                    renderServices();
+                    updateServicesStats();
+                    showToast('Сервис "' + svc.name + '" удалён');
+                }
+            );
+        }
+
+        // ===== COLLECTIONS =====
+        function renderCollections() {
+            var list = document.getElementById('collections-list');
+            if (collections.length === 0) { list.innerHTML = '<div class="empty-state">Нет коллекций</div>'; return; }
+            var html = '';
+            collections.forEach(function(col) {
+                var svcs = col.serviceIds.map(function(sid) { return services.find(function(s) { return s.id === sid; }); }).filter(Boolean);
+                html += '<div class="collection-list-card">' +
+                    '<div class="collection-list-header">' +
+                        '<div class="collection-list-left">' +
+                            '<span class="collection-icon">📦</span>' +
+                            '<div>' +
+                                '<div class="collection-name">' + col.name + ' <span class="badge badge-blue" style="font-size:11px;">' + col.serviceIds.length + ' сервисов</span></div>' +
+                                '<div class="collection-desc">' + (col.description || '') + '</div>' +
+                                '<div class="collection-services">Сервисы: ' + svcs.map(function(s) { return s.icon + ' ' + s.name; }).join(', ') + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="display:flex;gap:8px;">' +
+                            '<button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="deleteCollection(\'' + col.id + '\')">🗑️ Удалить</button>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function updateCollectionsStats() {
+            document.getElementById('col-count').textContent = collections.length;
+            document.getElementById('col-count-used').textContent = collections.reduce(function(sum, c) { return sum + c.usedBy; }, 0);
+            document.getElementById('col-count-avg').textContent = collections.length > 0 ? (collections.reduce(function(sum, c) { return sum + c.serviceIds.length; }, 0) / collections.length).toFixed(1) : '0';
+        }
+
+        function openCollectionModal() {
+            collectionServiceIds = [];
+            document.getElementById('col-form-name').value = '';
+            document.getElementById('col-form-desc').value = '';
+            document.getElementById('collection-modal').classList.remove('hidden');
+            document.getElementById('save-col-btn').disabled = true;
+            renderCollectionServicesList();
+        }
+        function closeCollectionModal() { document.getElementById('collection-modal').classList.add('hidden'); }
+
+        function renderCollectionServicesList() {
+            var list = document.getElementById('col-services-list');
+            if (collectionServiceIds.length === 0) { list.innerHTML = '<p style="text-align:center;padding:16px;color:var(--slate-500);font-style:italic;">Коллекция пуста.</p>'; return; }
+            var html = '';
+            collectionServiceIds.forEach(function(sid) {
+                var svc = services.find(function(s) { return s.id === sid; });
+                if (!svc) return;
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:white;border-radius:8px;border:1px solid var(--slate-200);margin-bottom:8px;">' +
+                    '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:20px;">' + svc.icon + '</span><div><p style="font-weight:500;font-size:14px;">' + svc.name + '</p><p style="font-size:12px;color:var(--slate-500);font-family:monospace;">Порт: ' + svc.defaultPort + '</p></div></div>' +
+                    '<button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;" onclick="removeFromCollection(\'' + svc.id + '\')">✕</button>' +
+                '</div>';
+            });
+            list.innerHTML = html;
+            document.getElementById('save-col-btn').disabled = collectionServiceIds.length === 0;
+        }
+
+        function removeFromCollection(sid) { collectionServiceIds = collectionServiceIds.filter(function(id) { return id !== sid; }); renderCollectionServicesList(); }
+
+        function openServicePickerForCollection() { document.getElementById('service-picker-modal').classList.remove('hidden'); renderServicePickerList(); }
+        function closeServicePicker() { document.getElementById('service-picker-modal').classList.add('hidden'); }
+
+        function renderServicePickerList() {
+            var list = document.getElementById('svc-picker-list');
+            var filtered = services;
+            var search = document.getElementById('svc-picker-search').value.toLowerCase();
+            if (search) filtered = filtered.filter(function(s) { return s.name.toLowerCase().includes(search); });
+            var html = '';
+            filtered.forEach(function(svc) {
+                var added = collectionServiceIds.indexOf(svc.id) !== -1;
+                html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--slate-50);border-radius:8px;margin-bottom:8px;cursor:' + (added ? 'default' : 'pointer') + ';opacity:' + (added ? '0.5' : '1') + ';" onclick="' + (added ? '' : "addToCollection('" + svc.id + "')") + '">' +
+                    '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:20px;">' + svc.icon + '</span><div><p style="font-weight:500;font-size:14px;">' + svc.name + '</p><p style="font-size:12px;color:var(--slate-500);font-family:monospace;">Порт: ' + svc.defaultPort + '</p></div></div>' +
+                    (added ? '<span style="font-size:12px;color:var(--success);font-weight:500;">✓ Добавлен</span>' : '<span style="font-size:12px;color:var(--primary);font-weight:500;">➕ Добавить</span>') +
+                '</div>';
+            });
+            list.innerHTML = html;
+        }
+
+        function addToCollection(sid) {
+            if (collectionServiceIds.indexOf(sid) === -1) {
+                collectionServiceIds.push(sid);
+                renderCollectionServicesList();
+                closeServicePicker();
+            }
+        }
+
+        function saveCollection() {
+            var name = document.getElementById('col-form-name').value.trim();
+            var desc = document.getElementById('col-form-desc').value.trim();
+            if (!name || collectionServiceIds.length === 0) { showToast('Заполните название и добавьте сервисы'); return; }
+            collections.push({ id: 'col-' + Date.now(), name: name, description: desc, serviceIds: collectionServiceIds.slice(), usedBy: 0 });
+            closeCollectionModal();
+            renderCollections();
+            updateCollectionsStats();
+            showToast('Коллекция "' + name + '" создана');
+        }
+
+        function deleteCollection(id) {
+            var col = collections.find(function(c) { return c.id === id; });
+            if (!col) return;
+            openDeleteModal(
+                'Удаление коллекции',
+                'Вы уверены, что хотите удалить коллекцию "' + col.name + '"?',
+                '<div class="delete-details">' +
+                    '<div class="delete-details-item">📦 <strong>' + col.name + '</strong></div>' +
+                    '<div class="delete-details-item">Сервисов в коллекции: ' + col.serviceIds.length + '</div>' +
+                '</div>',
+                function() {
+                    collections = collections.filter(function(c) { return c.id !== id; });
+                    renderCollections();
+                    updateCollectionsStats();
+                    showToast('Коллекция удалена');
+                }
+            );
+        }
+
+        // ===== ATTACH WIZARD =====
+        function openAttachCollectionWizard(hostId) {
+            currentAttachHostId = hostId;
+            attachType = 'collection';
+            openAttachWizard('collection');
+        }
+
+        function openAttachWizard(type) {
+            if (selectedHostIds.size > 1) { showToast('Выберите один хост'); return; }
+            if (selectedHostIds.size === 0 && !currentAttachHostId) { showToast('Выберите хотя бы один хост'); return; }
+            if (selectedHostIds.size === 1) currentAttachHostId = Array.from(selectedHostIds)[0];
+            attachStep = 1;
+            attachType = type;
+            attachSelectedItem = null;
+            attachAuthValues = [];
+            var host = hosts.find(function(h) { return h.id === currentAttachHostId; });
+            document.getElementById('att-icon').textContent = type === 'service' ? '⚡' : '📦';
+            document.getElementById('att-title').textContent = type === 'service' ? 'Присоединение сервиса' : 'Присоединение коллекции';
+            document.getElementById('att-subtitle').textContent = 'Хост: ' + host.name + ' (' + host.address + ')';
+            document.getElementById('attach-wizard-modal').classList.remove('hidden');
+            renderAttachStep();
+        }
+
+        function closeAttachWizard() { document.getElementById('attach-wizard-modal').classList.add('hidden'); }
+
+        function renderAttachStep() {
+            for (var i = 1; i <= 4; i++) {
+                var el = document.getElementById('att-step-' + i);
+                el.className = 'wizard-step-circle';
+                if (i < attachStep) { el.classList.add('completed'); el.textContent = '✓'; }
+                else if (i === attachStep) { el.classList.add('active'); el.textContent = i; }
+                else { el.textContent = i; }
+            }
+            var host = hosts.find(function(h) { return h.id === currentAttachHostId; });
+            var content = document.getElementById('att-wizard-content');
+            document.getElementById('att-back').className = attachStep === 1 ? 'btn btn-ghost hidden' : 'btn btn-ghost';
+            var nextBtn = document.getElementById('att-next');
+            if (attachStep === 4) { nextBtn.textContent = '🔗 Применить'; }
+            else { nextBtn.textContent = 'Далее →'; }
+
+            if (attachStep === 1) {
+                if (attachType === 'service') {
+                    var myServices = services.filter(function(s) { return !s.isTemplate; });
+                    var html = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 1 из 4: Выберите сервис</h3>' +
+                        '<div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:var(--blue-800);">🖥️ Хост: <strong>' + host.name + '</strong> | 📍 ' + host.address + '</div>' +
+                        '<div style="max-height:256px;overflow-y:auto;" class="space-y-2">';
+                    myServices.forEach(function(svc) {
+                        var isSelected = attachSelectedItem && attachSelectedItem.id === svc.id;
+                        html += '<div class="service-select-card' + (isSelected ? ' selected' : '') + '" onclick="selectAttachService(\'' + svc.id + '\')">' +
+                            '<div style="display:flex;align-items:center;gap:12px;">' +
+                                '<span style="font-size:24px;">' + svc.icon + '</span>' +
+                                '<div><p style="font-weight:500;">' + svc.name + '</p>' +
+                                '<p style="font-size:12px;color:var(--slate-500);">Агент: ' + svc.agent + ' | Порт: <code style="font-family:monospace;">' + svc.defaultPort + '</code></p></div>' +
+                            '</div>' +
+                        '</div>';
+                    });
+                    html += '</div>';
+                    if (myServices.length === 0) html += '<p style="font-size:14px;color:var(--slate-500);font-style:italic;margin-top:12px;">Нет доступных сервисов.</p>';
+                    content.innerHTML = html;
+                } else {
+                    var html = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 1 из 4: Выберите коллекцию</h3>' +
+                        '<div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:var(--blue-800);">🖥️ Хост: <strong>' + host.name + '</strong> | 📍 ' + host.address + '</div>' +
+                        '<div style="max-height:256px;overflow-y:auto;" class="space-y-2">';
+                    collections.forEach(function(col) {
+                        var svcs = col.serviceIds.map(function(sid) { return services.find(function(s) { return s.id === sid; }); }).filter(Boolean);
+                        var isSelected = attachSelectedItem && attachSelectedItem.id === col.id;
+                        html += '<div class="collection-select-card' + (isSelected ? ' selected' : '') + '" onclick="selectAttachCollection(\'' + col.id + '\')">' +
+                            '<div style="display:flex;align-items:center;gap:12px;">' +
+                                '<span style="font-size:24px;">📦</span>' +
+                                '<div><p style="font-weight:500;">' + col.name + '</p>' +
+                                '<p style="font-size:12px;color:var(--slate-500);">Включает: ' + svcs.map(function(s) { return s.name; }).join(', ') + ' | Применена к: ' + col.usedBy + ' хостов</p></div>' +
+                            '</div>' +
+                        '</div>';
+                    });
+                    html += '</div>';
+                    if (collections.length === 0) html += '<p style="font-size:14px;color:var(--slate-500);font-style:italic;margin-top:12px;">Нет коллекций.</p>';
+                    content.innerHTML = html;
+                }
+            } else if (attachStep === 2) {
+                var html = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 2 из 4: Настройки</h3>' +
+                    '<p style="font-size:14px;color:var(--slate-600);margin-bottom:16px;">Порт можно переопределить для каждого хоста после присоединения сервиса в карточке хоста.</p>' +
+                    '<div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;font-size:14px;color:var(--blue-800);">ℹ️ Используйте порт по умолчанию из сервиса. Вы сможете изменить его позже.</div>';
+                content.innerHTML = html;
+            } else if (attachStep === 3) {
+                var serviceIds = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+                var authServices = serviceIds.map(function(sid) { return services.find(function(s) { return s.id === sid; }); }).filter(function(s) { return s && s.auth; });
+                var html = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 3 из 4: Аутентификация</h3>';
+                if (authServices.length > 0) {
+                    authServices.forEach(function(svc) {
+                        html += '<div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:16px;margin-bottom:12px;">' +
+                            '<h4 style="font-size:14px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px;">' + svc.icon + ' ' + svc.name + '</h4>' +
+                            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+                                '<div><label style="display:block;font-size:12px;font-weight:500;margin-bottom:4px;">Username</label><input type="text" id="auth-user-' + svc.id + '" class="form-input" placeholder="' + (svc.auth.username || 'admin') + '"></div>' +
+                                '<div><label style="display:block;font-size:12px;font-weight:500;margin-bottom:4px;">Password</label><input type="password" id="auth-pass-' + svc.id + '" class="form-input" placeholder="••••••"></div>' +
+                            '</div>' +
+                        '</div>';
+                    });
+                } else {
+                    html += '<p style="font-size:14px;color:var(--success);">✅ Сервисы не требуют аутентификации</p>';
+                }
+                content.innerHTML = html;
+            } else if (attachStep === 4) {
+                var serviceIds = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+                var html = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 4 из 4: Предпросмотр</h3>' +
+                    '<div style="background:' + (host.addressType === 'ip' ? 'var(--blue-50)' : 'var(--amber-50)') + ';border:1px solid ' + (host.addressType === 'ip' ? 'var(--blue-200)' : 'var(--amber-200)') + ';border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:' + (host.addressType === 'ip' ? 'var(--blue-800)' : 'var(--amber-800)') + ';">📍 Адрес: ' + host.address + ' (' + (host.addressType === 'ip' ? 'IP' : 'FQDN') + ')</div>';
+                serviceIds.forEach(function(sid) {
+                    var svc = services.find(function(s) { return s.id === sid; });
+                    if (!svc) return;
+                    var target = host.address + ':' + svc.defaultPort;
+                    html += '<div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:16px;margin-bottom:12px;">' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">' +
+                            '<div style="display:flex;align-items:center;gap:12px;"><span style="font-size:24px;">' + svc.icon + '</span><h4 style="font-weight:600;">' + svc.name + '</h4></div>' +
+                        '</div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px;"><span style="color:var(--slate-600);">Target:</span><span style="font-family:monospace;font-weight:500;background:var(--blue-100);color:var(--blue-700);padding:4px 8px;border-radius:4px;">' + target + '</span></div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px;"><span style="color:var(--slate-600);">Порт:</span><span style="font-family:monospace;font-weight:500;">' + svc.defaultPort + ' (по умолчанию)</span></div>' +
+                        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;"><span style="color:var(--slate-600);">Label:</span><span style="font-family:monospace;font-weight:500;background:var(--purple-100);color:var(--purple-600);padding:4px 8px;border-radius:4px;">mars_host="' + host.name + '"</span></div>' +
+                    '</div>';
+                });
+                html += '<p style="font-size:14px;color:var(--slate-500);margin-top:12px;">Будет добавлено ' + serviceIds.length + ' сервис(ов) к хосту ' + host.name + '.</p>';
+                content.innerHTML = html;
+            }
+        }
+
+        function selectAttachService(svcId) { attachSelectedItem = services.find(function(s) { return s.id === svcId; }); attachStep = 2; renderAttachStep(); }
+        function selectAttachCollection(colId) { attachSelectedItem = collections.find(function(c) { return c.id === colId; }); attachStep = 2; renderAttachStep(); }
+        function prevAttachStep() { if (attachStep > 1) { attachStep--; renderAttachStep(); } }
+
+        function nextAttachStep() {
+            var host = hosts.find(function(x) { return x.id === currentAttachHostId; });
+            var serviceIds = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+            if (attachStep === 3) {
+                attachAuthValues = serviceIds.map(function(sid) {
+                    var svc = services.find(function(s) { return s.id === sid; });
+                    if (!svc || !svc.auth) return null;
+                    var uEl = document.getElementById('auth-user-' + sid);
+                    var pEl = document.getElementById('auth-pass-' + sid);
+                    return { serviceId: sid, username: uEl ? uEl.value || svc.auth.username : '', password: pEl ? pEl.value || '' : '' };
+                }).filter(Boolean);
+            }
+            if (attachStep === 4) { confirmAttachment(); return; }
+            attachStep++;
+            renderAttachStep();
+        }
+
+        function confirmAttachment() {
+            var host = hosts.find(function(x) { return x.id === currentAttachHostId; });
+            var serviceIds = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+            serviceIds.forEach(function(sid) {
+                var existing = host.attachments.find(function(a) { return a.serviceId === sid; });
+                var auth = attachAuthValues.find(function(a) { return a.serviceId === sid; }) || (services.find(function(s) { return s.id === sid; }) || {}).auth;
+                if (!existing) host.attachments.push({ serviceId: sid, auth: auth || null, portOverride: null });
+                else if (auth) existing.auth = auth;
+            });
+            if (attachType === 'collection') attachSelectedItem.usedBy++;
+            else { var svc = services.find(function(s) { return s.id === attachSelectedItem.id; }); if (svc) svc.usedBy++; }
+            closeAttachWizard();
+            renderHosts();
+            var itemName = attachType === 'service' ? 'Сервис "' + attachSelectedItem.name + '"' : 'Коллекция "' + attachSelectedItem.name + '"';
+            showToast(itemName + ' присоединён(а) к ' + host.name);
+        }
+
+        // ===== UTILS =====
+        function toggleHostExpand(hostId) { expandedHostId = expandedHostId === hostId ? null : hostId; renderHosts(); }
+        function toggleHostSelection(id) { selectedHostIds.has(id) ? selectedHostIds.delete(id) : selectedHostIds.add(id); renderHosts(); }
+        function toggleSelectAll(checkbox) {
+            var filtered = getFilteredHosts();
+            if (checkbox.checked) filtered.forEach(function(h) { selectedHostIds.add(h.id); });
+            else selectedHostIds.clear();
+            renderHosts();
+        }
+        function getFilteredHosts() {
+            var search = document.getElementById('host-search').value.toLowerCase();
+            var seg = document.getElementById('host-segment').value;
+            return hosts.filter(function(h) {
+                var addrMatch = h.address.toLowerCase().includes(search);
+                var nameMatch = h.name.toLowerCase().includes(search);
+                return (nameMatch || addrMatch) && (seg === 'all' || h.segment === seg);
+            });
+        }
+
+        function updateHostButtons() {
+            var c = selectedHostIds.size;
+            var btnDel = document.getElementById('bulk-delete-hosts-btn');
+            if (btnDel) {
+                if (c === 0) { btnDel.classList.add('hidden'); btnDel.classList.remove('flex'); }
+                else { btnDel.classList.remove('hidden'); btnDel.classList.add('flex'); btnDel.querySelector('span:last-child').textContent = c > 1 ? 'Удалить (' + c + ')' : 'Удалить'; }
+            }
+            var btn1 = document.getElementById('attach-svc-btn'), btn2 = document.getElementById('attach-col-btn');
+            if (btn1) {
+                btn1.disabled = c === 0;
+                btn1.style.opacity = c === 0 ? '0.5' : '1';
+                document.getElementById('attach-svc-text').textContent = c === 1 ? 'Присоединить сервис' : 'Присоединить сервис (' + c + ')';
+            }
+            if (btn2) {
+                btn2.disabled = c === 0;
+                btn2.style.opacity = c === 0 ? '0.5' : '1';
+                document.getElementById('attach-col-text').textContent = c === 1 ? 'Присоединить коллекцию' : 'Присоединить коллекцию (' + c + ')';
+            }
+        }
+
+        function switchSection(section) {
+            document.querySelectorAll('.section-content').forEach(function(el) { el.classList.remove('active'); });
+            document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+            document.getElementById('section-' + section).classList.add('active');
+            document.getElementById('nav-' + section).classList.add('active');
+            if (section === 'services') renderServices();
+            else if (section === 'collections') renderCollections();
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            t.classList.add('show');
+            setTimeout(function() { t.classList.remove('show'); }, 3000);
+        }
+
+        // Init
+        document.getElementById('host-segment-sel').addEventListener('change', checkHostForm);
+        init();
+        document.getElementById('service-search') && document.getElementById('service-search').addEventListener('input', renderServices);
+    </script>
+</body>
+</html>
+
