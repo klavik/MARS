@@ -1,65 +1,1790 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS — Система Мониторинга</title>
-<style>
-:root{--primary:#3B82F6;--primary-hover:#2563EB;--success:#10B981;--success-hover:#059669;--warning:#F59E0B;--danger:#EF4444;--danger-hover:#DC2626;--slate-50:#F8FAFC;--slate-100:#F1F5F9;--slate-200:#E2E8F0;--slate-300:#CBD5E1;--slate-400:#94A3B8;--slate-500:#64748B;--slate-600:#475569;--slate-700:#334155;--slate-800:#1E293B;--slate-900:#0F172A;--blue-50:#EFF6FF;--blue-100:#DBEAFE;--blue-200:#BFDBFE;--blue-700:#1D4ED8;--blue-800:#1E40AF;--green-50:#F0FDF4;--green-100:#DCFCE7;--green-700:#15803D;--amber-50:#FFFBEB;--amber-100:#FEF3C7;--amber-200:#FDE68A;--amber-700:#B45309;--amber-800:#92400E;--purple-50:#FAF5FF;--purple-100:#EDE9FE;--purple-600:#7C3AED;--purple-700:#6D28D9;--red-50:#FEF2F2;--red-100:#FEE2E2;--red-200:#FECACA;--red-700:#B91C1C}*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--slate-100);color:var(--slate-800);min-height:100vh}.hidden{display:none!important}.fade-in{animation:fadeIn .2s ease-out}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}nav{background:white;border-bottom:1px solid var(--slate-200);position:sticky;top:0;z-index:40}.nav-container{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}.nav-left{display:flex;align-items:center;gap:24px}.nav-brand{font-size:20px;font-weight:700;color:var(--slate-900)}.nav-tabs{display:flex;gap:4px}.nav-item{padding:12px 14px;cursor:pointer;color:var(--slate-600);font-size:14px;border-bottom:2px solid transparent;transition:.2s}.nav-item:hover,.nav-item.active{color:var(--primary)}.nav-item.active{font-weight:600;border-bottom-color:var(--primary)}.avatar{width:32px;height:32px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-weight:700}.section-content{display:none}.section-content.active{display:block}.main-container{max-width:1280px;margin:0 auto;padding:24px}.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:16px}.page-title{font-size:24px;font-weight:650}.page-subtitle{font-size:14px;color:var(--slate-500);margin-top:4px}.page-actions{display:flex;gap:8px;flex-wrap:wrap}.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:.2s;white-space:nowrap}.btn:disabled{opacity:.5;cursor:not-allowed}.btn-primary{background:var(--primary);color:white}.btn-primary:hover:not(:disabled){background:var(--primary-hover)}.btn-success{background:var(--success);color:white}.btn-danger{background:var(--danger);color:white}.btn-danger:hover{background:var(--danger-hover)}.btn-outline{background:white;color:var(--slate-700);border:1px solid var(--slate-300)}.btn-outline:hover{background:var(--slate-50)}.btn-ghost{background:transparent;color:var(--slate-700)}.btn-ghost:hover{background:var(--slate-100)}.btn-purple{background:var(--purple-600);color:white}.btn-sm{padding:4px 12px;font-size:12px}.btn-xs{padding:4px 8px;font-size:11px}.panel{background:white;border:1px solid var(--slate-200);border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)}.panel-header{padding:16px 24px;background:var(--blue-50);border-bottom:1px solid var(--blue-200);border-radius:12px 12px 0 0;display:flex;gap:12px;color:var(--blue-800);font-size:14px}.panel-toolbar{padding:12px 24px;background:var(--slate-50);border-bottom:1px solid var(--slate-200);display:flex;justify-content:space-between;align-items:center;gap:12px}.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.panel-filters{padding:16px 24px;border-bottom:1px solid var(--slate-200);display:flex;gap:16px;align-items:center;flex-wrap:wrap}.panel-content{padding:16px 24px;max-height:640px;overflow-y:auto}.panel-footer{padding:16px 24px;background:var(--green-50);border-top:1px solid var(--green-100);border-radius:0 0 12px 12px;font-size:14px;color:var(--green-700)}.input,.select,.form-input,.form-select{padding:9px 12px;border:1px solid var(--slate-300);border-radius:8px;font-size:14px;outline:none;background:white}.input:focus,.select:focus,.form-input:focus,.form-select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.1)}.input{width:256px}.form-input,.form-select{width:100%}.checkbox-wrapper{position:relative;width:20px;height:20px}.checkbox-wrapper input{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}.checkbox-box{width:20px;height:20px;border:2px solid var(--slate-300);border-radius:4px;background:white;display:flex;align-items:center;justify-content:center}.checkbox-wrapper input:checked+.checkbox-box{background:var(--primary);border-color:var(--primary)}.checkbox-box:after{content:'✓';display:none;color:white;font-size:13px;font-weight:800}.checkbox-wrapper input:checked+.checkbox-box:after{display:block}.stats-text{font-size:14px;color:var(--slate-600)}.count{font-weight:700;color:var(--primary)}.host-card,.service-list-card,.collection-list-card,.template-list-card{background:white;border:1px solid var(--slate-200);border-radius:8px;margin-bottom:12px;transition:.2s}.host-card:hover,.service-list-card:hover,.collection-list-card:hover,.template-list-card:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(59,130,246,.1)}.host-card.selected,.host-card.expanded{background:var(--blue-50);border-color:var(--primary)}.host-card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;gap:12px}.host-card-left{display:flex;align-items:center;gap:16px;flex:1;min-width:0}.host-card-info{min-width:0}.host-card-name{font-family:monospace;font-size:14px;font-weight:600}.host-card-address{font-size:14px;color:var(--slate-500)}.host-card-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.badge{padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600}.badge-slate{background:var(--slate-100);color:var(--slate-700)}.badge-green{background:var(--green-100);color:var(--green-700)}.badge-amber{background:var(--amber-100);color:var(--amber-700)}.badge-blue{background:var(--blue-100);color:var(--blue-700)}.badge-purple{background:var(--purple-100);color:var(--purple-700)}.badge-red{background:var(--red-100);color:var(--red-700)}.detail-content{display:none}.detail-content.open{display:block}.detail-inner{padding:16px;border-top:1px solid var(--slate-200)}.detail-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px}.detail-host-info{display:flex;align-items:center;gap:12px}.detail-host-icon{font-size:24px}.detail-host-name{font-size:18px;font-weight:650}.detail-host-address{font-family:monospace;font-size:14px;color:var(--slate-500)}.detail-actions{display:flex;gap:8px;flex-wrap:wrap}.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;padding:18px}.modal{background:white;border-radius:12px;box-shadow:0 25px 50px rgba(0,0,0,.25);width:100%;max-width:768px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column}.modal.modal-sm{max-width:520px}.modal-header{padding:16px 24px;border-bottom:1px solid var(--slate-200);display:flex;justify-content:space-between;align-items:center;background:var(--slate-50);gap:12px}.modal-header-left{display:flex;align-items:center;gap:12px}.modal-icon{font-size:24px}.modal-title{font-size:18px;font-weight:650}.modal-subtitle{font-size:14px;color:var(--slate-500)}.modal-close{background:none;border:none;cursor:pointer;color:var(--slate-400);font-size:22px;padding:4px}.modal-body{padding:24px;overflow-y:auto;flex:1}.modal-footer{padding:16px 24px;border-top:1px solid var(--slate-200);display:flex;justify-content:space-between;align-items:center;background:var(--slate-50);gap:12px}.modal-footer-right{display:flex;gap:8px;flex-wrap:wrap}.form-group{margin-bottom:18px}.form-label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;color:var(--slate-700)}.form-hint{font-size:12px;color:var(--slate-500);margin-top:4px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.form-row-address{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:start}.auth-fields{border:1px solid var(--slate-200);border-radius:8px;padding:16px;background:var(--slate-50);margin-bottom:16px}.auth-title{font-size:14px;font-weight:700;margin-bottom:12px}.checkbox-label{display:flex;align-items:center;gap:8px;padding:12px;background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;cursor:pointer;margin-bottom:16px}.checkbox-label input{width:16px;height:16px;accent-color:var(--primary)}.checkbox-label-text{font-size:14px;font-weight:600;color:var(--blue-800)}.wizard-steps{padding:12px 24px;border-bottom:1px solid var(--slate-200);background:var(--slate-50)}.wizard-step-indicators{display:flex;align-items:center;justify-content:space-between}.wizard-step-item{display:flex;align-items:center;gap:8px}.wizard-step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--slate-300);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--slate-400)}.wizard-step-circle.active{border-color:var(--primary);color:var(--primary)}.wizard-step-circle.completed{background:var(--success);border-color:var(--success);color:white}.wizard-step-label{font-size:14px;color:var(--slate-500)}.wizard-step-line{flex:1;height:1px;background:var(--slate-200);margin:0 8px}.service-select-card,.collection-select-card{background:white;border:1px solid var(--slate-200);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer}.service-select-card:hover,.collection-select-card:hover{border-color:var(--primary)}.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:16px 24px;border-bottom:1px solid var(--slate-200);background:var(--slate-50)}.stats-grid-3{grid-template-columns:repeat(3,1fr)}.stat-card{background:white;border:1px solid var(--slate-200);border-radius:8px;padding:16px}.stat-label{font-size:14px;color:var(--slate-500);margin-bottom:4px}.stat-value{font-size:24px;font-weight:750}.stat-value.purple{color:var(--purple-600)}.stat-value.green{color:var(--success)}.stat-value.amber{color:var(--warning)}.service-list-card,.template-list-card{padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px}.service-list-left{display:flex;align-items:center;gap:16px;min-width:0}.service-list-icon{font-size:32px}.service-list-name{font-weight:650;font-size:16px}.service-list-meta{font-size:14px;color:var(--slate-500);margin-top:4px}.service-list-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.collection-list-card{padding:16px}.collection-list-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.collection-list-left{display:flex;align-items:flex-start;gap:12px}.collection-icon{font-size:32px}.collection-name{font-weight:650;font-size:16px}.collection-desc{font-size:14px;color:var(--slate-500);margin-top:4px}.collection-services{font-size:12px;color:var(--slate-400);margin-top:8px}.service-item{background:white;border:1px solid var(--slate-200);border-radius:8px;padding:16px;margin-bottom:12px}.service-item-header{display:flex;justify-content:space-between;align-items:center;gap:12px}.service-item-left{display:flex;align-items:center;gap:12px}.service-icon{font-size:24px}.service-name{font-weight:600}.service-target{font-family:monospace;font-size:14px;color:var(--slate-500)}.service-item-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.port-override-row{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--slate-200);flex-wrap:wrap}.port-override-label{font-size:13px;color:var(--slate-500)}.port-override-input{width:84px;padding:6px 10px;border:1px solid var(--slate-300);border-radius:6px;font-size:14px;font-family:monospace;text-align:center}.port-override-hint{font-size:12px;color:var(--slate-400)}.addr-type-ip,.addr-type-fqdn{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:800;margin-right:6px}.addr-type-ip{background:var(--blue-100);color:var(--blue-700)}.addr-type-fqdn{background:var(--green-100);color:var(--green-700)}.delete-modal-header{background:var(--red-50);border-bottom-color:var(--red-100)}.delete-warning{color:var(--red-700);margin-top:8px;font-size:14px}.delete-details{background:var(--red-50);border:1px solid var(--red-200);border-radius:8px;padding:12px}.delete-details-item{font-size:14px;margin-bottom:4px}.empty-state{text-align:center;padding:32px;color:var(--slate-500)}.toast{position:fixed;bottom:20px;right:20px;background:var(--slate-800);color:white;padding:16px 24px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2);display:flex;gap:12px;z-index:100;transform:translateY(100px);opacity:0;transition:.3s}.toast.show{transform:none;opacity:1}.toast-title{font-size:14px;font-weight:700}.toast-message{font-size:12px;color:var(--slate-300)}.space-y-2>*+*{margin-top:8px}.space-y-3>*+*{margin-top:12px}@media(max-width:800px){.form-row,.form-row-address,.stats-grid,.stats-grid-3{grid-template-columns:1fr}.page-header,.panel-toolbar,.host-card-header,.service-list-card,.template-list-card,.collection-list-header{align-items:flex-start;flex-direction:column}.nav-container{padding:0 12px}.nav-tabs{overflow:auto}.main-container{padding:16px}.input{width:100%}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MARS — Система Мониторинга</title>
+  <style>
+    :root {
+      --primary: #3B82F6;
+      --primary-hover: #2563EB;
+      --success: #10B981;
+      --success-hover: #059669;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --danger-hover: #DC2626;
+      --slate-50: #F8FAFC;
+      --slate-100: #F1F5F9;
+      --slate-200: #E2E8F0;
+      --slate-300: #CBD5E1;
+      --slate-400: #94A3B8;
+      --slate-500: #64748B;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1E293B;
+      --slate-900: #0F172A;
+      --blue-50: #EFF6FF;
+      --blue-100: #DBEAFE;
+      --blue-200: #BFDBFE;
+      --blue-700: #1D4ED8;
+      --blue-800: #1E40AF;
+      --green-50: #F0FDF4;
+      --green-100: #DCFCE7;
+      --green-700: #15803D;
+      --amber-50: #FFFBEB;
+      --amber-100: #FEF3C7;
+      --amber-200: #FDE68A;
+      --amber-700: #B45309;
+      --amber-800: #92400E;
+      --purple-50: #F5F3FF;
+      --purple-100: #EDE9FE;
+      --purple-600: #7C3AED;
+      --purple-700: #6D28D9;
+      --red-50: #FEF2F2;
+      --red-100: #FEE2E2;
+      --red-200: #FECACA;
+      --red-700: #B91C1C;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--slate-100);
+      color: var(--slate-800);
+      min-height: 100vh;
+    }
+
+    .hidden { display: none !important; }
+    .fade-in { animation: fadeIn .25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    nav { background: white; border-bottom: 1px solid var(--slate-200); position: sticky; top: 0; z-index: 40; }
+    .nav-container { max-width: 1280px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-left { display: flex; align-items: center; gap: 24px; }
+    .nav-brand { font-size: 20px; font-weight: 700; color: var(--slate-900); }
+    .nav-tabs { display: flex; gap: 4px; }
+    .nav-item { padding: 12px 16px; cursor: pointer; color: var(--slate-600); font-size: 14px; border-bottom: 2px solid transparent; transition: all .2s; }
+    .nav-item:hover, .nav-item.active { color: var(--primary); }
+    .nav-item.active { font-weight: 600; border-bottom-color: var(--primary); }
+    .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+
+    .section-content { display: none; }
+    .section-content.active { display: block; }
+    .main-container { max-width: 1280px; margin: 0 auto; padding: 24px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; }
+    .page-title { font-size: 24px; font-weight: 600; }
+    .page-subtitle { font-size: 14px; color: var(--slate-500); margin-top: 4px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all .2s; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { background: var(--success-hover); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { background: var(--danger-hover); }
+    .btn-outline { background: white; color: var(--slate-700); border: 1px solid var(--slate-300); }
+    .btn-outline:hover { background: var(--slate-50); }
+    .btn-ghost { background: transparent; color: var(--slate-700); }
+    .btn-ghost:hover { background: var(--slate-100); }
+    .btn-purple { background: var(--purple-600); color: white; }
+    .btn-purple:hover { background: var(--purple-700); }
+    .btn-sm { padding: 4px 12px; font-size: 12px; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
+
+    .panel { background: white; border: 1px solid var(--slate-200); border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    .panel-header { padding: 16px 24px; background: var(--blue-50); border-bottom: 1px solid var(--blue-200); border-radius: 12px 12px 0 0; display: flex; align-items: flex-start; gap: 12px; }
+    .panel-header-icon { font-size: 20px; }
+    .panel-header-text { font-size: 14px; color: var(--blue-800); }
+    .panel-toolbar { padding: 12px 24px; background: var(--slate-50); border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; }
+    .panel-filters { padding: 16px 24px; border-bottom: 1px solid var(--slate-200); display: flex; gap: 16px; align-items: center; }
+    .panel-content { padding: 16px 24px; max-height: 600px; overflow-y: auto; }
+    .panel-footer { padding: 16px 24px; background: var(--green-50); border-top: 1px solid var(--green-100); border-radius: 0 0 12px 12px; font-size: 14px; color: var(--green-700); }
+
+    .input, .select, .form-input, .form-select {
+      padding: 8px 12px;
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+    .input:focus, .select:focus, .form-input:focus, .form-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+    .input { width: 256px; }
+    .form-input, .form-select { width: 100%; padding: 10px 12px; }
+
+    .checkbox-wrapper { position: relative; width: 20px; height: 20px; flex: 0 0 auto; }
+    .checkbox-wrapper input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 10; }
+    .checkbox-box { width: 20px; height: 20px; border: 2px solid var(--slate-300); border-radius: 4px; background: white; display: flex; align-items: center; justify-content: center; }
+    .checkbox-wrapper input:checked + .checkbox-box { background: var(--primary); border-color: var(--primary); }
+    .checkbox-box svg { display: none; width: 12px; height: 12px; color: white; }
+    .checkbox-wrapper input:checked + .checkbox-box svg { display: block; }
+    .stats-text { font-size: 14px; color: var(--slate-600); }
+    .stats-text .count { font-weight: 600; color: var(--primary); }
+
+    .host-card, .service-list-card, .collection-list-card, .template-list-card { background: white; border: 1px solid var(--slate-200); border-radius: 8px; margin-bottom: 12px; transition: all .2s; }
+    .host-card:hover, .service-list-card:hover, .collection-list-card:hover, .template-list-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(59,130,246,.1); }
+    .host-card.selected, .service-list-card.selected, .template-list-card.selected { background: var(--blue-50); border-color: var(--primary); }
+    .host-card.expanded { background: var(--slate-50); border-color: var(--primary); }
+    .template-list-card { cursor: pointer; }
+
+    .host-card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; }
+    .host-card-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+    .host-card-info { flex: 1; min-width: 0; }
+    .host-card-name { font-family: monospace; font-size: 14px; font-weight: 500; }
+    .host-card-address { font-size: 14px; color: var(--slate-500); }
+    .host-card-actions { display: flex; align-items: center; gap: 12px; }
+
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; }
+    .badge-slate { background: var(--slate-100); color: var(--slate-700); }
+    .badge-green { background: var(--green-100); color: var(--green-700); }
+    .badge-amber { background: var(--amber-100); color: var(--amber-700); }
+    .badge-blue { background: var(--blue-100); color: var(--blue-700); }
+    .badge-purple { background: var(--purple-100); color: var(--purple-700); }
+    .badge-red { background: var(--red-100); color: var(--red-700); }
+
+    .detail-content { max-height: 0; overflow: hidden; transition: max-height .3s ease; }
+    .detail-content.open { max-height: 2000px; }
+    .detail-inner { padding: 16px; border-top: 1px solid var(--slate-200); }
+    .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .detail-host-info { display: flex; align-items: center; gap: 12px; }
+    .detail-host-icon { font-size: 24px; }
+    .detail-host-name { font-size: 18px; font-weight: 600; }
+    .detail-host-address { font-family: monospace; font-size: 14px; color: var(--slate-500); }
+    .detail-actions { display: flex; gap: 8px; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: center; justify-content: center; }
+    .modal { background: white; border-radius: 12px; box-shadow: 0 25px 50px rgba(0,0,0,.25); width: 100%; max-width: 768px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal.modal-sm { max-width: 512px; }
+    .modal-header { padding: 16px 24px; border-bottom: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; background: var(--slate-50); }
+    .modal-header-left { display: flex; align-items: center; gap: 12px; }
+    .modal-icon { font-size: 24px; }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-subtitle { font-size: 14px; color: var(--slate-500); }
+    .modal-close { background: none; border: none; cursor: pointer; color: var(--slate-400); font-size: 22px; padding: 4px; }
+    .modal-close:hover { color: var(--slate-600); }
+    .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--slate-200); display: flex; justify-content: space-between; align-items: center; background: var(--slate-50); }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; color: var(--slate-700); }
+    .form-hint { font-size: 12px; color: var(--slate-500); margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-row-address { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: start; }
+    .auth-fields { border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px; background: var(--slate-50); }
+    .auth-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+    .checkbox-label { display: flex; align-items: center; gap: 8px; padding: 12px; background: var(--amber-50); border: 1px solid var(--amber-200); border-radius: 8px; cursor: pointer; }
+    .checkbox-label input { width: 16px; height: 16px; accent-color: var(--primary); }
+    .checkbox-label-text { font-size: 14px; font-weight: 500; color: var(--amber-800); }
+
+    .wizard-steps { padding: 12px 24px; border-bottom: 1px solid var(--slate-200); background: var(--slate-50); }
+    .wizard-step-indicators { display: flex; align-items: center; justify-content: space-between; }
+    .wizard-step-item { display: flex; align-items: center; gap: 8px; }
+    .wizard-step-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--slate-300); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: var(--slate-400); }
+    .wizard-step-circle.active { border-color: var(--primary); color: var(--primary); }
+    .wizard-step-circle.completed { background: var(--success); border-color: var(--success); color: white; }
+    .wizard-step-label { font-size: 14px; color: var(--slate-500); }
+    .wizard-step-label.active { color: var(--primary); font-weight: 500; }
+    .wizard-step-line { flex: 1; height: 1px; background: var(--slate-200); margin: 0 8px; }
+    .wizard-content { padding: 24px; overflow-y: auto; flex: 1; }
+    .service-select-card, .collection-select-card { background: white; border: 1px solid var(--slate-200); border-radius: 8px; padding: 12px; margin-bottom: 8px; cursor: pointer; transition: all .2s; }
+    .service-select-card:hover, .collection-select-card:hover { border-color: var(--primary); }
+
+    .toast { position: fixed; bottom: 20px; right: 20px; background: var(--slate-800); color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,.2); display: flex; align-items: center; gap: 12px; z-index: 100; transform: translateY(100px); opacity: 0; transition: all .3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-icon { font-size: 20px; }
+    .toast-title { font-size: 14px; font-weight: 600; }
+    .toast-message { font-size: 12px; color: var(--slate-400); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 16px 24px; border-bottom: 1px solid var(--slate-200); background: var(--slate-50); }
+    .stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .stat-card { background: white; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px; }
+    .stat-label { font-size: 14px; color: var(--slate-500); margin-bottom: 4px; }
+    .stat-value { font-size: 24px; font-weight: 700; }
+    .stat-value.purple { color: var(--purple-600); }
+    .stat-value.green { color: var(--success); }
+    .stat-value.amber { color: var(--warning); }
+
+    .service-list-card, .template-list-card { padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .service-list-left, .template-list-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+    .service-list-icon, .template-list-icon { font-size: 32px; }
+    .service-list-name, .template-list-name { font-weight: 600; font-size: 16px; }
+    .service-list-meta, .template-list-meta { font-size: 14px; color: var(--slate-500); margin-top: 4px; }
+    .service-list-meta code, .template-list-meta code { font-family: monospace; }
+    .service-list-actions, .template-list-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+
+    .collection-list-card { padding: 16px; }
+    .collection-list-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .collection-list-left { display: flex; align-items: flex-start; gap: 12px; flex: 1; }
+    .collection-icon { font-size: 32px; }
+    .collection-name { font-weight: 600; font-size: 16px; }
+    .collection-desc { font-size: 14px; color: var(--slate-500); margin-top: 4px; }
+    .collection-services { font-size: 12px; color: var(--slate-400); margin-top: 8px; }
+
+    .delete-modal-header { background: var(--red-50); border-bottom-color: var(--red-100); }
+    .delete-modal-title { font-size: 18px; font-weight: 600; color: var(--slate-800); }
+    .delete-modal-message { font-size: 14px; color: var(--slate-600); margin-top: 4px; }
+    .delete-details { background: var(--red-50); border: 1px solid var(--red-200); border-radius: 8px; padding: 12px; }
+    .delete-details-item { font-size: 14px; margin-bottom: 4px; }
+    .delete-warning { color: var(--red-700); margin-top: 8px; font-size: 14px; }
+    .empty-state { text-align: center; padding: 32px; color: var(--slate-500); }
+
+    .service-item { background: white; border: 1px solid var(--slate-200); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+    .service-item-header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+    .service-item-left { display: flex; align-items: center; gap: 12px; }
+    .service-icon { font-size: 24px; }
+    .service-name { font-weight: 500; }
+    .service-target { font-family: monospace; font-size: 14px; color: var(--slate-500); }
+    .service-item-actions { display: flex; align-items: center; gap: 8px; }
+    .port-override-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--slate-200); flex-wrap: wrap; }
+    .port-override-label { font-size: 13px; color: var(--slate-500); white-space: nowrap; }
+    .port-override-input { width: 80px; padding: 6px 10px; border: 1px solid var(--slate-300); border-radius: 6px; font-size: 14px; font-family: monospace; outline: none; text-align: center; }
+    .port-override-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,.1); }
+    .port-override-hint { font-size: 12px; color: var(--slate-400); }
+
+    .addr-type-ip, .addr-type-fqdn { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-right: 6px; }
+    .addr-type-ip { background: var(--blue-100); color: var(--blue-700); }
+    .addr-type-fqdn { background: var(--green-100); color: var(--green-700); }
+
+    .text-slate-500 { color: var(--slate-500); }
+    .text-slate-600 { color: var(--slate-600); }
+    .text-danger { color: var(--danger); }
+    .text-success { color: var(--success); }
+    .text-sm { font-size: 14px; }
+    .text-xs { font-size: 12px; }
+    .font-semibold { font-weight: 600; }
+    .font-mono { font-family: monospace; }
+    .space-y-2 > * + * { margin-top: 8px; }
+    .space-y-3 > * + * { margin-top: 12px; }
+    .space-y-4 > * + * { margin-top: 16px; }
+    .w-full { width: 100%; }
+
+    @media (max-width: 900px) {
+      .nav-container, .main-container { padding-left: 16px; padding-right: 16px; }
+      .nav-tabs { overflow-x: auto; max-width: calc(100vw - 140px); }
+      .page-header, .panel-toolbar, .service-list-card, .template-list-card, .collection-list-header { flex-direction: column; align-items: stretch; }
+      .toolbar-left, .toolbar-right { flex-wrap: wrap; }
+      .stats-grid, .stats-grid-3 { grid-template-columns: 1fr; }
+      .form-row, .form-row-address { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-<nav><div class="nav-container"><div class="nav-left"><span class="nav-brand">🖥️ MARS</span><div class="nav-tabs"><div class="nav-item active" onclick="switchSection('hosts')" id="nav-hosts">Хосты</div><div class="nav-item" onclick="switchSection('services')" id="nav-services">🔌 Сервисы</div><div class="nav-item" onclick="switchSection('templates')" id="nav-templates">🧩 Шаблоны сервисов</div><div class="nav-item" onclick="switchSection('collections')" id="nav-collections">📦 Коллекции</div></div></div><div class="avatar">A</div></div></nav>
+  <nav>
+    <div class="nav-container">
+      <div class="nav-left">
+        <span class="nav-brand">🖥️ MARS</span>
+        <div class="nav-tabs">
+          <div class="nav-item active" onclick="switchSection('hosts')" id="nav-hosts">Хосты</div>
+          <div class="nav-item" onclick="switchSection('services')" id="nav-services">🔌 Сервисы</div>
+          <div class="nav-item" onclick="switchSection('templates')" id="nav-templates">🧩 Шаблоны сервисов</div>
+          <div class="nav-item" onclick="switchSection('collections')" id="nav-collections">📦 Коллекции</div>
+        </div>
+      </div>
+      <div class="avatar">A</div>
+    </div>
+  </nav>
 
-<section id="section-hosts" class="section-content active"><div class="main-container"><div class="page-header"><div><h1 class="page-title">Управление Хостами</h1><p class="page-subtitle">Присоединение сервисов и коллекций к хостам</p></div><div class="page-actions"><button class="btn btn-outline" onclick="resetDemoData()">↺ Сбросить демо-данные</button><button class="btn btn-primary" onclick="openHostModal()">➕ Создать хост</button></div></div><div class="panel"><div class="panel-header"><span>🖥️</span><p><strong>Контекст: Хост</strong> — присоединение сервисов/коллекций, редактирование адреса и переопределение портов.</p></div><div class="panel-toolbar"><div class="toolbar-left"><div class="checkbox-wrapper"><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)"><div class="checkbox-box"></div></div><span class="stats-text">Выбрано: <span class="count" id="selected-count">0</span> из <span class="count" id="total-count">0</span></span></div><div class="toolbar-right"><button id="attach-svc-btn" class="btn btn-sm btn-ghost" onclick="openAttachWizard('service')">⚡ <span id="attach-svc-text">Присоединить сервис</span></button><button id="attach-col-btn" class="btn btn-sm btn-ghost" onclick="openAttachWizard('collection')">📦 <span id="attach-col-text">Присоединить коллекцию</span></button><button id="bulk-delete-hosts-btn" class="btn btn-sm btn-danger hidden" onclick="openBulkDeleteHostsModal()">🗑️ <span>Удалить</span></button></div></div><div class="panel-filters"><span>🔍</span><input type="text" id="host-search" class="input" placeholder="Поиск..." oninput="renderHosts()"><select id="host-segment" class="select" onchange="renderHosts()"><option value="all">Все сегменты</option><option value="prod-dmz">Production DMZ</option><option value="analytics">Analytics</option><option value="k8s">K8s Cluster</option></select></div><div class="panel-content" id="hosts-list"></div><div class="panel-footer">💡 <strong>Иерархия:</strong> Сервис/Коллекция → Хост → Переопределение порта → Attachment</div></div></div></section>
+  <div id="section-hosts" class="section-content active">
+    <div class="main-container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Управление Хостами</h1>
+          <p class="page-subtitle">Присоединение сервисов и коллекций к хостам</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-outline" onclick="resetDemoData()">↺ Сбросить демо</button>
+          <button class="btn btn-primary" onclick="openHostModal()">➕ Создать хост</button>
+        </div>
+      </div>
 
-<section id="section-services" class="section-content"><div class="main-container"><div class="page-header"><div><h1 class="page-title">🔌 Библиотека Сервисов</h1><p class="page-subtitle">Сервисы могут иметь auth. Шаблоны создаются из модалки редактирования сервиса.</p></div><button class="btn btn-primary" onclick="openServiceModal()">➕ Создать сервис</button></div><div class="panel"><div class="panel-header"><span>📚</span><p><strong>Что такое Сервис?</strong><br>Конкретная конфигурация мониторинга, которую можно присоединять к хостам.</p></div><div class="stats-grid"><div class="stat-card"><div class="stat-label">Сервисы</div><div class="stat-value" id="svc-count-my">0</div></div><div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value green" id="svc-count-used">0</div></div><div class="stat-card"><div class="stat-label">С auth</div><div class="stat-value amber" id="svc-count-auth">0</div></div><div class="stat-card"><div class="stat-label">Портов</div><div class="stat-value" id="svc-count-ports">0</div></div></div><div class="panel-content" id="services-list"></div></div></div></section>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-header-icon">🖥️</span>
+          <p class="panel-header-text"><strong>Контекст: Хост</strong> — присоединение сервисов и коллекций.</p>
+        </div>
+        <div class="panel-toolbar">
+          <div class="toolbar-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="select-all" onchange="toggleSelectAllHosts(this)">
+              <div class="checkbox-box"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+            </div>
+            <span class="stats-text">Выбрано: <span class="count" id="selected-count">0</span> из <span class="count" id="total-count">0</span></span>
+          </div>
+          <div class="toolbar-right">
+            <button id="attach-svc-btn" class="btn btn-sm btn-ghost" onclick="openAttachWizard('service')">⚡ <span id="attach-svc-text">Присоединить сервис</span></button>
+            <button id="attach-col-btn" class="btn btn-sm btn-ghost" onclick="openAttachWizard('collection')">📦 <span id="attach-col-text">Присоединить коллекцию</span></button>
+            <button id="bulk-delete-hosts-btn" class="btn btn-sm btn-danger hidden" onclick="openBulkDeleteHostsModal()">🗑️ <span>Удалить</span></button>
+          </div>
+        </div>
+        <div class="panel-filters">
+          <span class="text-slate-500">🔍</span>
+          <input type="text" id="host-search" class="input" placeholder="Поиск..." oninput="renderHosts()">
+          <select id="host-segment" class="select" onchange="renderHosts()">
+            <option value="all">Все сегменты</option>
+            <option value="prod-dmz">Production DMZ</option>
+            <option value="analytics">Analytics</option>
+            <option value="k8s">K8s Cluster</option>
+          </select>
+        </div>
+        <div class="panel-content" id="hosts-list"></div>
+        <div class="panel-footer">💡 <strong>Иерархия:</strong> Сервис/Коллекция → Хост → переопределение порта → Attachment</div>
+      </div>
+    </div>
+  </div>
 
-<section id="section-templates" class="section-content"><div class="main-container"><div class="page-header"><div><h1 class="page-title">🧩 Шаблоны сервисов</h1><p class="page-subtitle">Шаблоны не хранят аутентификацию. При клике создаётся сервис на основе шаблона.</p></div></div><div class="panel"><div class="panel-header"><span>🧩</span><p><strong>Шаблон сервиса</strong> — переиспользуемая конфигурация без секретов и auth.</p></div><div class="stats-grid stats-grid-3"><div class="stat-card"><div class="stat-label">Всего шаблонов</div><div class="stat-value purple" id="tpl-count">0</div></div><div class="stat-card"><div class="stat-label">Создано сервисов</div><div class="stat-value green" id="tpl-used">0</div></div><div class="stat-card"><div class="stat-label">Auth в шаблонах</div><div class="stat-value amber" id="tpl-auth-count">0</div></div></div><div class="panel-content" id="templates-list"></div></div></div></section>
+  <div id="section-services" class="section-content">
+    <div class="main-container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🔌 Библиотека Сервисов</h1>
+          <p class="page-subtitle">Мои сервисы для сбора метрик. Из любого сервиса можно создать шаблон.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openServiceModal()">➕ Создать сервис</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-header-icon">📚</span>
+          <div>
+            <p class="panel-header-text"><strong>Что такое Сервис?</strong></p>
+            <p style="font-size:14px;color:var(--green-700);margin-top:4px;">Конфигурация для сбора метрик, которую можно присоединять к хостам. Порт по умолчанию можно переопределить для каждого хоста.</p>
+          </div>
+        </div>
+        <div class="stats-grid stats-grid-3">
+          <div class="stat-card"><div class="stat-label">Мои сервисы</div><div class="stat-value" id="svc-count-my">0</div></div>
+          <div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value green" id="svc-count-used">0</div></div>
+          <div class="stat-card"><div class="stat-label">Всего сервисов</div><div class="stat-value amber" id="svc-count-total">0</div></div>
+        </div>
+        <div class="panel-toolbar">
+          <div class="toolbar-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="service-select-all" onchange="toggleSelectAllServices(this)">
+              <div class="checkbox-box"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+            </div>
+            <span class="stats-text">Выбрано: <span class="count" id="service-selected-count">0</span> из <span class="count" id="service-total-count">0</span></span>
+          </div>
+          <div class="toolbar-right">
+            <button id="bulk-delete-services-btn" class="btn btn-sm btn-danger hidden" onclick="openBulkDeleteServicesModal()">🗑️ <span>Удалить</span></button>
+          </div>
+        </div>
+        <div class="panel-content" id="services-list"></div>
+      </div>
+    </div>
+  </div>
 
-<section id="section-collections" class="section-content"><div class="main-container"><div class="page-header"><div><h1 class="page-title">📦 Библиотека Коллекций</h1><p class="page-subtitle">Группы сервисов для пакетного присоединения</p></div><button class="btn btn-primary" onclick="openCollectionModal()">➕ Создать коллекцию</button></div><div class="panel"><div class="panel-header"><span>📚</span><p><strong>Что такое Коллекция?</strong><br>Набор сервисов. Не хранит настройки портов — только ссылается на сервисы.</p></div><div class="stats-grid stats-grid-3"><div class="stat-card"><div class="stat-label">Всего коллекций</div><div class="stat-value" id="col-count">0</div></div><div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value green" id="col-count-used">0</div></div><div class="stat-card"><div class="stat-label">Среднее сервисов</div><div class="stat-value" id="col-count-avg">0</div></div></div><div class="panel-content" id="collections-list"></div></div></div></section>
+  <div id="section-templates" class="section-content">
+    <div class="main-container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">🧩 Шаблоны сервисов</h1>
+          <p class="page-subtitle">Переиспользуемые шаблоны, созданные из сервисов.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-header-icon">🧩</span>
+          <div>
+            <p class="panel-header-text"><strong>Что такое Шаблон сервиса?</strong></p>
+            <p style="font-size:14px;color:var(--purple-700);margin-top:4px;">Это чистая базовая конфигурация сервиса без привязки к конкретному хосту. Нажмите на шаблон, чтобы создать сервис на его основе.</p>
+          </div>
+        </div>
+        <div class="stats-grid stats-grid-3">
+          <div class="stat-card"><div class="stat-label">Всего шаблонов</div><div class="stat-value purple" id="tpl-count-total">0</div></div>
+          <div class="stat-card"><div class="stat-label">Создано сервисов</div><div class="stat-value green" id="tpl-count-used">0</div></div>
+          <div class="stat-card"><div class="stat-label">Всего шаблонных портов</div><div class="stat-value amber" id="tpl-count-ports">0</div></div>
+        </div>
+        <div class="panel-toolbar">
+          <div class="toolbar-left">
+            <div class="checkbox-wrapper">
+              <input type="checkbox" id="template-select-all" onchange="toggleSelectAllTemplates(this)">
+              <div class="checkbox-box"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
+            </div>
+            <span class="stats-text">Выбрано: <span class="count" id="template-selected-count">0</span> из <span class="count" id="template-total-count">0</span></span>
+          </div>
+          <div class="toolbar-right">
+            <button id="bulk-delete-templates-btn" class="btn btn-sm btn-danger hidden" onclick="openBulkDeleteTemplatesModal()">🗑️ <span>Удалить</span></button>
+          </div>
+        </div>
+        <div class="panel-content" id="templates-list"></div>
+      </div>
+    </div>
+  </div>
 
-<div id="host-modal" class="modal-overlay hidden fade-in"><div class="modal"><div class="modal-header"><div class="modal-header-left"><span class="modal-icon">🖥️</span><div><h3 class="modal-title" id="host-modal-title">Создать хост</h3><p class="modal-subtitle">Имя, IP/FQDN и сегмент</p></div></div><button class="modal-close" onclick="closeHostModal()">✕</button></div><div class="modal-body"><div class="form-group"><label class="form-label">Имя хоста *</label><input type="text" id="host-name" class="form-input" placeholder="web-prod-01" oninput="validateHostName(this.value)"><div id="host-name-val" style="font-size:12px;margin-top:4px;min-height:16px;font-weight:600"></div></div><div class="form-group"><label class="form-label">Адрес хоста (FQDN / IP) *</label><div class="form-row-address"><select id="host-addr-type" class="form-select" onchange="validateHostAddress(document.getElementById('host-address').value)"><option value="ip">🌐 IP-адрес</option><option value="fqdn">🔗 FQDN</option></select><input type="text" id="host-address" class="form-input" placeholder="10.0.1.50 или server.example.com" oninput="validateHostAddress(this.value)"></div><div id="host-address-val" style="font-size:12px;margin-top:4px;min-height:16px;font-weight:600"></div></div><div class="form-group"><label class="form-label">Сегмент *</label><select id="host-segment-sel" class="form-select" onchange="checkHostForm()"><option value="">Выберите сегмент...</option><option value="prod-dmz">Production DMZ</option><option value="analytics">Analytics</option><option value="k8s">K8s Cluster</option></select></div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeHostModal()">Отмена</button><button id="save-host-btn" class="btn btn-primary" onclick="saveHost()" disabled>Сохранить</button></div></div></div>
+  <div id="section-collections" class="section-content">
+    <div class="main-container">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">📦 Библиотека Коллекций</h1>
+          <p class="page-subtitle">Группы сервисов для пакетного присоединения</p>
+        </div>
+        <button class="btn btn-primary" onclick="openCollectionModal()">➕ Создать коллекцию</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-header-icon">📚</span>
+          <div>
+            <p class="panel-header-text"><strong>Что такое Коллекция?</strong></p>
+            <p style="font-size:14px;color:var(--green-700);margin-top:4px;">Набор сервисов. Не хранит настройки портов — только ссылается на сервисы.</p>
+          </div>
+        </div>
+        <div class="stats-grid stats-grid-3">
+          <div class="stat-card"><div class="stat-label">Всего коллекций</div><div class="stat-value" id="col-count">0</div></div>
+          <div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value green" id="col-count-used">0</div></div>
+          <div class="stat-card"><div class="stat-label">Среднее сервисов</div><div class="stat-value" id="col-count-avg">0</div></div>
+        </div>
+        <div class="panel-content" id="collections-list"></div>
+      </div>
+    </div>
+  </div>
 
-<div id="service-modal" class="modal-overlay hidden fade-in"><div class="modal"><div class="modal-header"><div class="modal-header-left"><span class="modal-icon" id="svc-modal-icon">🔌</span><div><h3 class="modal-title" id="svc-modal-title">Создание сервиса</h3><p class="modal-subtitle" id="svc-modal-subtitle">Настрой один раз — применяй везде.</p></div></div><button class="modal-close" onclick="closeServiceModal()">✕</button></div><div class="modal-body"><div class="form-row"><div class="form-group" style="grid-column:span 2"><label class="form-label">Название *</label><input type="text" id="svc-form-name" class="form-input" placeholder="Production Nginx Monitoring" oninput="checkServiceForm();updateTemplateNameHint()"></div><div class="form-group"><label class="form-label">Тип *</label><select id="svc-form-type" class="form-select" onchange="checkServiceForm()"><option value="ExporterScrape">ExporterScrape (HTTP)</option><option value="SQL">SQL</option><option value="BlackBox">BlackBox (TCP/ICMP)</option></select></div><div class="form-group"><label class="form-label">Иконка</label><select id="svc-form-icon" class="form-select"><option value="🌐"> Web</option><option value="🐘"> Database</option><option value="🔴"> Cache</option><option value="📊"> Monitoring</option><option value="🐰"> Queue</option></select></div></div><div class="form-group"><label class="form-label">Порт по умолчанию *</label><input type="number" id="svc-form-port" class="form-input" placeholder="80" value="80" min="1" max="65535" oninput="checkServiceForm()"><p class="form-hint">Можно переопределить для каждого хоста.</p></div><div class="form-group"><label class="form-label">Путь к метрикам</label><input type="text" id="svc-form-metrics" class="form-input" value="/metrics" style="font-family:monospace" oninput="checkServiceForm()"></div><label class="checkbox-label"><input type="checkbox" id="svc-form-auth-enabled" onchange="toggleAuthFields()"><span class="checkbox-label-text">🔐 Требуется аутентификация</span></label><div id="auth-fields" class="hidden auth-fields"><h4 class="auth-title">🔐 Аутентификация</h4><div class="form-row"><div class="form-group"><label class="form-label">Username</label><input type="text" id="svc-form-username" class="form-input" placeholder="monitor"></div><div class="form-group"><label class="form-label">Password</label><input type="password" id="svc-form-password" class="form-input" placeholder="••••••"></div></div></div><div id="svc-template-tools" class="auth-fields hidden" style="background:var(--purple-50);border-color:var(--purple-100)"><h4 class="auth-title">🧩 Создание шаблона сервиса</h4><div class="form-group" style="margin-bottom:12px"><label class="form-label">Название шаблона</label><input type="text" id="svc-template-name" class="form-input" placeholder="Шаблон &quot;Название сервиса&quot;"><p class="form-hint">Шаблоны не сохраняют auth. В шаблон попадут только тип, порт, путь и иконка.</p></div><button type="button" class="btn btn-purple" onclick="createTemplateFromEditingService()">🧩 Создать шаблон сервиса</button></div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeServiceModal()">Отмена</button><button onclick="saveService()" class="btn btn-primary" id="save-svc-btn" disabled>Сохранить сервис</button></div></div></div>
+  <div id="host-modal" class="modal-overlay hidden fade-in">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon" id="host-modal-icon">🖥️</span>
+          <div>
+            <h3 class="modal-title" id="host-modal-title">Создать хост</h3>
+            <p class="modal-subtitle" id="host-modal-subtitle">Паспорт объекта</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeHostModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Имя хоста *</label>
+          <input type="text" id="host-name" class="form-input" placeholder="web-prod-01" oninput="validateHostName(this.value)">
+          <div id="host-name-val" style="font-size:12px;margin-top:4px;min-height:16px;font-weight:500;"></div>
+          <p class="form-hint">💡 Уникальное имя хоста в системе.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Адрес хоста (FQDN / IP) *</label>
+          <div class="form-row-address">
+            <select id="host-addr-type" class="form-select" onchange="validateHostAddress(document.getElementById('host-address').value)">
+              <option value="ip">🌐 IP-адрес</option>
+              <option value="fqdn">🔗 FQDN</option>
+            </select>
+            <input type="text" id="host-address" class="form-input" placeholder="10.0.1.50 или server.example.com" oninput="validateHostAddress(this.value)">
+          </div>
+          <div id="host-address-val" style="font-size:12px;margin-top:4px;min-height:16px;font-weight:500;"></div>
+          <p class="form-hint">💡 Введите IP-адрес или FQDN.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Сегмент *</label>
+          <select id="host-segment-sel" class="form-select" onchange="checkHostForm()">
+            <option value="">Выберите сегмент...</option>
+            <option value="prod-dmz">Production DMZ</option>
+            <option value="analytics">Analytics</option>
+            <option value="k8s">K8s Cluster</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeHostModal()">Отмена</button>
+        <button id="save-host-btn" class="btn btn-primary" onclick="saveHost()" disabled>Создать хост</button>
+      </div>
+    </div>
+  </div>
 
-<div id="template-edit-modal" class="modal-overlay hidden fade-in"><div class="modal"><div class="modal-header"><div class="modal-header-left"><span class="modal-icon">🧩</span><div><h3 class="modal-title">Редактирование шаблона сервиса</h3><p class="modal-subtitle">Шаблон не хранит аутентификацию.</p></div></div><button class="modal-close" onclick="closeTemplateEditModal()">✕</button></div><div class="modal-body"><div class="form-row"><div class="form-group" style="grid-column:span 2"><label class="form-label">Название шаблона *</label><input type="text" id="tpl-form-name" class="form-input" oninput="checkTemplateEditForm()"></div><div class="form-group"><label class="form-label">Тип *</label><select id="tpl-form-type" class="form-select" onchange="checkTemplateEditForm()"><option value="ExporterScrape">ExporterScrape (HTTP)</option><option value="SQL">SQL</option><option value="BlackBox">BlackBox (TCP/ICMP)</option></select></div><div class="form-group"><label class="form-label">Иконка</label><select id="tpl-form-icon" class="form-select"><option value="🌐"> Web</option><option value="🐘"> Database</option><option value="🔴"> Cache</option><option value="📊"> Monitoring</option><option value="🐰"> Queue</option></select></div></div><div class="form-group"><label class="form-label">Порт по умолчанию *</label><input type="number" id="tpl-form-port" class="form-input" min="1" max="65535" oninput="checkTemplateEditForm()"></div><div class="form-group"><label class="form-label">Путь к метрикам</label><input type="text" id="tpl-form-metrics" class="form-input" style="font-family:monospace" oninput="checkTemplateEditForm()"></div><div class="auth-fields" style="background:var(--slate-50)"><h4 class="auth-title">🔓 Аутентификация</h4><p class="form-hint">В шаблонах сервисов аутентификации нет. Auth задаётся только в конкретном сервисе.</p></div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeTemplateEditModal()">Отмена</button><button class="btn btn-primary" id="save-tpl-btn" onclick="saveTemplateEdit()">Сохранить шаблон</button></div></div></div>
+  <div id="service-modal" class="modal-overlay hidden fade-in">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon" id="svc-modal-icon">🔌</span>
+          <div>
+            <h3 class="modal-title" id="svc-modal-title">Создание сервиса</h3>
+            <p class="modal-subtitle" id="svc-modal-subtitle">Настрой один раз — применяй везде.</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeServiceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group" style="grid-column:span 2;">
+            <label class="form-label">Название *</label>
+            <input type="text" id="svc-form-name" class="form-input" placeholder="Production Nginx Monitoring" oninput="checkServiceForm();syncTemplateNameFromServiceName()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Тип *</label>
+            <select id="svc-form-agent" class="form-select" onchange="checkServiceForm()">
+              <option value="ExporterScrape">ExporterScrape (HTTP)</option>
+              <option value="SQL">SQL</option>
+              <option value="BlackBox">BlackBox (TCP/ICMP)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Иконка</label>
+            <select id="svc-form-icon" class="form-select">
+              <option value="🌐">Web</option>
+              <option value="🐘">Database</option>
+              <option value="🔴">Cache</option>
+              <option value="📊">Monitoring</option>
+              <option value="🐰">Queue</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Порт по умолчанию *</label>
+          <input type="number" id="svc-form-port" class="form-input" placeholder="80" value="80" min="1" max="65535" oninput="checkServiceForm()">
+          <p class="form-hint">💡 Порт по умолчанию для этого сервиса. Можно переопределить для каждого хоста.</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Путь к метрикам</label>
+          <input type="text" id="svc-form-metrics" class="form-input" value="/metrics" style="font-family:monospace;" oninput="checkServiceForm()">
+        </div>
+        <label class="checkbox-label" style="margin-bottom:16px;">
+          <input type="checkbox" id="svc-form-auth-enabled" onchange="toggleAuthFields()">
+          <span class="checkbox-label-text">🔐 Использовать аутентификацию</span>
+        </label>
+        <div id="auth-fields" class="hidden auth-fields">
+          <h4 class="auth-title">🔐 Параметры аутентификации</h4>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" id="svc-form-username" class="form-input" placeholder="monitor">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="svc-form-password" class="form-input" placeholder="••••••">
+            </div>
+          </div>
+        </div>
+        <div id="svc-template-tools" class="auth-fields hidden" style="margin-top:20px;background:var(--purple-50);border-color:var(--purple-100);">
+          <h4 class="auth-title">🧩 Создание шаблона сервиса</h4>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label class="form-label">Название шаблона</label>
+            <input type="text" id="svc-template-name" class="form-input" placeholder="Шаблон &quot;Название сервиса&quot;" oninput="templateNameTouched=true;">
+            <p class="form-hint">Название предзаполняется по имени сервиса, но его можно изменить перед созданием.</p>
+          </div>
+          <button type="button" class="btn btn-purple" onclick="createTemplateFromEditingService()">🧩 Создать шаблон сервиса</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeServiceModal()">Отмена</button>
+        <button onclick="saveService()" class="btn btn-primary" id="save-svc-btn" disabled>Сохранить сервис</button>
+      </div>
+    </div>
+  </div>
 
-<div id="template-create-service-modal" class="modal-overlay hidden fade-in"><div class="modal"><div class="modal-header"><div class="modal-header-left"><span class="modal-icon">✨</span><div><h3 class="modal-title">Создать сервис из шаблона</h3><p class="modal-subtitle" id="tpl-create-subtitle">Выбран шаблон</p></div></div><button class="modal-close" onclick="closeTemplateCreateServiceModal()">✕</button></div><div class="modal-body"><div class="form-group"><label class="form-label">Название нового сервиса *</label><input type="text" id="tpl-create-service-name" class="form-input" oninput="checkTemplateCreateServiceForm()"><p class="form-hint">Конфигурация будет скопирована из шаблона. Auth не подтягивается, потому что шаблон его не хранит.</p></div><div class="auth-fields" style="background:var(--blue-50);border-color:var(--blue-200)"><h4 class="auth-title">Предпросмотр конфигурации</h4><div id="tpl-create-preview" style="font-size:14px;color:var(--slate-700);line-height:1.8"></div></div></div><div class="modal-footer"><button class="btn btn-outline" onclick="openEditTemplateFromCreateModal()">✏️ Редактировать шаблон</button><div class="modal-footer-right"><button class="btn btn-ghost" onclick="closeTemplateCreateServiceModal()">Отмена</button><button class="btn btn-primary" id="tpl-create-service-btn" onclick="createServiceFromSelectedTemplate()">Создать сервис</button></div></div></div></div>
+  <div id="template-service-modal" class="modal-overlay hidden fade-in">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon">🧩</span>
+          <div>
+            <h3 class="modal-title">Создать сервис из шаблона</h3>
+            <p class="modal-subtitle" id="template-service-subtitle">-</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeTemplateServiceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="template-source-id">
+        <div class="form-group">
+          <label class="form-label">Название нового сервиса *</label>
+          <input type="text" id="template-service-name" class="form-input" placeholder="Новый сервис" oninput="checkTemplateServiceForm()">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Тип</label>
+            <select id="template-service-agent" class="form-select">
+              <option value="ExporterScrape">ExporterScrape (HTTP)</option>
+              <option value="SQL">SQL</option>
+              <option value="BlackBox">BlackBox (TCP/ICMP)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Иконка</label>
+            <select id="template-service-icon" class="form-select">
+              <option value="🌐">Web</option>
+              <option value="🐘">Database</option>
+              <option value="🔴">Cache</option>
+              <option value="📊">Monitoring</option>
+              <option value="🐰">Queue</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Порт по умолчанию</label>
+          <input type="number" id="template-service-port" class="form-input" min="1" max="65535" oninput="checkTemplateServiceForm()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Путь к метрикам</label>
+          <input type="text" id="template-service-metrics" class="form-input" style="font-family:monospace;">
+        </div>
+        <p class="form-hint">После создания сервис появится в разделе “Сервисы”, где его можно дополнительно настроить.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeTemplateServiceModal()">Отмена</button>
+        <button id="save-template-service-btn" class="btn btn-primary" onclick="saveServiceFromTemplate()" disabled>Создать сервис</button>
+      </div>
+    </div>
+  </div>
 
-<div id="collection-modal" class="modal-overlay hidden fade-in"><div class="modal"><div class="modal-header"><div class="modal-header-left"><span class="modal-icon">📦</span><div><h3 class="modal-title">Создание коллекции</h3><p class="modal-subtitle">Выберите сервисы из библиотеки</p></div></div><button class="modal-close" onclick="closeCollectionModal()">✕</button></div><div class="modal-body"><div class="form-group"><label class="form-label">Название *</label><input type="text" id="col-form-name" class="form-input" placeholder="Web Stack" oninput="checkCollectionForm()"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-form-desc" class="form-input" rows="2" placeholder="Стандартный стек"></textarea></div><h4 style="font-size:14px;font-weight:700;margin-bottom:10px">🔧 Состав коллекции:</h4><div id="col-services-list" style="max-height:256px;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px;padding:12px;background:var(--slate-50);margin-bottom:12px"></div><button class="btn btn-outline" onclick="openServicePickerForCollection()" style="width:100%;border-style:dashed">➕ Добавить сервис</button></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeCollectionModal()">Отмена</button><button onclick="saveCollection()" class="btn btn-primary" id="save-col-btn" disabled>Сохранить</button></div></div></div>
-<div id="service-picker-modal" class="modal-overlay hidden fade-in"><div class="modal modal-sm"><div class="modal-header"><h3 class="modal-title">Выберите сервис</h3><button class="modal-close" onclick="closeServicePicker()">✕</button></div><div style="padding:16px"><input type="text" id="svc-picker-search" class="form-input" placeholder="Поиск..." oninput="renderServicePickerList()"></div><div id="svc-picker-list" style="padding:0 16px 16px;max-height:300px;overflow-y:auto"></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeServicePicker()">Отмена</button></div></div></div>
+  <div id="collection-modal" class="modal-overlay hidden fade-in">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon">📦</span>
+          <div>
+            <h3 class="modal-title">Создание коллекции</h3>
+            <p class="modal-subtitle">Выберите сервисы из библиотеки</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeCollectionModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Название *</label>
+          <input type="text" id="col-form-name" class="form-input" placeholder="Web Stack" oninput="checkCollectionForm()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Описание</label>
+          <textarea id="col-form-desc" class="form-input" rows="2" placeholder="Стандартный стек"></textarea>
+        </div>
+        <div class="space-y-4">
+          <h4 class="text-sm font-semibold">🔧 Состав коллекции:</h4>
+          <div id="col-services-list" style="max-height:256px;overflow-y:auto;border:1px solid var(--slate-200);border-radius:8px;padding:12px;background:var(--slate-50);"></div>
+          <button class="btn btn-outline w-full" onclick="openServicePickerForCollection()" style="border-style:dashed;">➕ Добавить сервис</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeCollectionModal()">Отмена</button>
+        <button onclick="saveCollection()" class="btn btn-primary" id="save-col-btn" disabled>Сохранить</button>
+      </div>
+    </div>
+  </div>
 
-<div id="attach-wizard-modal" class="modal-overlay hidden fade-in"><div class="modal"><div class="modal-header"><div class="modal-header-left"><span class="modal-icon" id="att-icon">⚡</span><div><h3 class="modal-title" id="att-title">Присоединение</h3><p class="modal-subtitle" id="att-subtitle">-</p></div></div><button class="modal-close" onclick="closeAttachWizard()">✕</button></div><div class="wizard-steps"><div class="wizard-step-indicators"><div class="wizard-step-item"><div id="att-step-1" class="wizard-step-circle active">1</div><span class="wizard-step-label">Выбор</span></div><div class="wizard-step-line"></div><div class="wizard-step-item"><div id="att-step-2" class="wizard-step-circle">2</div><span class="wizard-step-label">Настройки</span></div><div class="wizard-step-line"></div><div class="wizard-step-item"><div id="att-step-3" class="wizard-step-circle">3</div><span class="wizard-step-label">Auth</span></div><div class="wizard-step-line"></div><div class="wizard-step-item"><div id="att-step-4" class="wizard-step-circle">4</div><span class="wizard-step-label">Превью</span></div></div></div><div class="modal-body" id="att-wizard-content"></div><div class="modal-footer"><button id="att-back" class="btn btn-ghost hidden" onclick="prevAttachStep()">← Назад</button><div style="flex:1"></div><button class="btn btn-ghost" onclick="closeAttachWizard()">Отмена</button><button id="att-next" class="btn btn-primary" onclick="nextAttachStep()">Далее →</button></div></div></div>
+  <div id="service-picker-modal" class="modal-overlay hidden fade-in">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3 class="modal-title">Выберите сервис</h3>
+        <button class="modal-close" onclick="closeServicePicker()">✕</button>
+      </div>
+      <div style="padding:16px;">
+        <input type="text" id="svc-picker-search" class="form-input" placeholder="Поиск..." oninput="renderServicePickerList()">
+      </div>
+      <div id="svc-picker-list" style="padding:0 16px 16px;max-height:256px;overflow-y:auto;"></div>
+      <div class="modal-footer"><button class="btn btn-ghost" onclick="closeServicePicker()">Отмена</button></div>
+    </div>
+  </div>
 
-<div id="delete-confirm-modal" class="modal-overlay hidden fade-in"><div class="modal modal-sm"><div class="modal-header delete-modal-header"><div class="modal-header-left"><span class="modal-icon">⚠️</span><div><h3 class="modal-title" id="delete-modal-title">Подтверждение удаления</h3><p class="modal-subtitle" id="delete-modal-message">Вы уверены?</p></div></div><button class="modal-close" onclick="closeDeleteModal()">✕</button></div><div class="modal-body"><div id="delete-modal-details"></div></div><div class="modal-footer"><button class="btn btn-ghost" onclick="closeDeleteModal()">Отмена</button><button id="delete-confirm-btn" class="btn btn-danger" onclick="executeDelete()">Удалить</button></div></div></div>
-<div id="toast" class="toast"><span class="toast-icon">✓</span><div><div class="toast-title">Успешно</div><div class="toast-message" id="toast-msg">-</div></div></div>
+  <div id="attach-wizard-modal" class="modal-overlay hidden fade-in">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon" id="att-icon">⚡</span>
+          <div>
+            <h3 class="modal-title" id="att-title">Присоединение</h3>
+            <p class="modal-subtitle" id="att-subtitle">-</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeAttachWizard()">✕</button>
+      </div>
+      <div class="wizard-steps">
+        <div class="wizard-step-indicators">
+          <div class="wizard-step-item"><div id="att-step-1" class="wizard-step-circle active">1</div><span class="wizard-step-label active">Выбор</span></div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step-item"><div id="att-step-2" class="wizard-step-circle">2</div><span class="wizard-step-label">Настройки</span></div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step-item"><div id="att-step-3" class="wizard-step-circle">3</div><span class="wizard-step-label">Auth</span></div>
+          <div class="wizard-step-line"></div>
+          <div class="wizard-step-item"><div id="att-step-4" class="wizard-step-circle">4</div><span class="wizard-step-label">Превью</span></div>
+        </div>
+      </div>
+      <div class="wizard-content" id="att-wizard-content"></div>
+      <div class="modal-footer">
+        <button id="att-back" class="btn btn-ghost hidden" onclick="prevAttachStep()">← Назад</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-ghost" onclick="closeAttachWizard()">Отмена</button>
+        <button id="att-next" class="btn btn-primary" onclick="nextAttachStep()">Далее →</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-const STORAGE_KEY='mars-ui-state-v6';let hosts=[],services=[],collections=[],selectedHostIds=new Set(),expandedHostId=null,currentAttachHostId=null,pendingDeleteAction=null,attachStep=1,attachType='service',attachSelectedItem=null,attachAuthValues=[],collectionServiceIds=[],isEditingHost=false,editingHostId=null,isEditingService=false,editingServiceId=null,editingTemplateId=null,selectedTemplateIdForService=null;
-function escapeHtml(v){return String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}function getType(s){return s.type||s.agent||'ExporterScrape'}function clone(o){return JSON.parse(JSON.stringify(o))}
-function demoData(){return{services:[{id:'svc-1',name:'PostgreSQL',type:'SQL',agent:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',auth:{username:'monitor',password:''},isTemplate:false,usedBy:12},{id:'svc-2',name:'Nginx',type:'ExporterScrape',agent:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/nginx_metrics',auth:null,isTemplate:false,usedBy:24},{id:'svc-3',name:'Redis Cache',type:'ExporterScrape',agent:'ExporterScrape',icon:'🔴',defaultPort:6379,metrics:'/metrics',auth:null,isTemplate:false,usedBy:8},{id:'tpl-1',name:'Шаблон "Nginx Standard"',type:'ExporterScrape',agent:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',auth:null,isTemplate:true,usedBy:2},{id:'tpl-2',name:'Шаблон "PostgreSQL Advanced"',type:'SQL',agent:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',auth:null,isTemplate:true,usedBy:1},{id:'tpl-3',name:'Шаблон "RabbitMQ"',type:'BlackBox',agent:'BlackBox',icon:'🐰',defaultPort:15672,metrics:'/metrics',auth:null,isTemplate:true,usedBy:0}],collections:[{id:'col-1',name:'Web Stack',description:'Nginx + PostgreSQL',serviceIds:['svc-1','svc-2'],usedBy:12},{id:'col-2',name:'Cache Stack',description:'Redis + Nginx',serviceIds:['svc-2','svc-3'],usedBy:8}],hosts:[{id:1,name:'web-prod-01',addressType:'ip',address:'10.0.1.50',segment:'prod-dmz',status:'UP',attachments:[{serviceId:'svc-1',auth:{username:'admin',password:'secret'},portOverride:null},{serviceId:'svc-2',auth:null,portOverride:null}]},{id:2,name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',segment:'analytics',status:'WARN',attachments:[{serviceId:'svc-1',auth:{username:'admin',password:'pass123'},portOverride:null}]},{id:3,name:'cache-01',addressType:'ip',address:'192.168.1.10',segment:'k8s',status:'UP',attachments:[{serviceId:'svc-3',auth:null,portOverride:null}]}]}}
-function normalizeState(){services=services.map(s=>({type:getType(s),agent:getType(s),auth:s.isTemplate?null:(s.auth||null),...s,auth:s.isTemplate?null:(s.auth||null),type:getType(s),agent:getType(s)}));collections=collections.map(c=>({...c,serviceIds:(c.serviceIds||[]).filter(id=>services.some(s=>s.id===id&&!s.isTemplate))}));hosts=hosts.map(h=>({...h,addressType:h.addressType||'ip',attachments:(h.attachments||[]).filter(a=>services.some(s=>s.id===a.serviceId&&!s.isTemplate))}))}
-function saveState(){normalizeState();localStorage.setItem(STORAGE_KEY,JSON.stringify({services,collections,hosts}))}function loadState(){let raw=localStorage.getItem(STORAGE_KEY);if(raw){try{let d=JSON.parse(raw);services=d.services||[];collections=d.collections||[];hosts=d.hosts||[];normalizeState();return}catch(e){}}let d=demoData();services=d.services;collections=d.collections;hosts=d.hosts;normalizeState();saveState()}function resetDemoData(){if(confirm('Сбросить все данные к демо-набору?')){let d=demoData();services=d.services;collections=d.collections;hosts=d.hosts;selectedHostIds.clear();expandedHostId=null;saveState();renderAll();showToast('Демо-данные восстановлены')}}
-function renderAll(){renderHosts();renderServices();renderTemplates();renderCollections();updateStats()}function updateStats(){let my=services.filter(s=>!s.isTemplate),tpl=services.filter(s=>s.isTemplate);document.getElementById('svc-count-my').textContent=my.length;document.getElementById('svc-count-used').textContent=my.reduce((a,s)=>a+(s.usedBy||0),0);document.getElementById('svc-count-auth').textContent=my.filter(s=>s.auth).length;document.getElementById('svc-count-ports').textContent=my.length;document.getElementById('tpl-count').textContent=tpl.length;document.getElementById('tpl-used').textContent=tpl.reduce((a,s)=>a+(s.usedBy||0),0);document.getElementById('tpl-auth-count').textContent=tpl.filter(s=>s.auth).length;document.getElementById('col-count').textContent=collections.length;document.getElementById('col-count-used').textContent=collections.reduce((a,c)=>a+(c.usedBy||0),0);document.getElementById('col-count-avg').textContent=collections.length?(collections.reduce((a,c)=>a+c.serviceIds.length,0)/collections.length).toFixed(1):'0'}
-function getEffectivePort(a,s){return a.portOverride||s.defaultPort}function calculateTarget(h,a,s){return h.address+':'+getEffectivePort(a,s)}function getFilteredHosts(){let search=document.getElementById('host-search').value.toLowerCase(),seg=document.getElementById('host-segment').value;return hosts.filter(h=>(h.name.toLowerCase().includes(search)||h.address.toLowerCase().includes(search))&&(seg==='all'||h.segment===seg))}
-function renderHosts(){let filtered=getFilteredHosts(),list=document.getElementById('hosts-list');document.getElementById('selected-count').textContent=selectedHostIds.size;document.getElementById('total-count').textContent=filtered.length;list.innerHTML='';if(!filtered.length){list.innerHTML='<div class="empty-state">Хосты не найдены</div>';updateHostButtons();return}filtered.forEach(h=>{let exp=expandedHostId===h.id,sel=selectedHostIds.has(h.id),badge=h.addressType==='fqdn'?'<span class="addr-type-fqdn">FQDN</span>':'<span class="addr-type-ip">IP</span>';let card=document.createElement('div');card.className='host-card'+(sel?' selected':'')+(exp?' expanded':'');card.innerHTML='<div class="host-card-header"><div class="host-card-left"><div class="checkbox-wrapper" onclick="event.stopPropagation()"><input type="checkbox" '+(sel?'checked':'')+' onchange="toggleHostSelection('+h.id+')"><div class="checkbox-box"></div></div><div class="host-card-info"><div class="host-card-name">'+escapeHtml(h.name)+'</div><div class="host-card-address">'+badge+escapeHtml(h.address)+'</div></div></div><div class="host-card-actions"><span class="badge badge-slate">'+h.attachments.length+' сервисов</span><span class="badge '+(h.status==='UP'?'badge-green':'badge-amber')+'">'+(h.status==='UP'?'🟢 UP':'🟡 WARN')+'</span><button class="btn btn-xs btn-ghost" onclick="toggleHostExpand('+h.id+')">'+(exp?'▲ Свернуть':'→ Детали')+'</button></div></div><div class="detail-content '+(exp?'open':'')+'"><div class="detail-inner"><div class="detail-header"><div class="detail-host-info"><span class="detail-host-icon">🖥️</span><div><div class="detail-host-name">'+escapeHtml(h.name)+'</div><div class="detail-host-address">'+badge+' '+escapeHtml(h.address)+'</div></div></div><div class="detail-actions"><button class="btn btn-xs btn-outline" onclick="openEditHostModal('+h.id+')">✏️ Редактировать</button><button class="btn btn-xs btn-ghost" style="color:var(--danger)" onclick="openDeleteHostModal('+h.id+')">🗑️ Удалить</button></div></div><div id="host-tab-content-'+h.id+'"></div></div></div>';list.appendChild(card);if(exp)renderHostTabContent(h)});updateHostButtons()}
-function renderHostTabContent(h){let c=document.getElementById('host-tab-content-'+h.id);if(!c)return;if(!h.attachments.length){c.innerHTML='<p style="font-size:14px;color:var(--slate-500);font-style:italic">Нет присоединённых сервисов.</p>';return}c.innerHTML='<div class="space-y-3">'+h.attachments.map((a,i)=>{let s=services.find(x=>x.id===a.serviceId);if(!s)return'';let eff=getEffectivePort(a,s),over=a.portOverride!==null;return'<div class="service-item"><div class="service-item-header"><div class="service-item-left"><span class="service-icon">'+s.icon+'</span><div><div class="service-name">'+escapeHtml(s.name)+'</div><div class="service-target">Target: '+escapeHtml(calculateTarget(h,a,s))+'</div></div></div><div class="service-item-actions">'+(a.auth||s.auth?'<span style="font-size:12px;color:var(--amber-700)">🔐 Auth</span>':'<span style="font-size:12px;color:var(--slate-500)">🔓 No Auth</span>')+'<button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-weight:600" onclick="detachService('+h.id+','+i+')">🔌 Отсоединить</button></div></div><div class="port-override-row"><span class="port-override-label">Порт:</span><input type="number" class="port-override-input" value="'+eff+'" min="1" max="65535" placeholder="'+s.defaultPort+'"><button class="btn btn-xs btn-success" onclick="applyPortOverride('+h.id+','+i+',this)">✓ Применить</button><button class="btn btn-xs btn-outline" onclick="resetPortOverride('+h.id+','+i+')">↺ Сбросить</button><span class="port-override-hint">'+(over?'(переопределён: '+a.portOverride+')':'(по умолчанию: '+s.defaultPort+')')+'</span></div></div>'}).join('')+'</div>'}
-function openHostModal(){isEditingHost=false;editingHostId=null;document.getElementById('host-modal-title').textContent='Создать хост';document.getElementById('save-host-btn').textContent='Создать хост';document.getElementById('host-name').value='';document.getElementById('host-addr-type').value='ip';document.getElementById('host-address').value='';document.getElementById('host-segment-sel').value='';document.getElementById('host-name-val').textContent='';document.getElementById('host-address-val').textContent='';document.getElementById('save-host-btn').disabled=true;document.getElementById('host-modal').classList.remove('hidden')}function openEditHostModal(id){let h=hosts.find(x=>x.id===id);if(!h)return;isEditingHost=true;editingHostId=id;document.getElementById('host-modal-title').textContent='Редактировать хост';document.getElementById('save-host-btn').textContent='Сохранить изменения';document.getElementById('host-name').value=h.name;document.getElementById('host-addr-type').value=h.addressType||'ip';document.getElementById('host-address').value=h.address;document.getElementById('host-segment-sel').value=h.segment;document.getElementById('host-name-val').textContent='';document.getElementById('host-address-val').textContent='';document.getElementById('host-modal').classList.remove('hidden');validateHostName(h.name);validateHostAddress(h.address);checkHostForm()}function closeHostModal(){document.getElementById('host-modal').classList.add('hidden')}
-function isValidIp(v){let p=v.split('.');return p.length===4&&p.every(x=>/^\d+$/.test(x)&&Number(x)>=0&&Number(x)<=255)}function isValidFqdn(v){return/^(?=.{1,253}$)([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[A-Za-z]{2,}$/.test(v)}function validateHostName(v){let m=document.getElementById('host-name-val');if(!v.trim()){m.textContent='';checkHostForm();return}if(!/^[a-z0-9-]+$/i.test(v)){m.textContent='❌ Только латиница, цифры и дефис';m.style.color='var(--danger)'}else if(hosts.some(h=>h.name.toLowerCase()===v.toLowerCase()&&h.id!==editingHostId)){m.textContent='❌ Такое имя уже существует';m.style.color='var(--danger)'}else{m.textContent='✅ Имя корректно';m.style.color='var(--success)'}checkHostForm()}function validateHostAddress(v){let m=document.getElementById('host-address-val'),t=document.getElementById('host-addr-type').value;if(!v.trim()){m.textContent='⚠️ Адрес обязателен';m.style.color='var(--warning)'}else if(t==='ip'&&!isValidIp(v)){m.textContent='⚠️ Неверный IP';m.style.color='var(--warning)'}else if(t==='fqdn'&&!isValidFqdn(v)){m.textContent='⚠️ Неверный FQDN';m.style.color='var(--warning)'}else{m.textContent='✅ Адрес корректен';m.style.color='var(--success)'}checkHostForm()}function checkHostForm(){let n=document.getElementById('host-name').value.trim(),a=document.getElementById('host-address').value.trim(),t=document.getElementById('host-addr-type').value,s=document.getElementById('host-segment-sel').value;let ok=/^[a-z0-9-]+$/i.test(n)&&!hosts.some(h=>h.name.toLowerCase()===n.toLowerCase()&&h.id!==editingHostId)&&(t==='ip'?isValidIp(a):isValidFqdn(a))&&!!s;document.getElementById('save-host-btn').disabled=!ok}function saveHost(){let name=document.getElementById('host-name').value.trim(),addressType=document.getElementById('host-addr-type').value,address=document.getElementById('host-address').value.trim(),segment=document.getElementById('host-segment-sel').value;if(isEditingHost){let h=hosts.find(x=>x.id===editingHostId);Object.assign(h,{name,addressType,address,segment});showToast('Хост обновлён')}else{hosts.push({id:Date.now(),name,addressType,address,segment,status:'UP',attachments:[]});showToast('Хост создан')}saveState();closeHostModal();renderAll()}
-function renderServices(){let list=document.getElementById('services-list'),items=services.filter(s=>!s.isTemplate);if(!items.length){list.innerHTML='<div class="empty-state">Нет сервисов</div>';return}list.innerHTML=items.map(s=>'<div class="service-list-card"><div class="service-list-left"><span class="service-list-icon">'+s.icon+'</span><div><div class="service-list-name">'+escapeHtml(s.name)+' <span class="badge badge-blue">🔒 Сервис</span></div><div class="service-list-meta">Тип: '+escapeHtml(getType(s))+' | Порт: <code>'+s.defaultPort+'</code> | Метрики: '+escapeHtml(s.metrics||'/metrics')+' | '+(s.auth?'🔐 Auth':'🔓 No Auth')+'</div></div></div><div class="service-list-actions"><span class="badge badge-slate">'+(s.usedBy||0)+' хостов</span><button class="btn btn-xs btn-outline" onclick="openEditServiceModal(\''+s.id+'\')">✏️ Редактировать</button><button class="btn btn-xs btn-ghost" style="color:var(--danger)" onclick="openDeleteServiceModal(\''+s.id+'\')">🗑️ Удалить</button></div></div>').join('')}
-function openServiceModal(){isEditingService=false;editingServiceId=null;document.getElementById('service-modal').classList.remove('hidden');document.getElementById('svc-modal-title').textContent='Создание сервиса';document.getElementById('svc-modal-subtitle').textContent='Настрой один раз — применяй везде.';document.getElementById('svc-modal-icon').textContent='🔌';document.getElementById('svc-form-name').value='';document.getElementById('svc-form-type').value='ExporterScrape';document.getElementById('svc-form-icon').value='🌐';document.getElementById('svc-form-port').value='80';document.getElementById('svc-form-metrics').value='/metrics';document.getElementById('svc-form-auth-enabled').checked=false;document.getElementById('svc-form-username').value='';document.getElementById('svc-form-password').value='';document.getElementById('save-svc-btn').textContent='Сохранить сервис';document.getElementById('svc-template-tools').classList.add('hidden');toggleAuthFields();checkServiceForm()}function openEditServiceModal(id){let s=services.find(x=>x.id===id&&!x.isTemplate);if(!s)return;isEditingService=true;editingServiceId=id;document.getElementById('service-modal').classList.remove('hidden');document.getElementById('svc-modal-title').textContent='Редактирование сервиса';document.getElementById('svc-modal-subtitle').textContent='Можно создать шаблон сервиса без auth.';document.getElementById('svc-modal-icon').textContent='✏️';document.getElementById('svc-form-name').value=s.name;document.getElementById('svc-form-type').value=getType(s);document.getElementById('svc-form-icon').value=s.icon;document.getElementById('svc-form-port').value=s.defaultPort;document.getElementById('svc-form-metrics').value=s.metrics||'/metrics';document.getElementById('svc-form-auth-enabled').checked=!!s.auth;document.getElementById('svc-form-username').value=s.auth?s.auth.username||'':'';document.getElementById('svc-form-password').value='';document.getElementById('save-svc-btn').textContent='Сохранить изменения';document.getElementById('svc-template-tools').classList.remove('hidden');document.getElementById('svc-template-name').value=makeDefaultTemplateName(s.name);toggleAuthFields();checkServiceForm()}function closeServiceModal(){document.getElementById('service-modal').classList.add('hidden')}function toggleAuthFields(){document.getElementById('auth-fields').className=document.getElementById('svc-form-auth-enabled').checked?'auth-fields':'hidden auth-fields'}function checkServiceForm(){let n=document.getElementById('svc-form-name').value.trim(),p=parseInt(document.getElementById('svc-form-port').value);document.getElementById('save-svc-btn').disabled=!(n&&!isNaN(p)&&p>=1&&p<=65535)}function saveService(){let name=document.getElementById('svc-form-name').value.trim(),type=document.getElementById('svc-form-type').value,icon=document.getElementById('svc-form-icon').value,port=parseInt(document.getElementById('svc-form-port').value),metrics=document.getElementById('svc-form-metrics').value.trim()||'/metrics',auth=document.getElementById('svc-form-auth-enabled').checked?{username:document.getElementById('svc-form-username').value,password:document.getElementById('svc-form-password').value}:null;if(!name||isNaN(port)||port<1||port>65535){showToast('Заполните обязательные поля');return}if(isEditingService){let s=services.find(x=>x.id===editingServiceId);Object.assign(s,{name,type,agent:type,icon,defaultPort:port,metrics,auth});showToast('Сервис обновлён')}else{services.push({id:'svc-'+Date.now(),name,type,agent:type,icon,defaultPort:port,metrics,auth,isTemplate:false,usedBy:0});showToast('Сервис создан')}saveState();closeServiceModal();renderAll()}
-function makeDefaultTemplateName(n){return 'Шаблон "'+n+'"'}function updateTemplateNameHint(){if(isEditingService){document.getElementById('svc-template-name').value=makeDefaultTemplateName(document.getElementById('svc-form-name').value.trim()||'Название сервиса')}}function ensureUniqueTemplateName(n){let base=n,i=2;while(services.some(s=>s.isTemplate&&s.name===n)){n=base+' '+i++;}return n}function createTemplateFromEditingService(){let s=services.find(x=>x.id===editingServiceId&&!x.isTemplate);if(!s){showToast('Откройте сервис в режиме редактирования');return}let name=ensureUniqueTemplateName((document.getElementById('svc-template-name').value||makeDefaultTemplateName(s.name)).trim());services.push({id:'tpl-'+Date.now(),name,type:getType(s),agent:getType(s),icon:s.icon,defaultPort:s.defaultPort,metrics:s.metrics||'/metrics',auth:null,isTemplate:true,usedBy:0,sourceServiceId:s.id,sourceServiceName:s.name});saveState();renderAll();document.getElementById('svc-template-name').value=ensureUniqueTemplateName(makeDefaultTemplateName(s.name));showToast('Шаблон сервиса создан без auth')}
-function renderTemplates(){let list=document.getElementById('templates-list'),items=services.filter(s=>s.isTemplate);if(!items.length){list.innerHTML='<div class="empty-state">Нет шаблонов. Откройте сервис → Редактировать → Создать шаблон сервиса.</div>';return}list.innerHTML=items.map(t=>'<div class="template-list-card" onclick="openCreateServiceFromTemplateModal(\''+t.id+'\')"><div class="service-list-left"><span class="service-list-icon">'+t.icon+'</span><div><div class="service-list-name">'+escapeHtml(t.name)+' <span class="badge badge-purple">🧩 Шаблон</span></div><div class="service-list-meta">Тип: '+escapeHtml(getType(t))+' | Порт: <code>'+t.defaultPort+'</code> | Метрики: '+escapeHtml(t.metrics||'/metrics')+' | 🔓 Без auth</div></div></div><div class="service-list-actions" onclick="event.stopPropagation()"><span class="badge badge-slate">'+(t.usedBy||0)+' сервисов</span><button class="btn btn-xs btn-outline" onclick="openEditTemplateModal(\''+t.id+'\')">✏️ Редактировать</button><button class="btn btn-xs btn-ghost" style="color:var(--danger)" onclick="openDeleteTemplateModal(\''+t.id+'\')">🗑️ Удалить</button></div></div>').join('')}
-function openEditTemplateModal(id){let t=services.find(s=>s.id===id&&s.isTemplate);if(!t)return;editingTemplateId=id;document.getElementById('tpl-form-name').value=t.name;document.getElementById('tpl-form-type').value=getType(t);document.getElementById('tpl-form-icon').value=t.icon;document.getElementById('tpl-form-port').value=t.defaultPort;document.getElementById('tpl-form-metrics').value=t.metrics||'/metrics';checkTemplateEditForm();document.getElementById('template-edit-modal').classList.remove('hidden')}function closeTemplateEditModal(){document.getElementById('template-edit-modal').classList.add('hidden');editingTemplateId=null}function checkTemplateEditForm(){let n=document.getElementById('tpl-form-name').value.trim(),p=parseInt(document.getElementById('tpl-form-port').value);document.getElementById('save-tpl-btn').disabled=!(n&&!isNaN(p)&&p>=1&&p<=65535)}function saveTemplateEdit(){let t=services.find(s=>s.id===editingTemplateId&&s.isTemplate);if(!t)return;let name=document.getElementById('tpl-form-name').value.trim(),type=document.getElementById('tpl-form-type').value,icon=document.getElementById('tpl-form-icon').value,port=parseInt(document.getElementById('tpl-form-port').value),metrics=document.getElementById('tpl-form-metrics').value.trim()||'/metrics';Object.assign(t,{name,type,agent:type,icon,defaultPort:port,metrics,auth:null});saveState();closeTemplateEditModal();renderAll();showToast('Шаблон обновлён без auth')}function openCreateServiceFromTemplateModal(id){let t=services.find(s=>s.id===id&&s.isTemplate);if(!t)return;selectedTemplateIdForService=id;document.getElementById('tpl-create-subtitle').textContent='Шаблон: '+t.name;document.getElementById('tpl-create-service-name').value=makeServiceNameFromTemplate(t.name);document.getElementById('tpl-create-preview').innerHTML='<div><strong>'+t.icon+' '+escapeHtml(t.name)+'</strong></div><div>Тип: <code>'+escapeHtml(getType(t))+'</code></div><div>Порт: <code>'+t.defaultPort+'</code></div><div>Метрики: <code>'+escapeHtml(t.metrics||'/metrics')+'</code></div><div>Аутентификация: <span style="color:var(--slate-500)">не хранится в шаблоне</span></div>';checkTemplateCreateServiceForm();document.getElementById('template-create-service-modal').classList.remove('hidden')}function closeTemplateCreateServiceModal(){document.getElementById('template-create-service-modal').classList.add('hidden');selectedTemplateIdForService=null}function makeServiceNameFromTemplate(n){return n.replace(/^Шаблон\s*["«]?/,'').replace(/["»]$/,'').trim()||'Новый сервис'}function checkTemplateCreateServiceForm(){document.getElementById('tpl-create-service-btn').disabled=!document.getElementById('tpl-create-service-name').value.trim()}function createServiceFromSelectedTemplate(){let t=services.find(s=>s.id===selectedTemplateIdForService&&s.isTemplate);if(!t)return;let name=document.getElementById('tpl-create-service-name').value.trim();services.push({id:'svc-'+Date.now(),name,type:getType(t),agent:getType(t),icon:t.icon,defaultPort:t.defaultPort,metrics:t.metrics||'/metrics',auth:null,isTemplate:false,usedBy:0,sourceTemplateId:t.id,sourceTemplateName:t.name});t.usedBy=(t.usedBy||0)+1;saveState();closeTemplateCreateServiceModal();renderAll();switchSection('services');showToast('Сервис создан из шаблона без auth')}function openEditTemplateFromCreateModal(){let id=selectedTemplateIdForService;closeTemplateCreateServiceModal();openEditTemplateModal(id)}
-function renderCollections(){let list=document.getElementById('collections-list');if(!collections.length){list.innerHTML='<div class="empty-state">Нет коллекций</div>';return}list.innerHTML=collections.map(c=>{let svcs=c.serviceIds.map(id=>services.find(s=>s.id===id)).filter(Boolean);return'<div class="collection-list-card"><div class="collection-list-header"><div class="collection-list-left"><span class="collection-icon">📦</span><div><div class="collection-name">'+escapeHtml(c.name)+' <span class="badge badge-blue">'+c.serviceIds.length+' сервисов</span></div><div class="collection-desc">'+escapeHtml(c.description||'')+'</div><div class="collection-services">Сервисы: '+svcs.map(s=>s.icon+' '+escapeHtml(s.name)).join(', ')+'</div></div></div><div><button class="btn btn-xs btn-ghost" style="color:var(--danger)" onclick="deleteCollection(\''+c.id+'\')">🗑️ Удалить</button></div></div></div>'}).join('')}
-function openCollectionModal(){collectionServiceIds=[];document.getElementById('col-form-name').value='';document.getElementById('col-form-desc').value='';document.getElementById('collection-modal').classList.remove('hidden');renderCollectionServicesList();checkCollectionForm()}function closeCollectionModal(){document.getElementById('collection-modal').classList.add('hidden')}function renderCollectionServicesList(){let list=document.getElementById('col-services-list');if(!collectionServiceIds.length){list.innerHTML='<p style="text-align:center;padding:16px;color:var(--slate-500);font-style:italic">Коллекция пуста.</p>';return}list.innerHTML=collectionServiceIds.map(id=>{let s=services.find(x=>x.id===id);return s?'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:white;border-radius:8px;border:1px solid var(--slate-200);margin-bottom:8px"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:20px">'+s.icon+'</span><div><p style="font-weight:600;font-size:14px">'+escapeHtml(s.name)+'</p><p style="font-size:12px;color:var(--slate-500);font-family:monospace">Порт: '+s.defaultPort+'</p></div></div><button style="background:none;border:none;color:var(--danger);cursor:pointer" onclick="removeFromCollection(\''+s.id+'\')">✕</button></div>':''}).join('')}function checkCollectionForm(){document.getElementById('save-col-btn').disabled=!(document.getElementById('col-form-name').value.trim()&&collectionServiceIds.length)}function removeFromCollection(id){collectionServiceIds=collectionServiceIds.filter(x=>x!==id);renderCollectionServicesList();checkCollectionForm()}function openServicePickerForCollection(){document.getElementById('service-picker-modal').classList.remove('hidden');renderServicePickerList()}function closeServicePicker(){document.getElementById('service-picker-modal').classList.add('hidden')}function renderServicePickerList(){let list=document.getElementById('svc-picker-list'),q=document.getElementById('svc-picker-search').value.toLowerCase(),items=services.filter(s=>!s.isTemplate&&s.name.toLowerCase().includes(q));list.innerHTML=items.map(s=>{let added=collectionServiceIds.includes(s.id);return'<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--slate-50);border-radius:8px;margin-bottom:8px;cursor:'+(added?'default':'pointer')+';opacity:'+(added?.5:1)+'" onclick="'+(added?'':'addToCollection(\''+s.id+'\')')+'"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:20px">'+s.icon+'</span><div><p style="font-weight:600;font-size:14px">'+escapeHtml(s.name)+'</p><p style="font-size:12px;color:var(--slate-500);font-family:monospace">Порт: '+s.defaultPort+'</p></div></div>'+(added?'<span style="font-size:12px;color:var(--success);font-weight:700">✓ Добавлен</span>':'<span style="font-size:12px;color:var(--primary);font-weight:700">➕ Добавить</span>')+'</div>'}).join('')}function addToCollection(id){if(!collectionServiceIds.includes(id)){collectionServiceIds.push(id);renderCollectionServicesList();closeServicePicker();checkCollectionForm()}}function saveCollection(){let name=document.getElementById('col-form-name').value.trim(),desc=document.getElementById('col-form-desc').value.trim();collections.push({id:'col-'+Date.now(),name,description:desc,serviceIds:[...collectionServiceIds],usedBy:0});saveState();closeCollectionModal();renderAll();showToast('Коллекция создана')}
-function openAttachWizard(type){if(selectedHostIds.size!==1){showToast('Выберите один хост');return}currentAttachHostId=[...selectedHostIds][0];attachType=type;attachStep=1;attachSelectedItem=null;attachAuthValues=[];let h=hosts.find(x=>x.id===currentAttachHostId);document.getElementById('att-icon').textContent=type==='service'?'⚡':'📦';document.getElementById('att-title').textContent=type==='service'?'Присоединение сервиса':'Присоединение коллекции';document.getElementById('att-subtitle').textContent='Хост: '+h.name+' ('+h.address+')';document.getElementById('attach-wizard-modal').classList.remove('hidden');renderAttachStep()}function closeAttachWizard(){document.getElementById('attach-wizard-modal').classList.add('hidden')}function renderAttachStep(){for(let i=1;i<=4;i++){let e=document.getElementById('att-step-'+i);e.className='wizard-step-circle';if(i<attachStep){e.classList.add('completed');e.textContent='✓'}else if(i===attachStep){e.classList.add('active');e.textContent=i}else e.textContent=i}let h=hosts.find(x=>x.id===currentAttachHostId),c=document.getElementById('att-wizard-content'),next=document.getElementById('att-next');document.getElementById('att-back').className=attachStep===1?'btn btn-ghost hidden':'btn btn-ghost';next.textContent=attachStep===4?'🔗 Применить':'Далее →';if(attachStep===1){let items=attachType==='service'?services.filter(s=>!s.isTemplate):collections;c.innerHTML='<h3 style="font-size:18px;font-weight:650;margin-bottom:16px">Шаг 1 из 4: Выберите '+(attachType==='service'?'сервис':'коллекцию')+'</h3><div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:var(--blue-800)">🖥️ Хост: <strong>'+escapeHtml(h.name)+'</strong> | 📍 '+escapeHtml(h.address)+'</div><div style="max-height:260px;overflow:auto">'+items.map(it=>attachType==='service'?'<div class="service-select-card" onclick="selectAttachService(\''+it.id+'\')"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:24px">'+it.icon+'</span><div><p style="font-weight:600">'+escapeHtml(it.name)+'</p><p style="font-size:12px;color:var(--slate-500)">Тип: '+escapeHtml(getType(it))+' | Порт: <code>'+it.defaultPort+'</code> | '+(it.auth?'🔐 Auth':'🔓 No Auth')+'</p></div></div></div>':'<div class="collection-select-card" onclick="selectAttachCollection(\''+it.id+'\')"><div style="display:flex;align-items:center;gap:12px"><span style="font-size:24px">📦</span><div><p style="font-weight:600">'+escapeHtml(it.name)+'</p><p style="font-size:12px;color:var(--slate-500)">Сервисов: '+it.serviceIds.length+'</p></div></div></div>').join('')+'</div>'}else if(attachStep===2){c.innerHTML='<h3 style="font-size:18px;font-weight:650;margin-bottom:16px">Шаг 2 из 4: Настройки</h3><p style="font-size:14px;color:var(--slate-600);margin-bottom:16px">Порт можно переопределить после присоединения сервиса в карточке хоста.</p><div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;font-size:14px;color:var(--blue-800)">ℹ️ Используйте порт по умолчанию из сервиса.</div>'}else if(attachStep===3){let ids=attachType==='service'?[attachSelectedItem.id]:attachSelectedItem.serviceIds,authSvcs=ids.map(id=>services.find(s=>s.id===id)).filter(s=>s&&s.auth);c.innerHTML='<h3 style="font-size:18px;font-weight:650;margin-bottom:16px">Шаг 3 из 4: Аутентификация</h3>'+(authSvcs.length?authSvcs.map(s=>'<div class="auth-fields"><h4 class="auth-title">'+s.icon+' '+escapeHtml(s.name)+'</h4><div class="form-row"><input type="text" id="auth-user-'+s.id+'" class="form-input" placeholder="'+escapeHtml(s.auth.username||'admin')+'"><input type="password" id="auth-pass-'+s.id+'" class="form-input" placeholder="••••••"></div></div>').join(''):'<p style="font-size:14px;color:var(--success)">✅ Сервисы не требуют аутентификации</p>')}else{let ids=attachType==='service'?[attachSelectedItem.id]:attachSelectedItem.serviceIds;c.innerHTML='<h3 style="font-size:18px;font-weight:650;margin-bottom:16px">Шаг 4 из 4: Предпросмотр</h3><div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:var(--blue-800)">📍 Адрес: '+escapeHtml(h.address)+' ('+(h.addressType==='ip'?'IP':'FQDN')+')</div>'+ids.map(id=>{let s=services.find(x=>x.id===id);return s?'<div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:16px;margin-bottom:12px"><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span style="font-size:24px">'+s.icon+'</span><h4>'+escapeHtml(s.name)+'</h4></div><div style="font-size:14px">Target: <code>'+escapeHtml(h.address)+':'+s.defaultPort+'</code></div><div style="font-size:14px;margin-top:8px">Label: <code>mars_host=&quot;'+escapeHtml(h.name)+'&quot;</code></div></div>':''}).join('')+'<p style="font-size:14px;color:var(--slate-500);margin-top:12px">Будет добавлено '+ids.length+' сервис(ов).</p>'}}
-function selectAttachService(id){attachSelectedItem=services.find(s=>s.id===id);attachStep=2;renderAttachStep()}function selectAttachCollection(id){attachSelectedItem=collections.find(c=>c.id===id);attachStep=2;renderAttachStep()}function prevAttachStep(){if(attachStep>1){attachStep--;renderAttachStep()}}function nextAttachStep(){if(!attachSelectedItem){showToast('Выберите элемент');return}if(attachStep===3){let ids=attachType==='service'?[attachSelectedItem.id]:attachSelectedItem.serviceIds;attachAuthValues=ids.map(id=>{let s=services.find(x=>x.id===id);if(!s||!s.auth)return null;let u=document.getElementById('auth-user-'+id),p=document.getElementById('auth-pass-'+id);return{serviceId:id,username:u?u.value||s.auth.username:'',password:p?p.value||'':''}}).filter(Boolean)}if(attachStep===4){confirmAttachment();return}attachStep++;renderAttachStep()}function confirmAttachment(){let h=hosts.find(x=>x.id===currentAttachHostId),ids=attachType==='service'?[attachSelectedItem.id]:attachSelectedItem.serviceIds;ids.forEach(id=>{let ex=h.attachments.find(a=>a.serviceId===id),s=services.find(x=>x.id===id),auth=attachAuthValues.find(a=>a.serviceId===id)||(s||{}).auth;if(!ex)h.attachments.push({serviceId:id,auth:auth||null,portOverride:null});else if(auth)ex.auth=auth});if(attachType==='collection')attachSelectedItem.usedBy=(attachSelectedItem.usedBy||0)+1;else{let s=services.find(x=>x.id===attachSelectedItem.id);if(s)s.usedBy=(s.usedBy||0)+1}saveState();closeAttachWizard();renderAll();showToast((attachType==='service'?'Сервис':'Коллекция')+' присоединён(а)')}
-function applyPortOverride(hostId,i,btn){let h=hosts.find(x=>x.id===hostId),v=btn.parentElement.querySelector('input').value.trim(),n=parseInt(v);if(v===''||isNaN(n)){h.attachments[i].portOverride=null}else if(n<1||n>65535){showToast('Некорректный порт');return}else h.attachments[i].portOverride=n;saveState();renderHostTabContent(h);showToast('Порт обновлён')}function resetPortOverride(hostId,i){let h=hosts.find(x=>x.id===hostId);h.attachments[i].portOverride=null;saveState();renderHostTabContent(h);showToast('Порт сброшен')}function detachService(hostId,i){let h=hosts.find(x=>x.id===hostId),s=services.find(x=>x.id===h.attachments[i].serviceId);h.attachments.splice(i,1);saveState();renderAll();showToast('Сервис '+(s?s.name:'')+' отсоединён')}
-function openDeleteModal(title,msg,html,action){pendingDeleteAction=action;document.getElementById('delete-modal-title').textContent=title;document.getElementById('delete-modal-message').textContent=msg;document.getElementById('delete-modal-details').innerHTML=html;document.getElementById('delete-confirm-modal').classList.remove('hidden')}function closeDeleteModal(){document.getElementById('delete-confirm-modal').classList.add('hidden');pendingDeleteAction=null}function executeDelete(){if(pendingDeleteAction)pendingDeleteAction();closeDeleteModal()}function openDeleteHostModal(id){let h=hosts.find(x=>x.id===id);openDeleteModal('Удаление хоста','Удалить хост "'+h.name+'"?','<div class="delete-details"><div class="delete-details-item">🖥️ <strong>'+escapeHtml(h.name)+'</strong> ('+escapeHtml(h.address)+')</div><div class="delete-warning">⚠️ Все присоединённые сервисы будут отсоединены.</div></div>',()=>{hosts=hosts.filter(x=>x.id!==id);selectedHostIds.delete(id);if(expandedHostId===id)expandedHostId=null;saveState();renderAll();showToast('Хост удалён')})}function openBulkDeleteHostsModal(){let arr=hosts.filter(h=>selectedHostIds.has(h.id));openDeleteModal('Удаление хостов','Удалить '+arr.length+' хост(ов)?','<div class="delete-details">'+arr.map(h=>'<div class="delete-details-item">🖥️ '+escapeHtml(h.name)+' ('+escapeHtml(h.address)+')</div>').join('')+'</div><div class="delete-warning">⚠️ Все сервисы будут отсоединены.</div>',()=>{hosts=hosts.filter(h=>!selectedHostIds.has(h.id));selectedHostIds.clear();expandedHostId=null;saveState();renderAll();showToast('Хосты удалены')})}function openDeleteServiceModal(id){let s=services.find(x=>x.id===id&&!x.isTemplate);openDeleteModal('Удаление сервиса','Удалить сервис "'+s.name+'"?','<div class="delete-details"><div class="delete-details-item">'+s.icon+' <strong>'+escapeHtml(s.name)+'</strong></div><div class="delete-warning">⚠️ Сервис будет удалён из хостов и коллекций.</div></div>',()=>{services=services.filter(x=>x.id!==id);hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));collections.forEach(c=>c.serviceIds=c.serviceIds.filter(x=>x!==id));saveState();renderAll();showToast('Сервис удалён')})}function openDeleteTemplateModal(id){let t=services.find(x=>x.id===id&&x.isTemplate);openDeleteModal('Удаление шаблона','Удалить шаблон "'+t.name+'"?','<div class="delete-details"><div class="delete-details-item">🧩 <strong>'+escapeHtml(t.name)+'</strong></div><div class="delete-warning">⚠️ Конкретные сервисы не будут удалены.</div></div>',()=>{services=services.filter(x=>x.id!==id);saveState();renderAll();showToast('Шаблон удалён')})}function deleteCollection(id){let c=collections.find(x=>x.id===id);openDeleteModal('Удаление коллекции','Удалить коллекцию "'+c.name+'"?','<div class="delete-details"><div class="delete-details-item">📦 <strong>'+escapeHtml(c.name)+'</strong></div></div>',()=>{collections=collections.filter(x=>x.id!==id);saveState();renderAll();showToast('Коллекция удалена')})}
-function toggleHostExpand(id){expandedHostId=expandedHostId===id?null:id;renderHosts()}function toggleHostSelection(id){selectedHostIds.has(id)?selectedHostIds.delete(id):selectedHostIds.add(id);renderHosts()}function toggleSelectAll(cb){let f=getFilteredHosts();if(cb.checked)f.forEach(h=>selectedHostIds.add(h.id));else selectedHostIds.clear();renderHosts()}function updateHostButtons(){let c=selectedHostIds.size,del=document.getElementById('bulk-delete-hosts-btn'),b1=document.getElementById('attach-svc-btn'),b2=document.getElementById('attach-col-btn');del.classList.toggle('hidden',c===0);del.querySelector('span').textContent=c>1?'Удалить ('+c+')':'Удалить';b1.disabled=c!==1;b2.disabled=c!==1;b1.style.opacity=c===1?'1':'.5';b2.style.opacity=c===1?'1':'.5';document.getElementById('attach-svc-text').textContent=c===1?'Присоединить сервис':'Присоединить сервис';document.getElementById('attach-col-text').textContent=c===1?'Присоединить коллекцию':'Присоединить коллекцию'}function switchSection(s){document.querySelectorAll('.section-content').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));document.getElementById('section-'+s).classList.add('active');document.getElementById('nav-'+s).classList.add('active');renderAll()}function showToast(msg){let t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
-loadState();renderAll();
-</script>
+  <div id="delete-confirm-modal" class="modal-overlay hidden fade-in">
+    <div class="modal modal-sm">
+      <div class="modal-header delete-modal-header">
+        <div class="modal-header-left">
+          <span class="modal-icon">⚠️</span>
+          <div>
+            <h3 class="delete-modal-title" id="delete-modal-title">Подтверждение удаления</h3>
+            <p class="delete-modal-message" id="delete-modal-message">Вы уверены, что хотите удалить?</p>
+          </div>
+        </div>
+        <button class="modal-close" onclick="closeDeleteModal()">✕</button>
+      </div>
+      <div class="modal-body"><div id="delete-modal-details" class="space-y-2"></div></div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeDeleteModal()">Отмена</button>
+        <button id="delete-confirm-btn" class="btn btn-danger" onclick="executeDelete()">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">
+    <span class="toast-icon">✓</span>
+    <div><div class="toast-title">Успешно</div><div class="toast-message" id="toast-msg">-</div></div>
+  </div>
+
+  <script>
+    let hosts = [];
+    let services = [];
+    let collections = [];
+    let selectedHostIds = new Set();
+    let selectedServiceIds = new Set();
+    let selectedTemplateIds = new Set();
+    let expandedHostId = null;
+    let currentAttachHostId = null;
+    let pendingDeleteAction = null;
+    let attachStep = 1;
+    let attachType = 'service';
+    let attachSelectedItem = null;
+    let attachAuthValues = [];
+    let collectionServiceIds = [];
+    let isEditingService = false;
+    let editingServiceId = null;
+    let editingHostId = null;
+    let templateNameTouched = false;
+
+    const STORAGE_KEY = 'mars-ui-state-v2';
+
+    function demoData() {
+      return {
+        services: [
+          { id: 'svc-1', name: 'PostgreSQL', agent: 'SQL', icon: '🐘', defaultPort: 5432, metrics: '/metrics', auth: { username: 'monitor', password: '' }, isTemplate: false, usedBy: 12 },
+          { id: 'svc-2', name: 'Nginx', agent: 'ExporterScrape', icon: '🌐', defaultPort: 80, metrics: '/nginx_metrics', auth: null, isTemplate: false, usedBy: 24 },
+          { id: 'svc-3', name: 'Redis Cache', agent: 'ExporterScrape', icon: '🔴', defaultPort: 6379, metrics: '/metrics', auth: null, isTemplate: false, usedBy: 8 },
+          { id: 'tpl-1', name: 'Nginx Standard', agent: 'ExporterScrape', icon: '🌐', defaultPort: 80, metrics: '/metrics', auth: null, isTemplate: true, usedBy: 347, team: 'Team-Infra', views: 347 },
+          { id: 'tpl-2', name: 'PostgreSQL Advanced', agent: 'SQL', icon: '🐘', defaultPort: 5432, metrics: '/metrics', auth: null, isTemplate: true, usedBy: 134, team: 'Team-Data', views: 512 },
+          { id: 'tpl-3', name: 'RabbitMQ', agent: 'BlackBox', icon: '🐰', defaultPort: 15672, metrics: '/metrics', auth: null, isTemplate: true, usedBy: 45, team: 'Team-Infra', views: 189 }
+        ],
+        collections: [
+          { id: 'col-1', name: 'Web Stack', description: 'Nginx + PostgreSQL', serviceIds: ['svc-1', 'svc-2'], usedBy: 12 },
+          { id: 'col-2', name: 'Cache Stack', description: 'Redis + Nginx', serviceIds: ['svc-2', 'svc-3'], usedBy: 8 }
+        ],
+        hosts: [
+          { id: 1, name: 'web-prod-01', addressType: 'ip', address: '10.0.1.50', segment: 'prod-dmz', status: 'UP', attachments: [
+            { serviceId: 'svc-1', auth: { username: 'admin', password: 'secret' }, portOverride: null },
+            { serviceId: 'svc-2', auth: null, portOverride: null }
+          ] },
+          { id: 2, name: 'db-analytics', addressType: 'fqdn', address: 'db-analytics.internal.example.com', segment: 'analytics', status: 'WARN', attachments: [
+            { serviceId: 'svc-1', auth: { username: 'admin', password: 'pass123' }, portOverride: null }
+          ] },
+          { id: 3, name: 'cache-01', addressType: 'ip', address: '192.168.1.10', segment: 'k8s', status: 'UP', attachments: [
+            { serviceId: 'svc-3', auth: null, portOverride: null }
+          ] }
+        ]
+      };
+    }
+
+    function normalizeState() {
+      services = Array.isArray(services) ? services : [];
+      hosts = Array.isArray(hosts) ? hosts : [];
+      collections = Array.isArray(collections) ? collections : [];
+
+      services.forEach(function(s) {
+        if (!s.id) s.id = (s.isTemplate ? 'tpl-' : 'svc-') + Date.now() + '-' + Math.random().toString(16).slice(2);
+        if (!s.agent && s.type) s.agent = s.type;
+        if (!s.agent) s.agent = 'ExporterScrape';
+        if (!s.icon) s.icon = '🌐';
+        if (!s.metrics) s.metrics = '/metrics';
+        if (!Number.isInteger(Number(s.defaultPort))) s.defaultPort = 80;
+        s.defaultPort = Number(s.defaultPort);
+        if (!Number.isInteger(Number(s.usedBy))) s.usedBy = 0;
+        s.usedBy = Number(s.usedBy);
+        if (s.isTemplate) s.auth = null;
+      });
+
+      hosts.forEach(function(h) {
+        if (!h.addressType) h.addressType = isValidIp(h.address || '') ? 'ip' : 'fqdn';
+        if (!Array.isArray(h.attachments)) h.attachments = [];
+        h.attachments = h.attachments.filter(function(att) { return services.some(function(s) { return s.id === att.serviceId && !s.isTemplate; }); });
+      });
+
+      const serviceIds = new Set(services.filter(function(s) { return !s.isTemplate; }).map(function(s) { return s.id; }));
+      collections.forEach(function(c) {
+        if (!Array.isArray(c.serviceIds)) c.serviceIds = [];
+        c.serviceIds = c.serviceIds.filter(function(id) { return serviceIds.has(id); });
+        if (!Number.isInteger(Number(c.usedBy))) c.usedBy = 0;
+        c.usedBy = Number(c.usedBy);
+      });
+
+      selectedHostIds = new Set(Array.from(selectedHostIds).filter(function(id) { return hosts.some(function(h) { return h.id === id; }); }));
+      selectedServiceIds = new Set(Array.from(selectedServiceIds).filter(function(id) { return services.some(function(s) { return s.id === id && !s.isTemplate; }); }));
+      selectedTemplateIds = new Set(Array.from(selectedTemplateIds).filter(function(id) { return services.some(function(s) { return s.id === id && s.isTemplate; }); }));
+    }
+
+    function saveState() {
+      normalizeState();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ hosts: hosts, services: services, collections: collections }));
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        hosts = data.hosts || [];
+        services = data.services || [];
+        collections = data.collections || [];
+        normalizeState();
+        saveState();
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function resetDemoData() {
+      openDeleteModal(
+        'Сброс демо-данных',
+        'Вернуть исходные данные прототипа?',
+        '<div class="delete-details"><div class="delete-details-item">Будут сброшены хосты, сервисы, шаблоны и коллекции в браузере.</div></div>',
+        function() {
+          const d = demoData();
+          hosts = d.hosts;
+          services = d.services;
+          collections = d.collections;
+          selectedHostIds.clear();
+          selectedServiceIds.clear();
+          selectedTemplateIds.clear();
+          expandedHostId = null;
+          saveState();
+          renderAll();
+          showToast('Демо-данные сброшены');
+        }
+      );
+    }
+
+    function init() {
+      if (!loadState()) {
+        const d = demoData();
+        hosts = d.hosts;
+        services = d.services;
+        collections = d.collections;
+        saveState();
+      }
+      renderAll();
+    }
+
+    function renderAll() {
+      renderHosts();
+      renderServices();
+      renderServiceTemplates();
+      renderCollections();
+      updateServicesStats();
+      updateCollectionsStats();
+    }
+
+    function serviceItems() { return services.filter(function(s) { return !s.isTemplate; }); }
+    function templateItems() { return services.filter(function(s) { return s.isTemplate; }); }
+    function getType(s) { return s.agent || s.type || 'ExporterScrape'; }
+    function escapeHtml(v) { return String(v ?? '').replace(/[&<>'"]/g, function(m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[m]; }); }
+    function checkboxSvg() { return '<div class="checkbox-box"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>'; }
+    function addrBadge(h) { return h.addressType === 'ip' ? '<span class="addr-type-ip">IP</span>' : '<span class="addr-type-fqdn">FQDN</span>'; }
+    function getEffectivePort(att, svc) { return att.portOverride || svc.defaultPort; }
+    function calculateTarget(h, att, svc) { return h.address + ':' + getEffectivePort(att, svc); }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toast-msg').textContent = msg;
+      t.classList.add('show');
+      setTimeout(function() { t.classList.remove('show'); }, 3000);
+    }
+
+    function renderHosts() {
+      const search = (document.getElementById('host-search')?.value || '').toLowerCase();
+      const seg = document.getElementById('host-segment')?.value || 'all';
+      const filtered = hosts.filter(function(h) {
+        return (h.name.toLowerCase().includes(search) || h.address.toLowerCase().includes(search)) && (seg === 'all' || h.segment === seg);
+      });
+
+      document.getElementById('selected-count').textContent = selectedHostIds.size;
+      document.getElementById('total-count').textContent = filtered.length;
+
+      const list = document.getElementById('hosts-list');
+      list.innerHTML = '';
+      if (!filtered.length) {
+        list.innerHTML = '<div class="empty-state">Хосты не найдены</div>';
+        updateHostButtons();
+        return;
+      }
+
+      filtered.forEach(function(h) {
+        const isExpanded = expandedHostId === h.id;
+        const isSelected = selectedHostIds.has(h.id);
+        const card = document.createElement('div');
+        card.className = 'host-card' + (isSelected ? ' selected' : '') + (isExpanded ? ' expanded' : '');
+        card.innerHTML =
+          '<div class="host-card-header">' +
+            '<div class="host-card-left">' +
+              '<div class="checkbox-wrapper" onclick="event.stopPropagation()"><input type="checkbox" ' + (isSelected ? 'checked' : '') + ' onchange="toggleHostSelection(' + h.id + ')">' + checkboxSvg() + '</div>' +
+              '<div class="host-card-info"><div class="host-card-name">' + escapeHtml(h.name) + '</div><div class="host-card-address">' + addrBadge(h) + escapeHtml(h.address) + '</div></div>' +
+            '</div>' +
+            '<div class="host-card-actions"><span class="badge badge-slate">' + h.attachments.length + ' сервисов</span><span class="badge ' + (h.status === 'UP' ? 'badge-green' : 'badge-amber') + '">' + (h.status === 'UP' ? '🟢 UP' : '🟡 WARN') + '</span><button class="btn btn-xs btn-ghost" onclick="toggleHostExpand(' + h.id + ')">' + (isExpanded ? '▲ Свернуть' : '→ Детали') + '</button></div>' +
+          '</div>' +
+          '<div class="detail-content ' + (isExpanded ? 'open' : '') + '"><div class="detail-inner"><div class="detail-header"><div class="detail-host-info"><span class="detail-host-icon">🖥️</span><div><div class="detail-host-name">' + escapeHtml(h.name) + '</div><div class="detail-host-address">' + addrBadge(h) + ' ' + escapeHtml(h.address) + '</div></div></div><div class="detail-actions"><button class="btn btn-xs btn-outline" onclick="openEditHostModal(' + h.id + ')">✏️ Редактировать</button><button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="openDeleteHostModal(' + h.id + ')">🗑️ Удалить хост</button></div></div><div id="host-tab-content-' + h.id + '"></div></div></div>';
+        list.appendChild(card);
+        if (isExpanded) renderHostTabContent(h);
+      });
+      updateHostButtons();
+    }
+
+    function renderHostTabContent(h) {
+      const c = document.getElementById('host-tab-content-' + h.id);
+      if (!c) return;
+      if (!h.attachments.length) {
+        c.innerHTML = '<p style="font-size:14px;color:var(--slate-500);font-style:italic;">Нет присоединённых сервисов.</p>';
+        return;
+      }
+
+      let html = '<div class="space-y-3">';
+      h.attachments.forEach(function(att, idx) {
+        const svc = services.find(function(s) { return s.id === att.serviceId && !s.isTemplate; });
+        if (!svc) return;
+        html += '<div class="service-item">' +
+          '<div class="service-item-header">' +
+            '<div class="service-item-left"><span class="service-icon">' + svc.icon + '</span><div><div class="service-name">' + escapeHtml(svc.name) + '</div><div class="service-target">Target: ' + escapeHtml(calculateTarget(h, att, svc)) + '</div></div></div>' +
+            '<div class="service-item-actions">' + (svc.auth ? '<span style="font-size:12px;color:var(--amber-700);">🔐 Auth</span>' : '<span style="font-size:12px;color:var(--slate-500);">🔓 No Auth</span>') + '<button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:12px;font-weight:500;" onclick="detachService(' + h.id + ',' + idx + ')">🔌 Отсоединить</button></div>' +
+          '</div>' +
+          '<div class="port-override-row"><span class="port-override-label">Порт:</span><input type="number" class="port-override-input" value="' + getEffectivePort(att, svc) + '" min="1" max="65535" placeholder="' + svc.defaultPort + '"><button class="btn btn-xs btn-success" onclick="applyPortOverride(' + h.id + ',' + idx + ',this)">✓ Применить</button><button class="btn btn-xs btn-outline" onclick="resetPortOverride(' + h.id + ',' + idx + ')">↺ Сбросить</button><span class="port-override-hint">' + (att.portOverride !== null ? '(переопределён: ' + att.portOverride + ')' : '(по умолчанию: ' + svc.defaultPort + ')') + '</span></div>' +
+        '</div>';
+      });
+      c.innerHTML = html + '</div>';
+    }
+
+    function applyPortOverride(hostId, idx, btn) {
+      const h = hosts.find(function(x) { return x.id === hostId; });
+      const input = btn.previousElementSibling;
+      const val = input.value.trim();
+      if (!h || !h.attachments[idx]) return;
+      if (val === '') h.attachments[idx].portOverride = null;
+      else {
+        const n = parseInt(val, 10);
+        if (isNaN(n) || n < 1 || n > 65535) { showToast('Некорректное значение порта'); return; }
+        h.attachments[idx].portOverride = n;
+      }
+      saveState();
+      renderHostTabContent(h);
+      showToast('Порт обновлён');
+    }
+
+    function resetPortOverride(hostId, idx) {
+      const h = hosts.find(function(x) { return x.id === hostId; });
+      if (!h || !h.attachments[idx]) return;
+      h.attachments[idx].portOverride = null;
+      saveState();
+      renderHostTabContent(h);
+      showToast('Порт сброшен');
+    }
+
+    function openHostModal() {
+      editingHostId = null;
+      document.getElementById('host-modal-title').textContent = 'Создать хост';
+      document.getElementById('host-modal-subtitle').textContent = 'Паспорт объекта';
+      document.getElementById('host-modal-icon').textContent = '🖥️';
+      document.getElementById('save-host-btn').textContent = 'Создать хост';
+      document.getElementById('host-modal').classList.remove('hidden');
+      setHostForm('', 'ip', '', '');
+      document.getElementById('save-host-btn').disabled = true;
+    }
+
+    function openEditHostModal(id) {
+      const h = hosts.find(function(x) { return x.id === id; });
+      if (!h) return;
+      editingHostId = id;
+      document.getElementById('host-modal-title').textContent = 'Редактировать хост';
+      document.getElementById('host-modal-subtitle').textContent = 'Изменение имени и адреса';
+      document.getElementById('host-modal-icon').textContent = '✏️';
+      document.getElementById('save-host-btn').textContent = 'Сохранить изменения';
+      document.getElementById('host-modal').classList.remove('hidden');
+      setHostForm(h.name, h.addressType, h.address, h.segment);
+      validateHostName(h.name);
+      validateHostAddress(h.address);
+      checkHostForm();
+    }
+
+    function setHostForm(name, type, address, segment) {
+      document.getElementById('host-name').value = name;
+      document.getElementById('host-addr-type').value = type || 'ip';
+      document.getElementById('host-address').value = address;
+      document.getElementById('host-segment-sel').value = segment;
+      document.getElementById('host-name-val').textContent = '';
+      document.getElementById('host-address-val').textContent = '';
+    }
+
+    function closeHostModal() {
+      document.getElementById('host-modal').classList.add('hidden');
+      editingHostId = null;
+    }
+
+    function isValidIp(v) {
+      const p = v.trim().split('.');
+      return p.length === 4 && p.every(function(x) { return /^\d+$/.test(x) && Number(x) >= 0 && Number(x) <= 255; });
+    }
+
+    function isValidFqdn(v) {
+      return /^(?=.{1,253}$)([a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(v.trim());
+    }
+
+    function validateHostName(val) {
+      const msg = document.getElementById('host-name-val');
+      const btn = document.getElementById('save-host-btn');
+      const v = val.trim();
+      if (!v) { msg.textContent = ''; btn.disabled = true; return; }
+      if (!/^[a-z0-9-]+$/i.test(v)) { msg.textContent = '❌ Только латиница, цифры и дефис'; msg.style.color = 'var(--danger)'; btn.disabled = true; return; }
+      const exists = hosts.some(function(h) { return h.id !== editingHostId && h.name.toLowerCase() === v.toLowerCase(); });
+      if (exists) { msg.textContent = '❌ Хост "' + v + '" уже существует'; msg.style.color = 'var(--danger)'; btn.disabled = true; }
+      else { msg.textContent = '✅ Имя уникально'; msg.style.color = 'var(--success)'; checkHostForm(); }
+    }
+
+    function validateHostAddress(val) {
+      const msg = document.getElementById('host-address-val');
+      const btn = document.getElementById('save-host-btn');
+      const type = document.getElementById('host-addr-type').value;
+      const v = val.trim();
+      if (!v) { msg.textContent = '⚠️ Адрес обязателен'; msg.style.color = 'var(--warning)'; btn.disabled = true; return; }
+      const ok = type === 'ip' ? isValidIp(v) : isValidFqdn(v);
+      if (!ok) { msg.textContent = type === 'ip' ? '⚠️ Неверный IP-адрес' : '⚠️ Неверный формат FQDN'; msg.style.color = 'var(--warning)'; btn.disabled = true; return; }
+      msg.textContent = '✅ Адрес корректен';
+      msg.style.color = 'var(--success)';
+      checkHostForm();
+    }
+
+    function checkHostForm() {
+      const name = document.getElementById('host-name').value.trim();
+      const addr = document.getElementById('host-address').value.trim();
+      const type = document.getElementById('host-addr-type').value;
+      const seg = document.getElementById('host-segment-sel').value;
+      const nameOk = /^[a-z0-9-]+$/i.test(name) && !hosts.some(function(h) { return h.id !== editingHostId && h.name.toLowerCase() === name.toLowerCase(); });
+      const addrOk = type === 'ip' ? isValidIp(addr) : isValidFqdn(addr);
+      document.getElementById('save-host-btn').disabled = !(nameOk && addrOk && seg);
+    }
+
+    function saveHost() {
+      const name = document.getElementById('host-name').value.trim();
+      const addressType = document.getElementById('host-addr-type').value;
+      const address = document.getElementById('host-address').value.trim();
+      const segment = document.getElementById('host-segment-sel').value;
+      if (document.getElementById('save-host-btn').disabled) return;
+      if (editingHostId) {
+        const h = hosts.find(function(x) { return x.id === editingHostId; });
+        if (h) { h.name = name; h.addressType = addressType; h.address = address; h.segment = segment; showToast('Хост обновлён'); }
+      } else {
+        hosts.push({ id: Date.now(), name: name, addressType: addressType, address: address, segment: segment, status: 'UP', attachments: [] });
+        showToast('Хост ' + name + ' создан');
+      }
+      saveState();
+      closeHostModal();
+      renderHosts();
+    }
+
+    function renderServices() {
+      const items = serviceItems();
+      const list = document.getElementById('services-list');
+      document.getElementById('service-total-count').textContent = items.length;
+      document.getElementById('service-selected-count').textContent = selectedServiceIds.size;
+      if (!items.length) {
+        list.innerHTML = '<div class="empty-state">Нет сервисов</div>';
+        updateServiceBulkButtons();
+        return;
+      }
+      list.innerHTML = items.map(function(svc) {
+        const selected = selectedServiceIds.has(svc.id);
+        return '<div class="service-list-card' + (selected ? ' selected' : '') + '">' +
+          '<div class="service-list-left">' +
+            '<div class="checkbox-wrapper" onclick="event.stopPropagation()"><input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="toggleServiceSelection(\'' + svc.id + '\')">' + checkboxSvg() + '</div>' +
+            '<span class="service-list-icon">' + svc.icon + '</span>' +
+            '<div><div class="service-list-name">' + escapeHtml(svc.name) + ' <span class="badge badge-blue" style="font-size:11px;">🔒 Сервис</span></div><div class="service-list-meta">Тип: ' + escapeHtml(getType(svc)) + ' | Порт: <code>' + svc.defaultPort + '</code> | Метрики: ' + escapeHtml(svc.metrics) + '</div></div>' +
+          '</div>' +
+          '<div class="service-list-actions"><span class="badge badge-slate">' + getHostUsageCount(svc.id) + ' хостов</span>' + (svc.auth ? '<span class="badge badge-amber">🔐 Auth</span>' : '<span class="badge badge-slate">🔓 No Auth</span>') + '<button class="btn btn-xs btn-outline" onclick="openEditServiceModal(\'' + svc.id + '\')">✏️ Редактировать</button><button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="openDeleteServiceModal(\'' + svc.id + '\')">🗑️ Удалить</button></div>' +
+        '</div>';
+      }).join('');
+      updateServiceBulkButtons();
+    }
+
+    function renderServiceTemplates() {
+      const items = templateItems();
+      const list = document.getElementById('templates-list');
+      document.getElementById('template-total-count').textContent = items.length;
+      document.getElementById('template-selected-count').textContent = selectedTemplateIds.size;
+      if (!items.length) {
+        list.innerHTML = '<div class="empty-state">Нет шаблонов сервисов</div>';
+        updateTemplateBulkButtons();
+        return;
+      }
+      list.innerHTML = items.map(function(tpl) {
+        const selected = selectedTemplateIds.has(tpl.id);
+        return '<div class="template-list-card' + (selected ? ' selected' : '') + '" onclick="openServiceFromTemplateModal(\'' + tpl.id + '\')">' +
+          '<div class="template-list-left">' +
+            '<div class="checkbox-wrapper" onclick="event.stopPropagation()"><input type="checkbox" ' + (selected ? 'checked' : '') + ' onchange="toggleTemplateSelection(\'' + tpl.id + '\')">' + checkboxSvg() + '</div>' +
+            '<span class="template-list-icon">' + tpl.icon + '</span>' +
+            '<div><div class="template-list-name">' + escapeHtml(tpl.name) + ' <span class="badge badge-purple" style="font-size:11px;">🧩 Шаблон</span></div><div class="template-list-meta">Тип: ' + escapeHtml(getType(tpl)) + ' | Порт: <code>' + tpl.defaultPort + '</code> | Метрики: ' + escapeHtml(tpl.metrics) + '</div></div>' +
+          '</div>' +
+          '<div class="template-list-actions"><span class="badge badge-slate">' + (tpl.usedBy || 0) + ' создано</span><button class="btn btn-xs btn-outline" onclick="event.stopPropagation();openServiceFromTemplateModal(\'' + tpl.id + '\')">➕ Создать сервис</button><button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="event.stopPropagation();openDeleteTemplateModal(\'' + tpl.id + '\')">🗑️ Удалить</button></div>' +
+        '</div>';
+      }).join('');
+      updateTemplateBulkButtons();
+    }
+
+    function updateServicesStats() {
+      const svcItems = serviceItems();
+      const tplItems = templateItems();
+      const svcCount = document.getElementById('svc-count-my');
+      const svcUsed = document.getElementById('svc-count-used');
+      const svcTotal = document.getElementById('svc-count-total');
+      const tplTotal = document.getElementById('tpl-count-total');
+      const tplUsed = document.getElementById('tpl-count-used');
+      const tplPorts = document.getElementById('tpl-count-ports');
+      if (svcCount) svcCount.textContent = svcItems.length;
+      if (svcUsed) svcUsed.textContent = svcItems.reduce(function(sum, s) { return sum + getHostUsageCount(s.id); }, 0);
+      if (svcTotal) svcTotal.textContent = svcItems.length;
+      if (tplTotal) tplTotal.textContent = tplItems.length;
+      if (tplUsed) tplUsed.textContent = tplItems.reduce(function(sum, s) { return sum + Number(s.usedBy || 0); }, 0);
+      if (tplPorts) tplPorts.textContent = tplItems.length;
+    }
+
+    function getHostUsageCount(serviceId) {
+      return hosts.reduce(function(sum, h) { return sum + (h.attachments.some(function(a) { return a.serviceId === serviceId; }) ? 1 : 0); }, 0);
+    }
+
+    function openServiceModal() {
+      isEditingService = false;
+      editingServiceId = null;
+      templateNameTouched = false;
+      document.getElementById('service-modal').classList.remove('hidden');
+      document.getElementById('svc-modal-title').textContent = 'Создание сервиса';
+      document.getElementById('svc-modal-subtitle').textContent = 'Настрой один раз — применяй везде.';
+      document.getElementById('svc-modal-icon').textContent = '🔌';
+      document.getElementById('svc-form-name').value = '';
+      document.getElementById('svc-form-agent').value = 'ExporterScrape';
+      document.getElementById('svc-form-icon').value = '🌐';
+      document.getElementById('svc-form-port').value = '80';
+      document.getElementById('svc-form-metrics').value = '/metrics';
+      document.getElementById('svc-form-auth-enabled').checked = false;
+      document.getElementById('svc-form-username').value = '';
+      document.getElementById('svc-form-password').value = '';
+      document.getElementById('save-svc-btn').textContent = 'Сохранить сервис';
+      document.getElementById('svc-template-tools').classList.add('hidden');
+      document.getElementById('svc-template-name').value = '';
+      toggleAuthFields();
+      checkServiceForm();
+    }
+
+    function openEditServiceModal(id) {
+      const svc = services.find(function(s) { return s.id === id && !s.isTemplate; });
+      if (!svc) return;
+      isEditingService = true;
+      editingServiceId = id;
+      templateNameTouched = false;
+      document.getElementById('service-modal').classList.remove('hidden');
+      document.getElementById('svc-modal-title').textContent = 'Редактирование сервиса';
+      document.getElementById('svc-modal-subtitle').textContent = 'Измените параметры сервиса или создайте из него шаблон.';
+      document.getElementById('svc-modal-icon').textContent = '✏️';
+      document.getElementById('svc-form-name').value = svc.name;
+      document.getElementById('svc-form-agent').value = getType(svc);
+      document.getElementById('svc-form-icon').value = svc.icon;
+      document.getElementById('svc-form-port').value = svc.defaultPort;
+      document.getElementById('svc-form-metrics').value = svc.metrics;
+      document.getElementById('svc-form-auth-enabled').checked = !!svc.auth;
+      document.getElementById('svc-form-username').value = svc.auth ? (svc.auth.username || '') : '';
+      document.getElementById('svc-form-password').value = svc.auth ? (svc.auth.password || '') : '';
+      document.getElementById('save-svc-btn').textContent = 'Сохранить изменения';
+      document.getElementById('svc-template-tools').classList.remove('hidden');
+      document.getElementById('svc-template-name').value = ensureUniqueTemplateName(makeDefaultTemplateName(svc.name));
+      toggleAuthFields();
+      checkServiceForm();
+    }
+
+    function closeServiceModal() {
+      document.getElementById('service-modal').classList.add('hidden');
+      isEditingService = false;
+      editingServiceId = null;
+      templateNameTouched = false;
+    }
+
+    function toggleAuthFields() {
+      const enabled = document.getElementById('svc-form-auth-enabled').checked;
+      document.getElementById('auth-fields').className = enabled ? 'auth-fields' : 'auth-fields hidden';
+    }
+
+    function checkServiceForm() {
+      const name = document.getElementById('svc-form-name').value.trim();
+      const port = parseInt(document.getElementById('svc-form-port').value, 10);
+      const ok = !!name && !isNaN(port) && port >= 1 && port <= 65535;
+      document.getElementById('save-svc-btn').disabled = !ok;
+    }
+
+    function saveService() {
+      const name = document.getElementById('svc-form-name').value.trim();
+      const agent = document.getElementById('svc-form-agent').value;
+      const port = parseInt(document.getElementById('svc-form-port').value, 10);
+      const metrics = document.getElementById('svc-form-metrics').value.trim() || '/metrics';
+      const icon = document.getElementById('svc-form-icon').value;
+      const authEnabled = document.getElementById('svc-form-auth-enabled').checked;
+      const auth = authEnabled ? { username: document.getElementById('svc-form-username').value, password: document.getElementById('svc-form-password').value } : null;
+
+      if (!name || isNaN(port) || port < 1 || port > 65535) { showToast('Заполните обязательные поля'); return; }
+
+      if (isEditingService) {
+        const s = services.find(function(x) { return x.id === editingServiceId && !x.isTemplate; });
+        if (s) {
+          Object.assign(s, { name: name, agent: agent, icon: icon, defaultPort: port, metrics: metrics, auth: auth });
+          showToast('Сервис обновлён');
+        }
+      } else {
+        services.push({ id: 'svc-' + Date.now(), name: name, agent: agent, icon: icon, defaultPort: port, metrics: metrics, auth: auth, isTemplate: false, usedBy: 0 });
+        showToast('Сервис создан');
+      }
+      saveState();
+      closeServiceModal();
+      renderAll();
+    }
+
+    function makeDefaultTemplateName(serviceName) { return 'Шаблон "' + serviceName + '"'; }
+
+    function ensureUniqueTemplateName(baseName) {
+      let name = baseName;
+      let i = 2;
+      while (templateItems().some(function(t) { return t.name.toLowerCase() === name.toLowerCase(); })) {
+        name = baseName + ' ' + i;
+        i += 1;
+      }
+      return name;
+    }
+
+    function syncTemplateNameFromServiceName() {
+      if (!isEditingService || templateNameTouched) return;
+      const name = document.getElementById('svc-form-name').value.trim();
+      const input = document.getElementById('svc-template-name');
+      if (name && input) input.value = ensureUniqueTemplateName(makeDefaultTemplateName(name));
+    }
+
+    function createTemplateFromEditingService() {
+      if (!isEditingService || !editingServiceId) return;
+      const templateName = document.getElementById('svc-template-name').value.trim();
+      const name = document.getElementById('svc-form-name').value.trim();
+      const agent = document.getElementById('svc-form-agent').value;
+      const port = parseInt(document.getElementById('svc-form-port').value, 10);
+      const metrics = document.getElementById('svc-form-metrics').value.trim() || '/metrics';
+      const icon = document.getElementById('svc-form-icon').value;
+
+      if (!templateName) { showToast('Введите название шаблона'); return; }
+      if (!name || isNaN(port) || port < 1 || port > 65535) { showToast('Проверьте поля сервиса'); return; }
+      if (templateItems().some(function(t) { return t.name.toLowerCase() === templateName.toLowerCase(); })) { showToast('Шаблон с таким названием уже существует'); return; }
+
+      services.push({ id: 'tpl-' + Date.now(), name: templateName, agent: agent, icon: icon, defaultPort: port, metrics: metrics, auth: null, isTemplate: true, usedBy: 0 });
+      saveState();
+      document.getElementById('svc-template-name').value = ensureUniqueTemplateName(templateName + ' копия');
+      templateNameTouched = true;
+      renderAll();
+      showToast('Шаблон сервиса создан');
+    }
+
+    function openServiceFromTemplateModal(templateId) {
+      const tpl = services.find(function(s) { return s.id === templateId && s.isTemplate; });
+      if (!tpl) return;
+      document.getElementById('template-source-id').value = tpl.id;
+      document.getElementById('template-service-subtitle').textContent = tpl.name;
+      document.getElementById('template-service-name').value = makeServiceNameFromTemplate(tpl.name);
+      document.getElementById('template-service-agent').value = getType(tpl);
+      document.getElementById('template-service-icon').value = tpl.icon;
+      document.getElementById('template-service-port').value = tpl.defaultPort;
+      document.getElementById('template-service-metrics').value = tpl.metrics || '/metrics';
+      document.getElementById('template-service-modal').classList.remove('hidden');
+      checkTemplateServiceForm();
+    }
+
+    function closeTemplateServiceModal() {
+      document.getElementById('template-service-modal').classList.add('hidden');
+    }
+
+    function makeServiceNameFromTemplate(templateName) {
+      let name = templateName.replace(/^Шаблон\s+["“](.*)["”]$/i, '$1');
+      name = name.replace(/^Шаблон\s+/i, '');
+      if (!name.trim()) name = templateName;
+      let candidate = name.trim();
+      let i = 2;
+      while (serviceItems().some(function(s) { return s.name.toLowerCase() === candidate.toLowerCase(); })) {
+        candidate = name.trim() + ' ' + i;
+        i += 1;
+      }
+      return candidate;
+    }
+
+    function checkTemplateServiceForm() {
+      const name = document.getElementById('template-service-name').value.trim();
+      const port = parseInt(document.getElementById('template-service-port').value, 10);
+      document.getElementById('save-template-service-btn').disabled = !(name && !isNaN(port) && port >= 1 && port <= 65535);
+    }
+
+    function saveServiceFromTemplate() {
+      const tplId = document.getElementById('template-source-id').value;
+      const tpl = services.find(function(s) { return s.id === tplId && s.isTemplate; });
+      if (!tpl) return;
+      const name = document.getElementById('template-service-name').value.trim();
+      const agent = document.getElementById('template-service-agent').value;
+      const icon = document.getElementById('template-service-icon').value;
+      const port = parseInt(document.getElementById('template-service-port').value, 10);
+      const metrics = document.getElementById('template-service-metrics').value.trim() || '/metrics';
+      if (!name || isNaN(port) || port < 1 || port > 65535) { showToast('Проверьте поля сервиса'); return; }
+      services.push({ id: 'svc-' + Date.now(), name: name, agent: agent, icon: icon, defaultPort: port, metrics: metrics, auth: null, isTemplate: false, usedBy: 0, sourceTemplateId: tpl.id });
+      tpl.usedBy = Number(tpl.usedBy || 0) + 1;
+      saveState();
+      closeTemplateServiceModal();
+      renderAll();
+      showToast('Сервис создан на основе шаблона');
+    }
+
+    function openDeleteServiceModal(id) {
+      const svc = services.find(function(s) { return s.id === id && !s.isTemplate; });
+      if (!svc) return;
+      openDeleteModal(
+        'Удаление сервиса',
+        'Вы уверены, что хотите удалить сервис "' + svc.name + '"?',
+        '<div class="delete-details"><div class="delete-details-item">' + svc.icon + ' <strong>' + escapeHtml(svc.name) + '</strong></div><div class="delete-details-item">Тип: ' + escapeHtml(getType(svc)) + ' | Порт: ' + svc.defaultPort + '</div><div class="delete-warning">⚠️ Сервис будет удалён из хостов и коллекций.</div></div>',
+        function() { deleteServicesByIds([id]); showToast('Сервис удалён'); }
+      );
+    }
+
+    function openDeleteTemplateModal(id) {
+      const tpl = services.find(function(s) { return s.id === id && s.isTemplate; });
+      if (!tpl) return;
+      openDeleteModal(
+        'Удаление шаблона сервиса',
+        'Вы уверены, что хотите удалить шаблон "' + tpl.name + '"?',
+        '<div class="delete-details"><div class="delete-details-item">' + tpl.icon + ' <strong>' + escapeHtml(tpl.name) + '</strong></div><div class="delete-details-item">Тип: ' + escapeHtml(getType(tpl)) + ' | Порт: ' + tpl.defaultPort + '</div></div>',
+        function() { deleteTemplatesByIds([id]); showToast('Шаблон сервиса удалён'); }
+      );
+    }
+
+    function openBulkDeleteServicesModal() {
+      const ids = Array.from(selectedServiceIds);
+      if (!ids.length) return;
+      const items = serviceItems().filter(function(s) { return ids.includes(s.id); });
+      const details = items.map(function(s) { return '<div class="delete-details-item">' + s.icon + ' ' + escapeHtml(s.name) + '</div>'; }).join('');
+      openDeleteModal(
+        'Массовое удаление сервисов',
+        'Удалить выбранные сервисы: ' + items.length + '?',
+        '<div class="delete-details">' + details + '<div class="delete-warning">⚠️ Сервисы будут удалены из хостов и коллекций.</div></div>',
+        function() { deleteServicesByIds(ids); showToast('Удалено сервисов: ' + items.length); }
+      );
+    }
+
+    function openBulkDeleteTemplatesModal() {
+      const ids = Array.from(selectedTemplateIds);
+      if (!ids.length) return;
+      const items = templateItems().filter(function(t) { return ids.includes(t.id); });
+      const details = items.map(function(t) { return '<div class="delete-details-item">' + t.icon + ' ' + escapeHtml(t.name) + '</div>'; }).join('');
+      openDeleteModal(
+        'Массовое удаление шаблонов',
+        'Удалить выбранные шаблоны сервисов: ' + items.length + '?',
+        '<div class="delete-details">' + details + '</div>',
+        function() { deleteTemplatesByIds(ids); showToast('Удалено шаблонов: ' + items.length); }
+      );
+    }
+
+    function deleteServicesByIds(ids) {
+      const idSet = new Set(ids);
+      services = services.filter(function(s) { return s.isTemplate || !idSet.has(s.id); });
+      hosts.forEach(function(h) { h.attachments = h.attachments.filter(function(a) { return !idSet.has(a.serviceId); }); });
+      collections.forEach(function(c) { c.serviceIds = c.serviceIds.filter(function(id) { return !idSet.has(id); }); });
+      selectedServiceIds = new Set(Array.from(selectedServiceIds).filter(function(id) { return !idSet.has(id); }));
+      saveState();
+      renderAll();
+    }
+
+    function deleteTemplatesByIds(ids) {
+      const idSet = new Set(ids);
+      services = services.filter(function(s) { return !s.isTemplate || !idSet.has(s.id); });
+      selectedTemplateIds = new Set(Array.from(selectedTemplateIds).filter(function(id) { return !idSet.has(id); }));
+      saveState();
+      renderAll();
+    }
+
+    function toggleServiceSelection(id) {
+      selectedServiceIds.has(id) ? selectedServiceIds.delete(id) : selectedServiceIds.add(id);
+      renderServices();
+    }
+
+    function toggleTemplateSelection(id) {
+      selectedTemplateIds.has(id) ? selectedTemplateIds.delete(id) : selectedTemplateIds.add(id);
+      renderServiceTemplates();
+    }
+
+    function toggleSelectAllServices(checkbox) {
+      const ids = serviceItems().map(function(s) { return s.id; });
+      if (checkbox.checked) ids.forEach(function(id) { selectedServiceIds.add(id); });
+      else selectedServiceIds.clear();
+      renderServices();
+    }
+
+    function toggleSelectAllTemplates(checkbox) {
+      const ids = templateItems().map(function(t) { return t.id; });
+      if (checkbox.checked) ids.forEach(function(id) { selectedTemplateIds.add(id); });
+      else selectedTemplateIds.clear();
+      renderServiceTemplates();
+    }
+
+    function updateServiceBulkButtons() {
+      const total = serviceItems().length;
+      const count = selectedServiceIds.size;
+      const btn = document.getElementById('bulk-delete-services-btn');
+      const all = document.getElementById('service-select-all');
+      if (btn) { btn.classList.toggle('hidden', count === 0); btn.querySelector('span').textContent = count > 1 ? 'Удалить (' + count + ')' : 'Удалить'; }
+      if (all) all.checked = total > 0 && count === total;
+      document.getElementById('service-selected-count').textContent = count;
+      document.getElementById('service-total-count').textContent = total;
+    }
+
+    function updateTemplateBulkButtons() {
+      const total = templateItems().length;
+      const count = selectedTemplateIds.size;
+      const btn = document.getElementById('bulk-delete-templates-btn');
+      const all = document.getElementById('template-select-all');
+      if (btn) { btn.classList.toggle('hidden', count === 0); btn.querySelector('span').textContent = count > 1 ? 'Удалить (' + count + ')' : 'Удалить'; }
+      if (all) all.checked = total > 0 && count === total;
+      document.getElementById('template-selected-count').textContent = count;
+      document.getElementById('template-total-count').textContent = total;
+    }
+
+    function renderCollections() {
+      const list = document.getElementById('collections-list');
+      if (!collections.length) { list.innerHTML = '<div class="empty-state">Нет коллекций</div>'; return; }
+      list.innerHTML = collections.map(function(col) {
+        const svcs = col.serviceIds.map(function(sid) { return services.find(function(s) { return s.id === sid && !s.isTemplate; }); }).filter(Boolean);
+        return '<div class="collection-list-card"><div class="collection-list-header"><div class="collection-list-left"><span class="collection-icon">📦</span><div><div class="collection-name">' + escapeHtml(col.name) + ' <span class="badge badge-blue" style="font-size:11px;">' + svcs.length + ' сервисов</span></div><div class="collection-desc">' + escapeHtml(col.description || '') + '</div><div class="collection-services">Сервисы: ' + svcs.map(function(s) { return s.icon + ' ' + escapeHtml(s.name); }).join(', ') + '</div></div></div><div style="display:flex;gap:8px;"><button class="btn btn-xs btn-ghost" style="color:var(--danger);" onclick="deleteCollection(\'' + col.id + '\')">🗑️ Удалить</button></div></div></div>';
+      }).join('');
+    }
+
+    function updateCollectionsStats() {
+      document.getElementById('col-count').textContent = collections.length;
+      document.getElementById('col-count-used').textContent = collections.reduce(function(sum, c) { return sum + Number(c.usedBy || 0); }, 0);
+      document.getElementById('col-count-avg').textContent = collections.length ? (collections.reduce(function(sum, c) { return sum + c.serviceIds.length; }, 0) / collections.length).toFixed(1) : '0';
+    }
+
+    function openCollectionModal() {
+      collectionServiceIds = [];
+      document.getElementById('col-form-name').value = '';
+      document.getElementById('col-form-desc').value = '';
+      document.getElementById('collection-modal').classList.remove('hidden');
+      renderCollectionServicesList();
+      checkCollectionForm();
+    }
+
+    function closeCollectionModal() { document.getElementById('collection-modal').classList.add('hidden'); }
+
+    function renderCollectionServicesList() {
+      const list = document.getElementById('col-services-list');
+      if (!collectionServiceIds.length) {
+        list.innerHTML = '<p style="text-align:center;padding:16px;color:var(--slate-500);font-style:italic;">Коллекция пуста.</p>';
+        checkCollectionForm();
+        return;
+      }
+      list.innerHTML = collectionServiceIds.map(function(sid) {
+        const svc = services.find(function(s) { return s.id === sid && !s.isTemplate; });
+        if (!svc) return '';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:white;border-radius:8px;border:1px solid var(--slate-200);margin-bottom:8px;"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:20px;">' + svc.icon + '</span><div><p style="font-weight:500;font-size:14px;">' + escapeHtml(svc.name) + '</p><p style="font-size:12px;color:var(--slate-500);font-family:monospace;">Порт: ' + svc.defaultPort + '</p></div></div><button style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;" onclick="removeFromCollection(\'' + svc.id + '\')">✕</button></div>';
+      }).join('');
+      checkCollectionForm();
+    }
+
+    function checkCollectionForm() {
+      const el = document.getElementById('save-col-btn');
+      if (el) el.disabled = !(document.getElementById('col-form-name').value.trim() && collectionServiceIds.length);
+    }
+
+    function removeFromCollection(sid) {
+      collectionServiceIds = collectionServiceIds.filter(function(id) { return id !== sid; });
+      renderCollectionServicesList();
+    }
+
+    function openServicePickerForCollection() {
+      document.getElementById('service-picker-modal').classList.remove('hidden');
+      renderServicePickerList();
+    }
+
+    function closeServicePicker() { document.getElementById('service-picker-modal').classList.add('hidden'); }
+
+    function renderServicePickerList() {
+      const list = document.getElementById('svc-picker-list');
+      const search = (document.getElementById('svc-picker-search').value || '').toLowerCase();
+      const filtered = serviceItems().filter(function(s) { return s.name.toLowerCase().includes(search); });
+      if (!filtered.length) { list.innerHTML = '<div class="empty-state">Сервисы не найдены</div>'; return; }
+      list.innerHTML = filtered.map(function(svc) {
+        const added = collectionServiceIds.includes(svc.id);
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:var(--slate-50);border-radius:8px;margin-bottom:8px;cursor:' + (added ? 'default' : 'pointer') + ';opacity:' + (added ? '.5' : '1') + ';" ' + (added ? '' : 'onclick="addToCollection(\'' + svc.id + '\')"') + '><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:20px;">' + svc.icon + '</span><div><p style="font-weight:500;font-size:14px;">' + escapeHtml(svc.name) + '</p><p style="font-size:12px;color:var(--slate-500);font-family:monospace;">Порт: ' + svc.defaultPort + '</p></div></div>' + (added ? '<span style="font-size:12px;color:var(--success);font-weight:500;">✓ Добавлен</span>' : '<span style="font-size:12px;color:var(--primary);font-weight:500;">➕ Добавить</span>') + '</div>';
+      }).join('');
+    }
+
+    function addToCollection(sid) {
+      if (!collectionServiceIds.includes(sid)) {
+        collectionServiceIds.push(sid);
+        renderCollectionServicesList();
+        closeServicePicker();
+      }
+    }
+
+    function saveCollection() {
+      const name = document.getElementById('col-form-name').value.trim();
+      const desc = document.getElementById('col-form-desc').value.trim();
+      if (!name || !collectionServiceIds.length) { showToast('Заполните название и добавьте сервисы'); return; }
+      collections.push({ id: 'col-' + Date.now(), name: name, description: desc, serviceIds: collectionServiceIds.slice(), usedBy: 0 });
+      saveState();
+      closeCollectionModal();
+      renderCollections();
+      updateCollectionsStats();
+      showToast('Коллекция создана');
+    }
+
+    function deleteCollection(id) {
+      const col = collections.find(function(c) { return c.id === id; });
+      if (!col) return;
+      openDeleteModal(
+        'Удаление коллекции',
+        'Вы уверены, что хотите удалить коллекцию "' + col.name + '"?',
+        '<div class="delete-details"><div class="delete-details-item">📦 <strong>' + escapeHtml(col.name) + '</strong></div></div>',
+        function() {
+          collections = collections.filter(function(c) { return c.id !== id; });
+          saveState();
+          renderCollections();
+          updateCollectionsStats();
+          showToast('Коллекция удалена');
+        }
+      );
+    }
+
+    function openAttachWizard(type) {
+      if (selectedHostIds.size > 1) { showToast('Выберите один хост'); return; }
+      if (selectedHostIds.size === 0 && !currentAttachHostId) { showToast('Выберите хотя бы один хост'); return; }
+      if (selectedHostIds.size === 1) currentAttachHostId = Array.from(selectedHostIds)[0];
+      const host = hosts.find(function(h) { return h.id === currentAttachHostId; });
+      if (!host) return;
+      attachStep = 1;
+      attachType = type;
+      attachSelectedItem = null;
+      attachAuthValues = [];
+      document.getElementById('att-icon').textContent = type === 'service' ? '⚡' : '📦';
+      document.getElementById('att-title').textContent = type === 'service' ? 'Присоединение сервиса' : 'Присоединение коллекции';
+      document.getElementById('att-subtitle').textContent = 'Хост: ' + host.name + ' (' + host.address + ')';
+      document.getElementById('attach-wizard-modal').classList.remove('hidden');
+      renderAttachStep();
+    }
+
+    function closeAttachWizard() { document.getElementById('attach-wizard-modal').classList.add('hidden'); }
+
+    function renderAttachStep() {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('att-step-' + i);
+        el.className = 'wizard-step-circle';
+        if (i < attachStep) { el.classList.add('completed'); el.textContent = '✓'; }
+        else if (i === attachStep) { el.classList.add('active'); el.textContent = i; }
+        else el.textContent = i;
+      }
+      const host = hosts.find(function(h) { return h.id === currentAttachHostId; });
+      const content = document.getElementById('att-wizard-content');
+      const nextBtn = document.getElementById('att-next');
+      document.getElementById('att-back').className = attachStep === 1 ? 'btn btn-ghost hidden' : 'btn btn-ghost';
+      nextBtn.textContent = attachStep === 4 ? '🔗 Применить' : 'Далее →';
+
+      if (attachStep === 1) {
+        const items = attachType === 'service' ? serviceItems() : collections;
+        content.innerHTML = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 1 из 4: Выберите ' + (attachType === 'service' ? 'сервис' : 'коллекцию') + '</h3><div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:var(--blue-800);">🖥️ Хост: <strong>' + escapeHtml(host.name) + '</strong> | 📍 ' + escapeHtml(host.address) + '</div><div style="max-height:256px;overflow-y:auto;" class="space-y-2">' + items.map(function(item) {
+          if (attachType === 'service') {
+            return '<div class="service-select-card" onclick="selectAttachService(\'' + item.id + '\')"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:24px;">' + item.icon + '</span><div><p style="font-weight:500;">' + escapeHtml(item.name) + '</p><p style="font-size:12px;color:var(--slate-500);">Тип: ' + escapeHtml(getType(item)) + ' | Порт: <code>' + item.defaultPort + '</code></p></div></div></div>';
+          }
+          return '<div class="collection-select-card" onclick="selectAttachCollection(\'' + item.id + '\')"><div style="display:flex;align-items:center;gap:12px;"><span style="font-size:24px;">📦</span><div><p style="font-weight:500;">' + escapeHtml(item.name) + '</p><p style="font-size:12px;color:var(--slate-500);">Сервисов: ' + item.serviceIds.length + '</p></div></div></div>';
+        }).join('') + '</div>';
+        if (!items.length) content.innerHTML += '<p style="font-size:14px;color:var(--slate-500);font-style:italic;margin-top:12px;">Нет доступных элементов.</p>';
+      } else if (attachStep === 2) {
+        content.innerHTML = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 2 из 4: Настройки</h3><p style="font-size:14px;color:var(--slate-600);margin-bottom:16px;">Порт можно переопределить для каждого хоста после присоединения сервиса.</p><div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;font-size:14px;color:var(--blue-800);">ℹ️ Используйте порт по умолчанию из сервиса.</div>';
+      } else if (attachStep === 3) {
+        const ids = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+        const authSvcs = ids.map(function(sid) { return services.find(function(s) { return s.id === sid && !s.isTemplate; }); }).filter(function(s) { return s && s.auth; });
+        content.innerHTML = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 3 из 4: Аутентификация</h3>' + (authSvcs.length ? authSvcs.map(function(svc) {
+          return '<div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:16px;margin-bottom:12px;"><h4 style="font-size:14px;font-weight:600;margin-bottom:12px;">' + svc.icon + ' ' + escapeHtml(svc.name) + '</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><input type="text" id="auth-user-' + svc.id + '" class="form-input" placeholder="' + escapeHtml(svc.auth.username || 'admin') + '"><input type="password" id="auth-pass-' + svc.id + '" class="form-input" placeholder="••••••"></div></div>';
+        }).join('') : '<p style="font-size:14px;color:var(--success);">✅ Сервисы не требуют аутентификации</p>');
+      } else {
+        const ids = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+        content.innerHTML = '<h3 style="font-size:18px;font-weight:600;margin-bottom:16px;">Шаг 4 из 4: Предпросмотр</h3><div style="background:var(--blue-50);border:1px solid var(--blue-200);border-radius:8px;padding:12px;margin-bottom:16px;font-size:14px;color:var(--blue-800);">📍 Адрес: ' + escapeHtml(host.address) + ' (' + (host.addressType === 'ip' ? 'IP' : 'FQDN') + ')</div>' + ids.map(function(sid) {
+          const svc = services.find(function(s) { return s.id === sid && !s.isTemplate; });
+          return svc ? '<div style="background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;padding:16px;margin-bottom:12px;"><div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;"><span style="font-size:24px;">' + svc.icon + '</span><h4>' + escapeHtml(svc.name) + '</h4></div><div style="font-size:14px;">Target: <code>' + escapeHtml(host.address) + ':' + svc.defaultPort + '</code></div><div style="font-size:14px;margin-top:8px;">Label: <code>mars_host=&quot;' + escapeHtml(host.name) + '&quot;</code></div></div>' : '';
+        }).join('') + '<p style="font-size:14px;color:var(--slate-500);margin-top:12px;">Будет добавлено ' + ids.length + ' сервис(ов).</p>';
+      }
+    }
+
+    function selectAttachService(id) {
+      attachSelectedItem = services.find(function(s) { return s.id === id && !s.isTemplate; });
+      attachStep = 2;
+      renderAttachStep();
+    }
+
+    function selectAttachCollection(id) {
+      attachSelectedItem = collections.find(function(c) { return c.id === id; });
+      attachStep = 2;
+      renderAttachStep();
+    }
+
+    function prevAttachStep() { if (attachStep > 1) { attachStep--; renderAttachStep(); } }
+
+    function nextAttachStep() {
+      if (!attachSelectedItem) { showToast('Выберите элемент'); return; }
+      if (attachStep === 3) {
+        const ids = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+        attachAuthValues = ids.map(function(sid) {
+          const svc = services.find(function(s) { return s.id === sid && !s.isTemplate; });
+          if (!svc || !svc.auth) return null;
+          const u = document.getElementById('auth-user-' + sid);
+          const p = document.getElementById('auth-pass-' + sid);
+          return { serviceId: sid, username: u ? (u.value || svc.auth.username) : '', password: p ? (p.value || '') : '' };
+        }).filter(Boolean);
+      }
+      if (attachStep === 4) { confirmAttachment(); return; }
+      attachStep++;
+      renderAttachStep();
+    }
+
+    function confirmAttachment() {
+      const host = hosts.find(function(x) { return x.id === currentAttachHostId; });
+      const ids = attachType === 'service' ? [attachSelectedItem.id] : attachSelectedItem.serviceIds;
+      ids.forEach(function(sid) {
+        const existing = host.attachments.find(function(a) { return a.serviceId === sid; });
+        const svc = services.find(function(s) { return s.id === sid && !s.isTemplate; });
+        const auth = attachAuthValues.find(function(a) { return a.serviceId === sid; }) || (svc || {}).auth;
+        if (!existing) host.attachments.push({ serviceId: sid, auth: auth || null, portOverride: null });
+        else if (auth) existing.auth = auth;
+      });
+      if (attachType === 'collection') attachSelectedItem.usedBy = Number(attachSelectedItem.usedBy || 0) + 1;
+      saveState();
+      closeAttachWizard();
+      renderAll();
+      showToast((attachType === 'service' ? 'Сервис' : 'Коллекция') + ' присоединён(а)');
+    }
+
+    function openDeleteModal(title, message, detailsHtml, action) {
+      pendingDeleteAction = action;
+      document.getElementById('delete-modal-title').textContent = title;
+      document.getElementById('delete-modal-message').textContent = message;
+      document.getElementById('delete-modal-details').innerHTML = detailsHtml;
+      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('delete-confirm-modal').classList.add('hidden');
+      pendingDeleteAction = null;
+    }
+
+    function executeDelete() {
+      if (pendingDeleteAction) pendingDeleteAction();
+      closeDeleteModal();
+    }
+
+    function openDeleteHostModal(id) {
+      const h = hosts.find(function(x) { return x.id === id; });
+      if (!h) return;
+      openDeleteModal(
+        'Удаление хоста',
+        'Вы уверены, что хотите удалить хост "' + h.name + '"?',
+        '<div class="delete-details"><div class="delete-details-item">🖥️ <strong>' + escapeHtml(h.name) + '</strong> (' + escapeHtml(h.address) + ')</div><div class="delete-details-item">Присоединённых сервисов: ' + h.attachments.length + '</div><div class="delete-warning">⚠️ Все присоединённые сервисы будут отсоединены.</div></div>',
+        function() {
+          hosts = hosts.filter(function(x) { return x.id !== id; });
+          selectedHostIds.delete(id);
+          if (expandedHostId === id) expandedHostId = null;
+          saveState();
+          renderHosts();
+          showToast('Хост удалён');
+        }
+      );
+    }
+
+    function openBulkDeleteHostsModal() {
+      if (!selectedHostIds.size) return;
+      const selectedHosts = hosts.filter(function(h) { return selectedHostIds.has(h.id); });
+      const details = selectedHosts.map(function(h) { return '<div class="delete-details-item">🖥️ ' + escapeHtml(h.name) + ' (' + escapeHtml(h.address) + ')</div>'; }).join('');
+      openDeleteModal(
+        'Удаление хостов',
+        'Вы уверены, что хотите удалить ' + selectedHosts.length + ' хост(ов)?',
+        '<div class="delete-details">' + details + '<div class="delete-warning">⚠️ Все присоединённые сервисы будут отсоединены.</div></div>',
+        function() {
+          hosts = hosts.filter(function(h) { return !selectedHostIds.has(h.id); });
+          const count = selectedHostIds.size;
+          selectedHostIds.clear();
+          expandedHostId = null;
+          saveState();
+          renderHosts();
+          showToast('Удалено хостов: ' + count);
+        }
+      );
+    }
+
+    function detachService(hostId, attachmentIndex) {
+      const h = hosts.find(function(x) { return x.id === hostId; });
+      if (!h || !h.attachments[attachmentIndex]) return;
+      const svc = services.find(function(s) { return s.id === h.attachments[attachmentIndex].serviceId; });
+      const svcName = svc ? svc.name : 'Сервис';
+      h.attachments.splice(attachmentIndex, 1);
+      saveState();
+      renderHosts();
+      showToast('Сервис "' + svcName + '" отсоединён');
+    }
+
+    function toggleHostExpand(id) {
+      expandedHostId = expandedHostId === id ? null : id;
+      renderHosts();
+    }
+
+    function toggleHostSelection(id) {
+      selectedHostIds.has(id) ? selectedHostIds.delete(id) : selectedHostIds.add(id);
+      currentAttachHostId = null;
+      renderHosts();
+    }
+
+    function toggleSelectAllHosts(ch) {
+      const filtered = getFilteredHosts();
+      if (ch.checked) filtered.forEach(function(h) { selectedHostIds.add(h.id); });
+      else selectedHostIds.clear();
+      renderHosts();
+    }
+
+    function getFilteredHosts() {
+      const search = (document.getElementById('host-search')?.value || '').toLowerCase();
+      const seg = document.getElementById('host-segment')?.value || 'all';
+      return hosts.filter(function(h) { return (h.name.toLowerCase().includes(search) || h.address.toLowerCase().includes(search)) && (seg === 'all' || h.segment === seg); });
+    }
+
+    function updateHostButtons() {
+      const c = selectedHostIds.size;
+      const btnDel = document.getElementById('bulk-delete-hosts-btn');
+      if (btnDel) {
+        btnDel.classList.toggle('hidden', c === 0);
+        btnDel.querySelector('span').textContent = c > 1 ? 'Удалить (' + c + ')' : 'Удалить';
+      }
+      const b1 = document.getElementById('attach-svc-btn');
+      const b2 = document.getElementById('attach-col-btn');
+      [b1, b2].forEach(function(b) { if (b) { b.disabled = c === 0; b.style.opacity = c === 0 ? '.5' : '1'; } });
+      document.getElementById('attach-svc-text').textContent = c > 1 ? 'Присоединить сервис (' + c + ')' : 'Присоединить сервис';
+      document.getElementById('attach-col-text').textContent = c > 1 ? 'Присоединить коллекцию (' + c + ')' : 'Присоединить коллекцию';
+      const all = document.getElementById('select-all');
+      const filtered = getFilteredHosts();
+      if (all) all.checked = c > 0 && filtered.length > 0 && filtered.every(function(h) { return selectedHostIds.has(h.id); });
+    }
+
+    function switchSection(section) {
+      document.querySelectorAll('.section-content').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+      document.getElementById('section-' + section).classList.add('active');
+      document.getElementById('nav-' + section).classList.add('active');
+      if (section === 'hosts') renderHosts();
+      if (section === 'services') renderServices();
+      if (section === 'templates') renderServiceTemplates();
+      if (section === 'collections') renderCollections();
+      updateServicesStats();
+      updateCollectionsStats();
+    }
+
+    init();
+  </script>
 </body>
 </html>
