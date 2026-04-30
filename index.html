@@ -5,877 +5,283 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MARS — Система мониторинга</title>
   <style>
-    :root {
-      --primary:#3B82F6; --primary-hover:#2563EB; --success:#10B981; --success-hover:#059669;
-      --warning:#F59E0B; --danger:#EF4444; --danger-hover:#DC2626;
-      --slate-50:#F8FAFC; --slate-100:#F1F5F9; --slate-200:#E2E8F0; --slate-300:#CBD5E1;
-      --slate-400:#94A3B8; --slate-500:#64748B; --slate-600:#475569; --slate-700:#334155;
-      --slate-800:#1E293B; --slate-900:#0F172A; --blue-50:#EFF6FF; --blue-100:#DBEAFE;
-      --blue-200:#BFDBFE; --blue-700:#1D4ED8; --blue-800:#1E40AF; --green-50:#F0FDF4;
-      --green-100:#DCFCE7; --green-700:#15803D; --amber-50:#FFFBEB; --amber-100:#FEF3C7;
-      --amber-200:#FDE68A; --amber-700:#B45309; --amber-800:#92400E; --purple-50:#FAF5FF;
-      --purple-100:#EDE9FE; --purple-600:#7C3AED; --purple-700:#6D28D9; --red-50:#FEF2F2;
-      --red-100:#FEE2E2; --red-200:#FECACA; --red-700:#B91C1C;
+    :root{
+      --primary:#3B82F6;--primary-hover:#2563EB;--success:#10B981;--danger:#EF4444;--warning:#F59E0B;
+      --slate-50:#F8FAFC;--slate-100:#F1F5F9;--slate-200:#E2E8F0;--slate-300:#CBD5E1;--slate-400:#94A3B8;
+      --slate-500:#64748B;--slate-600:#475569;--slate-700:#334155;--slate-800:#1E293B;--slate-900:#0F172A;
+      --blue-50:#EFF6FF;--blue-100:#DBEAFE;--blue-200:#BFDBFE;--blue-700:#1D4ED8;--blue-800:#1E40AF;
+      --green-50:#F0FDF4;--green-100:#DCFCE7;--green-700:#15803D;--amber-50:#FFFBEB;--amber-100:#FEF3C7;
+      --amber-200:#FDE68A;--amber-700:#B45309;--amber-800:#92400E;--purple-50:#FAF5FF;--purple-100:#EDE9FE;
+      --purple-700:#6D28D9;--red-50:#FEF2F2;--red-100:#FEE2E2;--red-200:#FECACA;--red-700:#B91C1C
     }
-    * { box-sizing:border-box; }
-    body { margin:0; background:var(--slate-100); color:var(--slate-800); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
-    nav { position:sticky; top:0; z-index:30; background:#fff; border-bottom:1px solid var(--slate-200); }
-    .nav-container { max-width:1280px; margin:0 auto; min-height:64px; padding:0 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-    .nav-left { display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
-    .brand { font-weight:850; font-size:20px; color:var(--slate-900); white-space:nowrap; }
-    .tabs { display:flex; gap:4px; flex-wrap:wrap; }
-    .nav-tab { padding:12px 14px; cursor:pointer; color:var(--slate-600); border-bottom:2px solid transparent; font-size:14px; transition:.2s; }
-    .nav-tab:hover { color:var(--primary); }
-    .nav-tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:750; }
-    .user-switcher { display:flex; align-items:center; gap:10px; }
-    .avatar { width:34px; height:34px; border-radius:50%; background:var(--primary); color:#fff; display:grid; place-items:center; font-weight:800; }
-    .main { max-width:1280px; margin:0 auto; padding:24px; }
-    .section { display:none; }
-    .section.active { display:block; }
-    .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
-    .page-title { margin:0; font-size:24px; font-weight:800; color:var(--slate-900); }
-    .page-subtitle { margin-top:4px; color:var(--slate-500); font-size:14px; }
-    .panel { background:#fff; border:1px solid var(--slate-200); border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); overflow:hidden; }
-    .panel-info { padding:14px 20px; background:var(--blue-50); border-bottom:1px solid var(--blue-200); color:var(--blue-800); font-size:14px; line-height:1.45; }
-    .panel-toolbar, .panel-filters { padding:12px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; background:var(--slate-50); border-bottom:1px solid var(--slate-200); }
-    .panel-filters { justify-content:flex-start; background:#fff; }
-    .panel-content { padding:16px 20px; max-height:760px; overflow:auto; }
-    .panel-footer { padding:14px 20px; border-top:1px solid var(--green-100); background:var(--green-50); color:var(--green-700); font-size:14px; line-height:1.4; }
-    .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; padding:14px 20px; background:var(--slate-50); border-bottom:1px solid var(--slate-200); }
-    .stats-grid.three { grid-template-columns:repeat(3,1fr); }
-    .stat-card { background:#fff; border:1px solid var(--slate-200); border-radius:12px; padding:14px; }
-    .stat-label { color:var(--slate-500); font-size:13px; margin-bottom:5px; }
-    .stat-value { color:var(--slate-900); font-size:24px; font-weight:850; }
-    button { border:0; border-radius:9px; padding:8px 14px; background:var(--primary); color:#fff; font-weight:700; font-size:14px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:7px; }
-    button:hover { background:var(--primary-hover); }
-    button:disabled { opacity:.45; cursor:not-allowed; }
-    .btn-outline { background:#fff; color:var(--slate-700); border:1px solid var(--slate-300); }
-    .btn-outline:hover { background:var(--slate-50); }
-    .btn-ghost { background:transparent; color:var(--slate-700); }
-    .btn-ghost:hover { background:var(--slate-100); }
-    .btn-danger { background:var(--danger); }
-    .btn-danger:hover { background:var(--danger-hover); }
-    .btn-success { background:var(--success); }
-    .btn-success:hover { background:var(--success-hover); }
-    .btn-purple { background:var(--purple-600); }
-    .btn-purple:hover { background:var(--purple-700); }
-    .btn-sm { padding:5px 10px; font-size:12px; }
-    .btn-xs { padding:4px 8px; font-size:11px; }
-    input, select, textarea { padding:9px 11px; border:1px solid var(--slate-300); border-radius:9px; font-size:14px; outline:none; background:#fff; }
-    textarea { resize:vertical; }
-    input:focus, select:focus, textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,130,246,.12); }
-    input:disabled, select:disabled, textarea:disabled { background:var(--slate-100); color:var(--slate-500); cursor:not-allowed; }
-    .input { width:260px; }
-    .wide { width:100%; }
-    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
-    .muted { color:var(--slate-500); }
-    .text-danger { color:var(--danger); }
-    .text-success { color:var(--success); }
-    .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-    .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
-    .form-group { margin-bottom:16px; }
-    .form-label { display:block; font-weight:750; font-size:14px; color:var(--slate-700); margin-bottom:7px; }
-    .hint { font-size:12px; color:var(--slate-500); margin-top:5px; line-height:1.45; }
-    .box { border:1px solid var(--slate-200); background:var(--slate-50); border-radius:12px; padding:14px; margin:12px 0; line-height:1.45; }
-    .box-blue { background:var(--blue-50); border-color:var(--blue-200); color:var(--blue-800); }
-    .box-amber { background:var(--amber-50); border-color:var(--amber-200); color:var(--amber-800); }
-    .box-red { background:var(--red-50); border-color:var(--red-200); color:var(--red-700); }
-    .box-purple { background:var(--purple-50); border-color:var(--purple-100); }
-    .card { background:#fff; border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:14px; transition:.2s; }
-    .card:hover { border-color:var(--primary); box-shadow:0 2px 8px rgba(59,130,246,.12); }
-    .card.selected { background:var(--blue-50); border-color:var(--primary); }
-    .card.clickable { cursor:pointer; }
-    .card-main { display:flex; align-items:flex-start; gap:13px; flex:1; min-width:0; }
-    .icon { font-size:28px; line-height:1; }
-    .card-title { font-weight:850; font-size:16px; color:var(--slate-900); }
-    .card-meta { color:var(--slate-500); font-size:13px; margin-top:5px; line-height:1.55; }
-    .card-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
-    .badge { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:7px; font-size:12px; font-weight:750; background:var(--slate-100); color:var(--slate-700); }
-    .badge-blue { background:var(--blue-100); color:var(--blue-700); }
-    .badge-green { background:var(--green-100); color:var(--green-700); }
-    .badge-amber { background:var(--amber-100); color:var(--amber-700); }
-    .badge-purple { background:var(--purple-100); color:var(--purple-700); }
-    .badge-red { background:var(--red-100); color:var(--red-700); }
-    .pills, .collections-line { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px; }
-    .collections-label { color:var(--slate-500); font-weight:800; font-size:12px; }
-    .checkbox { width:18px; height:18px; accent-color:var(--primary); flex:0 0 auto; }
-    .details { display:none; border-top:1px solid var(--slate-200); margin-top:12px; padding-top:12px; width:100%; }
-    .details.open { display:block; }
-    .host-card { display:block; }
-    .host-card-top { display:flex; justify-content:space-between; align-items:center; gap:14px; }
-    .service-attachment { border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:10px; background:#fff; }
-    .port-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:11px; padding-top:11px; border-top:1px dashed var(--slate-200); }
-    .port-row input { width:90px; text-align:center; }
-    .addr-badge { font-size:10px; border-radius:5px; padding:2px 6px; font-weight:850; margin-right:6px; }
-    .addr-ip { background:var(--blue-100); color:var(--blue-700); }
-    .addr-fqdn { background:var(--green-100); color:var(--green-700); }
-    .empty { text-align:center; color:var(--slate-500); padding:34px; }
-    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,.62); backdrop-filter:blur(4px); z-index:60; align-items:center; justify-content:center; padding:18px; }
-    .modal-overlay.show { display:flex; }
-    .modal { width:100%; max-width:880px; max-height:92vh; background:#fff; border-radius:14px; box-shadow:0 25px 60px rgba(0,0,0,.28); overflow:hidden; display:flex; flex-direction:column; }
-    .modal.small { max-width:560px; }
-    .modal-header, .modal-footer { padding:16px 20px; background:var(--slate-50); border-bottom:1px solid var(--slate-200); display:flex; align-items:center; justify-content:space-between; gap:12px; }
-    .modal-footer { border-top:1px solid var(--slate-200); border-bottom:0; }
-    .modal-title { font-size:18px; font-weight:850; }
-    .modal-subtitle { color:var(--slate-500); font-size:13px; margin-top:3px; }
-    .modal-body { padding:20px; overflow:auto; }
-    .modal-footer-right { display:flex; gap:8px; flex-wrap:wrap; }
-    .toast { position:fixed; right:20px; bottom:20px; z-index:90; background:var(--slate-800); color:#fff; padding:14px 18px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.25); opacity:0; transform:translateY(70px); transition:.25s; }
-    .toast.show { opacity:1; transform:none; }
-    .hidden { display:none !important; }
-    @media (max-width:900px) {
-      .main { padding:14px; }
-      .row, .row3, .stats-grid, .stats-grid.three { grid-template-columns:1fr; }
-      .card, .host-card-top { align-items:stretch; flex-direction:column; }
-      .card-actions { justify-content:flex-start; }
-      .input { width:100%; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--slate-100);color:var(--slate-800);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+    nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--slate-200)}
+    .nav{max-width:1280px;margin:auto;min-height:64px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .nav-left{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
+    .brand{font-weight:850;font-size:20px;color:var(--slate-900);white-space:nowrap}
+    .tabs{display:flex;gap:4px;flex-wrap:wrap}.tab{padding:12px 14px;cursor:pointer;color:var(--slate-600);border-bottom:2px solid transparent;font-size:14px}
+    .tab:hover{color:var(--primary)}.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:800}
+    .user{display:flex;align-items:center;gap:10px}.avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800}
+    main{max-width:1280px;margin:auto;padding:24px}.section{display:none}.section.active{display:block}
+    .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}.title{font-size:24px;font-weight:850;color:var(--slate-900);margin:0}.sub{color:var(--slate-500);font-size:14px;margin-top:4px}
+    .panel{background:#fff;border:1px solid var(--slate-200);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden;margin-bottom:18px}
+    .info{padding:14px 20px;background:var(--blue-50);border-bottom:1px solid var(--blue-200);color:var(--blue-800);font-size:14px;line-height:1.45}
+    .toolbar,.filters{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--slate-50);border-bottom:1px solid var(--slate-200)}
+    .filters{justify-content:flex-start;background:#fff}.content{padding:16px 20px;max-height:760px;overflow:auto}.footer{padding:14px 20px;background:var(--green-50);color:var(--green-700);border-top:1px solid var(--green-100);font-size:14px}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:14px 20px;background:var(--slate-50);border-bottom:1px solid var(--slate-200)}.stats.three{grid-template-columns:repeat(3,1fr)}
+    .stat{background:#fff;border:1px solid var(--slate-200);border-radius:12px;padding:14px}.stat-label{color:var(--slate-500);font-size:13px}.stat-value{font-size:24px;font-weight:850;color:var(--slate-900);margin-top:4px}
+    button{border:0;border-radius:9px;padding:8px 14px;background:var(--primary);color:#fff;font-weight:750;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+    button:hover{background:var(--primary-hover)}button:disabled{opacity:.45;cursor:not-allowed}.outline{background:#fff;color:var(--slate-700);border:1px solid var(--slate-300)}.outline:hover{background:var(--slate-50)}
+    .ghost{background:transparent;color:var(--slate-700)}.ghost:hover{background:var(--slate-100)}.danger{background:var(--danger)}.success{background:var(--success)}.purple{background:#7C3AED}
+    .sm{padding:5px 10px;font-size:12px}.xs{padding:4px 8px;font-size:11px}
+    input,select,textarea{padding:9px 11px;border:1px solid var(--slate-300);border-radius:9px;font-size:14px;outline:none;background:#fff}textarea{resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12)}input:disabled,select:disabled,textarea:disabled{background:var(--slate-100);color:var(--slate-500)}
+    .input{width:260px}.wide{width:100%}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.muted{color:var(--slate-500)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.field{margin-bottom:16px}.field label{display:block;font-weight:750;font-size:14px;color:var(--slate-700);margin-bottom:7px}.hint{font-size:12px;color:var(--slate-500);margin-top:5px;line-height:1.45}
+    .box{border:1px solid var(--slate-200);background:var(--slate-50);border-radius:12px;padding:14px;margin:12px 0;line-height:1.45}.blue-box{background:var(--blue-50);border-color:var(--blue-200);color:var(--blue-800)}.amber-box{background:var(--amber-50);border-color:var(--amber-200);color:var(--amber-800)}.red-box{background:var(--red-50);border-color:var(--red-200);color:var(--red-700)}.purple-box{background:var(--purple-50);border-color:var(--purple-100)}
+    .card{background:#fff;border:1px solid var(--slate-200);border-radius:12px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:14px;transition:.2s}.card:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(59,130,246,.12)}.card.selected{background:var(--blue-50);border-color:var(--primary)}.clickable{cursor:pointer}.card-main{display:flex;align-items:flex-start;gap:13px;flex:1;min-width:0}.host-card{display:block}.host-top{display:flex;justify-content:space-between;align-items:center;gap:14px}.icon{font-size:28px;line-height:1}.card-title{font-weight:850;font-size:16px;color:var(--slate-900)}.meta{color:var(--slate-500);font-size:13px;margin-top:5px;line-height:1.55}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:7px;font-size:12px;font-weight:750;background:var(--slate-100);color:var(--slate-700)}.b-blue{background:var(--blue-100);color:var(--blue-700)}.b-green{background:var(--green-100);color:var(--green-700)}.b-amber{background:var(--amber-100);color:var(--amber-700)}.b-purple{background:var(--purple-100);color:var(--purple-700)}.b-red{background:var(--red-100);color:var(--red-700)}
+    .pills,.line{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.line-label{color:var(--slate-500);font-weight:800;font-size:12px}.checkbox{width:18px;height:18px;accent-color:var(--primary);flex:0 0 auto}.details{display:none;border-top:1px solid var(--slate-200);margin-top:12px;padding-top:12px}.details.open{display:block}.attach-card{border:1px solid var(--slate-200);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff}.port-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px dashed var(--slate-200)}.port-row input{width:90px;text-align:center}.addr{font-size:10px;border-radius:5px;padding:2px 6px;font-weight:850;margin-right:6px}.ip{background:var(--blue-100);color:var(--blue-700)}.fqdn{background:var(--green-100);color:var(--green-700)}.empty{text-align:center;color:var(--slate-500);padding:34px}
+    .modal-wrap{display:none;position:fixed;inset:0;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);z-index:60;align-items:center;justify-content:center;padding:18px}.modal-wrap.show{display:flex}.modal{width:100%;max-width:880px;max-height:92vh;background:#fff;border-radius:14px;box-shadow:0 25px 60px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column}.modal.small{max-width:560px}.modal-head,.modal-foot{padding:16px 20px;background:var(--slate-50);border-bottom:1px solid var(--slate-200);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-foot{border-top:1px solid var(--slate-200);border-bottom:0}.modal-title{font-size:18px;font-weight:850}.modal-sub{color:var(--slate-500);font-size:13px;margin-top:3px}.modal-body{padding:20px;overflow:auto}.toast{position:fixed;right:20px;bottom:20px;z-index:90;background:var(--slate-800);color:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(70px);transition:.25s}.toast.show{opacity:1;transform:none}
+    @media(max-width:900px){main{padding:14px}.row,.row3,.stats,.stats.three{grid-template-columns:1fr}.card,.host-top{align-items:stretch;flex-direction:column}.actions{justify-content:flex-start}.input{width:100%}}
   </style>
 </head>
 <body>
-<nav>
-  <div class="nav-container">
-    <div class="nav-left">
-      <div class="brand">🖥️ MARS</div>
-      <div class="tabs">
-        <div class="nav-tab active" id="nav-hosts" onclick="switchSection('hosts')">Хосты</div>
-        <div class="nav-tab" id="nav-services" onclick="switchSection('services')">🔌 Сервисы</div>
-        <div class="nav-tab" id="nav-templates" onclick="switchSection('templates')">🧩 Шаблоны сервисов</div>
-        <div class="nav-tab" id="nav-collections" onclick="switchSection('collections')">📦 Коллекции</div>
-        <div class="nav-tab" id="nav-access" onclick="switchSection('access')">👥 Доступ</div>
-      </div>
-    </div>
-    <div class="user-switcher">
-      <select id="current-user" onchange="switchUser(this.value)"></select>
-      <div class="avatar" id="user-avatar">A</div>
-    </div>
-  </div>
-</nav>
-
-<div class="main">
+<nav><div class="nav"><div class="nav-left"><div class="brand">🖥️ MARS</div><div class="tabs">
+  <div class="tab active" id="nav-hosts" onclick="switchSection('hosts')">Хосты</div>
+  <div class="tab" id="nav-services" onclick="switchSection('services')">🔌 Сервисы</div>
+  <div class="tab" id="nav-templates" onclick="switchSection('templates')">🧩 Шаблоны сервисов</div>
+  <div class="tab" id="nav-collections" onclick="switchSection('collections')">📦 Коллекции</div>
+  <div class="tab" id="nav-access" onclick="switchSection('access')">👥 Доступ</div>
+</div></div><div class="user"><select id="current-user" onchange="switchUser(this.value)"></select><div class="avatar" id="avatar">A</div></div></div></nav>
+<main>
   <section id="section-hosts" class="section active"></section>
   <section id="section-services" class="section"></section>
   <section id="section-templates" class="section"></section>
   <section id="section-collections" class="section"></section>
   <section id="section-access" class="section"></section>
-</div>
-
-<div class="modal-overlay" id="modal-overlay">
-  <div class="modal" id="modal">
-    <div class="modal-header">
-      <div>
-        <div class="modal-title" id="modal-title"></div>
-        <div class="modal-subtitle" id="modal-subtitle"></div>
-      </div>
-      <button class="btn-ghost" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body" id="modal-body"></div>
-    <div class="modal-footer" id="modal-footer"></div>
-  </div>
-</div>
-
+</main>
+<div class="modal-wrap" id="modal-wrap"><div class="modal" id="modal"><div class="modal-head"><div><div class="modal-title" id="modal-title"></div><div class="modal-sub" id="modal-sub"></div></div><button class="ghost" onclick="closeModal()">✕</button></div><div class="modal-body" id="modal-body"></div><div class="modal-foot" id="modal-foot"></div></div></div>
 <div class="toast" id="toast"></div>
-
 <script>
-const STORE_KEY = 'mars-ui-state-v14';
-const LEGACY_KEYS = ['mars-ui-state-v13','mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9','mars-ui-state-v8','mars-ui-state-v7','mars-ui-state-v6','mars-ui-state-v5','mars-ui-state-v4','mars-ui-state-v3','mars-ui-state-v2','mars-ui-state'];
+const STORE_KEY='mars-ui-state-v15';
+const LEGACY_KEYS=['mars-ui-state-v14','mars-ui-state-v13','mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9','mars-ui-state-v8','mars-ui-state-v7','mars-ui-state'];
+let state=demoState(),activeSection='hosts';
+let selectedHostIds=new Set(),selectedServiceIds=new Set(),selectedTemplateIds=new Set();
+let expandedHostId=null,hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null};
+let collectionDraftIds=[],collectionDraftName='',collectionDraftDesc='';
+const $=id=>document.getElementById(id);
+function uid(p){return p+'-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4)}
+function hostKey(id){return String(id)}
+function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function q(v){return "'"+String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'"}
+function num(v,f=0){const n=parseInt(v,10);return Number.isFinite(n)?n:f}
+function nowText(){return new Date().toLocaleString('ru-RU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
+function openModal(t,s,b,f,small=false){$('modal-title').textContent=t;$('modal-sub').textContent=s||'';$('modal-body').innerHTML=b;$('modal-foot').innerHTML=f||'<button onclick="closeModal()">Закрыть</button>';$('modal').classList.toggle('small',!!small);$('modal-wrap').classList.add('show')}
+function closeModal(){$('modal-wrap').classList.remove('show');$('modal').classList.remove('small')}
+function confirmModal(t,msg,fnName,args=''){openModal(t,'Подтвердите действие',`<div class="box red-box">${msg}</div>`,`<button class="outline" onclick="closeModal()">Отмена</button><button class="danger" onclick="${fnName}(${args});closeModal()">Удалить</button>`,true)}
 
-let state = defaultState();
-let activeSection = 'hosts';
-let selectedHostIds = new Set();
-let selectedServiceIds = new Set();
-let selectedTemplateIds = new Set();
-let expandedHostId = null;
-let hostDraft = { mode:'manual', catalogExternalId:null, editingHostId:null };
-let collectionDraftServiceIds = [];
-let collectionDraftName = '';
-let collectionDraftDesc = '';
-
-function defaultState() {
-  return {
-    currentUserId:'u-alice',
-    users:[
-      { id:'u-admin', name:'MARS Admin', initials:'MA', isAdmin:true, canMonitor:true, groups:['g-infra','g-db','g-app'] },
-      { id:'u-alice', name:'Alice Infra', initials:'AI', isAdmin:false, canMonitor:true, groups:['g-infra'] },
-      { id:'u-bob', name:'Bob DB', initials:'BD', isAdmin:false, canMonitor:true, groups:['g-db'] },
-      { id:'u-eve', name:'Eve ReadOnly', initials:'ER', isAdmin:false, canMonitor:false, groups:['g-app'] }
-    ],
-    groups:[
-      { id:'g-infra', name:'Team Infra' },
-      { id:'g-db', name:'Team DB' },
-      { id:'g-app', name:'Team App' }
-    ],
-    catalogSources:[
-      { id:'cmdb-main', name:'CMDB Main' }
-    ],
-    catalogHosts:[
-      { sourceId:'cmdb-main', externalId:'srv-1001', name:'web-prod-01', addressType:'ip', address:'10.0.1.50', proxyGroup:'prod-dmz', environment:'prod', os:'Ubuntu 22.04', updatedAt:'2026-04-30 09:15' },
-      { sourceId:'cmdb-main', externalId:'srv-1002', name:'db-analytics', addressType:'fqdn', address:'db-analytics.internal.example.com', proxyGroup:'analytics', environment:'prod', os:'PostgreSQL Appliance', updatedAt:'2026-04-30 09:15' },
-      { sourceId:'cmdb-main', externalId:'srv-1003', name:'cache-01', addressType:'ip', address:'192.168.1.10', proxyGroup:'k8s', environment:'stage', os:'Debian 12', updatedAt:'2026-04-30 09:15' },
-      { sourceId:'cmdb-main', externalId:'srv-1004', name:'app-k8s-node-07', addressType:'fqdn', address:'node-07.k8s.internal.example.com', proxyGroup:'k8s', environment:'prod', os:'Talos Linux', updatedAt:'2026-04-30 09:15' }
-    ],
-    hosts:[
-      { id:1, name:'web-prod-01', addressType:'ip', address:'10.0.1.50', proxyGroup:'prod-dmz', status:'UP', sourceType:'catalog', createdBy:'u-alice', createdAt:'2026-04-30 09:30', prefilledFromCatalog:null, catalogBinding:{ sourceId:'cmdb-main', externalId:'srv-1001', lastSyncAt:'2026-04-30 09:30', syncStatus:'synced' }, attachments:[
-        { serviceId:'svc-1', createdBy:'u-bob', ownerGroupId:'g-db', portOverride:null },
-        { serviceId:'svc-2', createdBy:'u-alice', ownerGroupId:'g-infra', portOverride:null }
-      ]},
-      { id:2, name:'manual-api-01', addressType:'fqdn', address:'api-01.manual.internal.example.com', proxyGroup:'prod-dmz', status:'WARN', sourceType:'manual', createdBy:'u-alice', createdAt:'2026-04-30 09:45', prefilledFromCatalog:null, catalogBinding:null, attachments:[] },
-      { id:3, name:'cache-01-copy', addressType:'ip', address:'192.168.1.10', proxyGroup:'k8s', status:'UP', sourceType:'manual', createdBy:'u-bob', createdAt:'2026-04-30 10:00', prefilledFromCatalog:{ sourceId:'cmdb-main', externalId:'srv-1003', copiedAt:'2026-04-30 10:00' }, catalogBinding:null, attachments:[
-        { serviceId:'svc-3', createdBy:'u-bob', ownerGroupId:'g-db', portOverride:6380 }
-      ]}
-    ],
-    services:[
-      { id:'svc-1', name:'PostgreSQL', type:'SQL', icon:'🐘', defaultPort:5432, metrics:'/metrics', ownerGroupId:'g-db', authMode:'basic', basicUsername:'monitor', basicPassword:'', bearerToken:'', protocol:'http', clientCertificate:'', skipServerCertCheck:false, usedBy:12 },
-      { id:'svc-2', name:'Nginx HTTPS', type:'ExporterScrape', icon:'🌐', defaultPort:443, metrics:'/nginx_metrics', ownerGroupId:'g-infra', authMode:'none', basicUsername:'', basicPassword:'', bearerToken:'', protocol:'https', clientCertificate:'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----', skipServerCertCheck:true, usedBy:24 },
-      { id:'svc-3', name:'Redis Cache', type:'ExporterScrape', icon:'🔴', defaultPort:6379, metrics:'/metrics', ownerGroupId:'g-db', authMode:'bearer', basicUsername:'', basicPassword:'', bearerToken:'', protocol:'http', clientCertificate:'', skipServerCertCheck:false, usedBy:8 }
-    ],
-    serviceTemplates:[
-      { id:'tpl-1', name:'Шаблон "Nginx Standard"', type:'ExporterScrape', icon:'🌐', defaultPort:80, metrics:'/metrics', protocol:'http', skipServerCertCheck:false, ownerGroupId:'g-infra', createdBy:'u-alice', usedBy:347 },
-      { id:'tpl-2', name:'Шаблон "PostgreSQL Advanced"', type:'SQL', icon:'🐘', defaultPort:5432, metrics:'/metrics', protocol:'http', skipServerCertCheck:false, ownerGroupId:'g-db', createdBy:'u-bob', usedBy:134 }
-    ],
-    collections:[
-      { id:'col-1', name:'Web Stack', description:'Nginx + PostgreSQL', serviceIds:['svc-1','svc-2'], usedBy:12 },
-      { id:'col-2', name:'Cache Stack', description:'Redis + Nginx', serviceIds:['svc-2','svc-3'], usedBy:8 }
-    ]
-  };
+function demoState(){return{
+  currentUserId:'u-alice',
+  users:[
+    {id:'u-admin',name:'MARS Admin',initials:'MA',isAdmin:true,canMonitor:true,groups:['g-infra','g-db','g-app']},
+    {id:'u-alice',name:'Alice Infra',initials:'AI',isAdmin:false,canMonitor:true,groups:['g-infra']},
+    {id:'u-bob',name:'Bob DB',initials:'BD',isAdmin:false,canMonitor:true,groups:['g-db']},
+    {id:'u-eve',name:'Eve ReadOnly',initials:'ER',isAdmin:false,canMonitor:false,groups:['g-app']}
+  ],
+  groups:[{id:'g-infra',name:'Team Infra'},{id:'g-db',name:'Team DB'},{id:'g-app',name:'Team App'}],
+  proxyGroups:[{id:'prod-dmz',name:'Production DMZ'},{id:'analytics',name:'Analytics'},{id:'k8s',name:'K8s Cluster'}],
+  catalogSources:[{id:'cmdb-main',name:'CMDB Main'}],
+  catalogHosts:[
+    {sourceId:'cmdb-main',externalId:'srv-1001',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',environment:'prod',os:'Ubuntu 22.04',updatedAt:'2026-04-30 09:15'},
+    {sourceId:'cmdb-main',externalId:'srv-1002',name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',environment:'prod',os:'PostgreSQL Appliance',updatedAt:'2026-04-30 09:15'},
+    {sourceId:'cmdb-main',externalId:'srv-1003',name:'cache-01',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',environment:'stage',os:'Debian 12',updatedAt:'2026-04-30 09:15'},
+    {sourceId:'cmdb-main',externalId:'srv-1004',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',environment:'prod',os:'Talos Linux',updatedAt:'2026-04-30 09:15'}
+  ],
+  hosts:[
+    {id:'host-1',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'catalog',createdBy:'u-alice',createdAt:'2026-04-30 09:30',prefilledFromCatalog:null,catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1001',lastSyncAt:'2026-04-30 09:30',syncStatus:'synced'},attachments:[
+      {serviceId:'svc-1',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:null},
+      {serviceId:'svc-2',createdBy:'u-alice',ownerGroupId:'g-infra',portOverride:null}
+    ]},
+    {id:'host-2',name:'manual-api-01',addressType:'fqdn',address:'api-01.manual.internal.example.com',proxyGroup:'prod-dmz',status:'WARN',sourceType:'manual',createdBy:'u-alice',createdAt:'2026-04-30 09:45',prefilledFromCatalog:null,catalogBinding:null,attachments:[]},
+    {id:'host-3',name:'cache-01-copy',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',status:'UP',sourceType:'manual',createdBy:'u-bob',createdAt:'2026-04-30 10:00',prefilledFromCatalog:{sourceId:'cmdb-main',externalId:'srv-1003',copiedAt:'2026-04-30 10:00'},catalogBinding:null,attachments:[
+      {serviceId:'svc-3',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:6380}
+    ]}
+  ],
+  services:[
+    {id:'svc-1',name:'PostgreSQL',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',ownerGroupId:'g-db',authMode:'basic',basicUsername:'monitor',basicPassword:'',bearerToken:'',protocol:'http',clientCertificate:'',skipServerCertCheck:false,usedBy:12,createdBy:'u-bob'},
+    {id:'svc-2',name:'Nginx HTTPS',type:'ExporterScrape',icon:'🌐',defaultPort:443,metrics:'/nginx_metrics',ownerGroupId:'g-infra',authMode:'none',basicUsername:'',basicPassword:'',bearerToken:'',protocol:'https',clientCertificate:'-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----',skipServerCertCheck:true,usedBy:24,createdBy:'u-alice'},
+    {id:'svc-3',name:'Redis Cache',type:'ExporterScrape',icon:'🔴',defaultPort:6379,metrics:'/metrics',ownerGroupId:'g-db',authMode:'bearer',basicUsername:'',basicPassword:'',bearerToken:'',protocol:'http',clientCertificate:'',skipServerCertCheck:false,usedBy:8,createdBy:'u-bob'}
+  ],
+  serviceTemplates:[
+    {id:'tpl-1',name:'Шаблон "Nginx Standard"',type:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',protocol:'http',skipServerCertCheck:false,ownerGroupId:'g-infra',createdBy:'u-alice',usedBy:347},
+    {id:'tpl-2',name:'Шаблон "PostgreSQL Advanced"',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',protocol:'http',skipServerCertCheck:false,ownerGroupId:'g-db',createdBy:'u-bob',usedBy:134}
+  ],
+  collections:[
+    {id:'col-1',name:'Web Stack',description:'Nginx + PostgreSQL',serviceIds:['svc-1','svc-2'],usedBy:12},
+    {id:'col-2',name:'Cache Stack',description:'Redis + Nginx',serviceIds:['svc-2','svc-3'],usedBy:8}
+  ]
+}}
+function loadState(){
+  let raw=localStorage.getItem(STORE_KEY);
+  if(!raw){for(const k of LEGACY_KEYS){raw=localStorage.getItem(k);if(raw)break}}
+  if(raw){try{state=normalizeState(JSON.parse(raw))}catch(e){state=demoState()}}else state=demoState();
+  state=normalizeState(state);saveState()
 }
-
-function loadState() {
-  let raw = localStorage.getItem(STORE_KEY);
-  if (!raw) {
-    for (const key of LEGACY_KEYS) {
-      raw = localStorage.getItem(key);
-      if (raw) break;
-    }
-  }
-  if (raw) {
-    try { state = normalizeState(JSON.parse(raw)); }
-    catch (e) { state = defaultState(); }
-  } else {
-    state = defaultState();
-  }
-  saveState();
-}
-
-function normalizeState(s) {
-  const d = defaultState();
-  const ns = { ...d, ...s };
-  ns.users = Array.isArray(ns.users) && ns.users.length ? ns.users : d.users;
-  ns.groups = Array.isArray(ns.groups) && ns.groups.length ? ns.groups : d.groups;
-  ns.catalogSources = Array.isArray(ns.catalogSources) && ns.catalogSources.length ? ns.catalogSources : d.catalogSources;
-  ns.catalogHosts = Array.isArray(ns.catalogHosts) && ns.catalogHosts.length ? ns.catalogHosts.map(normalizeCatalogHost) : d.catalogHosts;
-  ns.currentUserId = ns.users.some(u => u.id === ns.currentUserId) ? ns.currentUserId : ns.users[0].id;
-
-  let rawServices = Array.isArray(ns.services) ? ns.services.slice() : d.services.slice();
-  let migratedTemplates = rawServices.filter(svc => svc.isTemplate).map(svc => ({
-    id: svc.id || uid('tpl'), name: svc.name || 'Шаблон сервиса', type: svc.type || svc.agent || 'ExporterScrape', icon: svc.icon || '🔌',
-    defaultPort: num(svc.defaultPort, 80), metrics: svc.metrics || '/metrics', protocol: svc.protocol || 'http', skipServerCertCheck: !!svc.skipServerCertCheck,
-    ownerGroupId: svc.ownerGroupId || 'g-infra', createdBy: svc.createdBy || ns.currentUserId, usedBy: num(svc.usedBy, 0)
-  }));
-  rawServices = rawServices.filter(svc => !svc.isTemplate);
-  ns.services = rawServices.map(normalizeService);
-  ns.serviceTemplates = [...(Array.isArray(ns.serviceTemplates) ? ns.serviceTemplates : []), ...migratedTemplates].map(normalizeTemplate);
-  ns.serviceTemplates = uniqueByName(ns.serviceTemplates);
-
-  ns.hosts = (Array.isArray(ns.hosts) ? ns.hosts : d.hosts).map(h => {
-    const host = { ...h };
-    host.id = host.id || Date.now() + Math.random();
-    host.name = host.name || 'host';
-    host.addressType = host.addressType || 'ip';
-    host.address = host.address || '127.0.0.1';
-    host.proxyGroup = host.proxyGroup || host.segment || 'prod-dmz';
-    delete host.segment;
-    host.status = host.status || 'UP';
-    host.sourceType = host.sourceType || 'manual';
-    host.createdBy = host.createdBy || ns.currentUserId;
-    host.createdAt = host.createdAt || nowText();
-    host.prefilledFromCatalog = host.prefilledFromCatalog || null;
-    host.catalogBinding = host.sourceType === 'catalog' ? (host.catalogBinding || { sourceId:'cmdb-main', externalId:null, lastSyncAt:null, syncStatus:'unknown' }) : null;
-    host.attachments = (Array.isArray(host.attachments) ? host.attachments : []).map(att => ({
-      serviceId: att.serviceId,
-      createdBy: att.createdBy || host.createdBy || ns.currentUserId,
-      ownerGroupId: att.ownerGroupId || (ns.services.find(s => s.id === att.serviceId) || {}).ownerGroupId || 'g-infra',
-      portOverride: att.portOverride === undefined ? null : att.portOverride
-    })).filter(att => ns.services.some(s => s.id === att.serviceId));
+function normalizeState(s){
+  const d=demoState(),ns={...d,...s};
+  ns.users=Array.isArray(ns.users)&&ns.users.length?ns.users:d.users;
+  ns.groups=Array.isArray(ns.groups)&&ns.groups.length?ns.groups:d.groups;
+  ns.proxyGroups=Array.isArray(ns.proxyGroups)&&ns.proxyGroups.length?ns.proxyGroups:d.proxyGroups;
+  ns.catalogSources=Array.isArray(ns.catalogSources)&&ns.catalogSources.length?ns.catalogSources:d.catalogSources;
+  ns.catalogHosts=(Array.isArray(ns.catalogHosts)?ns.catalogHosts:d.catalogHosts).map(h=>({sourceId:h.sourceId||'cmdb-main',externalId:h.externalId||uid('ext'),name:h.name||'catalog-host',addressType:h.addressType||'ip',address:h.address||'127.0.0.1',proxyGroup:h.proxyGroup||h.segment||'prod-dmz',environment:h.environment||'prod',os:h.os||'Linux',updatedAt:h.updatedAt||nowText()}));
+  ns.currentUserId=ns.users.some(u=>u.id===ns.currentUserId)?ns.currentUserId:ns.users[0].id;
+  let rawServices=Array.isArray(ns.services)?ns.services:[];
+  const migratedTemplates=rawServices.filter(s=>s.isTemplate).map(s=>normalizeTemplate(s,ns.currentUserId));
+  ns.services=rawServices.filter(s=>!s.isTemplate).map(normalizeService);
+  ns.serviceTemplates=[...(Array.isArray(ns.serviceTemplates)?ns.serviceTemplates:[]),...migratedTemplates].map(t=>normalizeTemplate(t,ns.currentUserId));
+  ns.serviceTemplates=uniqueTemplates(ns.serviceTemplates);
+  ns.hosts=(Array.isArray(ns.hosts)?ns.hosts:d.hosts).map(h=>{
+    const host={...h};
+    host.id=hostKey(host.id||uid('host'));host.name=host.name||'host';host.addressType=host.addressType||'ip';host.address=host.address||'127.0.0.1';host.proxyGroup=host.proxyGroup||host.segment||'prod-dmz';delete host.segment;
+    host.status=host.status||'UP';host.sourceType=host.sourceType||'manual';host.createdBy=host.createdBy||ns.currentUserId;host.createdAt=host.createdAt||nowText();host.prefilledFromCatalog=host.prefilledFromCatalog||null;
+    host.catalogBinding=host.sourceType==='catalog'?(host.catalogBinding||{sourceId:'cmdb-main',externalId:null,lastSyncAt:null,syncStatus:'unknown'}):null;
+    host.attachments=(Array.isArray(host.attachments)?host.attachments:[]).map(a=>({serviceId:a.serviceId,createdBy:a.createdBy||a.attachedBy||host.createdBy||ns.currentUserId,ownerGroupId:a.ownerGroupId||(ns.services.find(s=>s.id===a.serviceId)||{}).ownerGroupId||'g-infra',portOverride:a.portOverride===undefined?null:a.portOverride})).filter(a=>ns.services.some(s=>s.id===a.serviceId));
     return host;
   });
-  ns.collections = (Array.isArray(ns.collections) ? ns.collections : d.collections).map(c => ({
-    id: c.id || uid('col'), name: c.name || 'Коллекция', description: c.description || '',
-    serviceIds: (Array.isArray(c.serviceIds) ? c.serviceIds : []).filter(id => ns.services.some(s => s.id === id)), usedBy: num(c.usedBy, 0)
-  }));
+  ns.collections=(Array.isArray(ns.collections)?ns.collections:d.collections).map(c=>({id:c.id||uid('col'),name:c.name||'Коллекция',description:c.description||'',serviceIds:(Array.isArray(c.serviceIds)?c.serviceIds:[]).filter(id=>ns.services.some(s=>s.id===id)),usedBy:num(c.usedBy,0)}));
   return ns;
 }
+function normalizeService(s){const oldAuth=s.auth||null;let authMode=s.authMode||'none';if(oldAuth&&!s.authMode)authMode=oldAuth.mode||'basic';const protocol=s.protocol||'http';return{id:s.id||uid('svc'),name:s.name||'Сервис',type:s.type||s.agent||'ExporterScrape',icon:s.icon||'🔌',defaultPort:num(s.defaultPort,80),metrics:s.metrics||'/metrics',ownerGroupId:s.ownerGroupId||s.groupId||'g-infra',authMode,basicUsername:s.basicUsername||(oldAuth?oldAuth.username||'':''),basicPassword:s.basicPassword||(oldAuth?oldAuth.password||'':''),bearerToken:s.bearerToken||(oldAuth?oldAuth.token||'':''),protocol,clientCertificate:protocol==='https'?(s.clientCertificate||''):'',skipServerCertCheck:protocol==='https'?!!(s.skipServerCertCheck||s.skipServerCertificateValidation):false,usedBy:num(s.usedBy,0),createdBy:s.createdBy||state.currentUserId||'u-admin'}}
+function normalizeTemplate(t,u='u-admin'){return{id:t.id||uid('tpl'),name:t.name||'Шаблон сервиса',type:t.type||t.agent||'ExporterScrape',icon:t.icon||'🔌',defaultPort:num(t.defaultPort,80),metrics:t.metrics||'/metrics',protocol:t.protocol||'http',skipServerCertCheck:!!(t.skipServerCertCheck||t.skipServerCertificateValidation),ownerGroupId:t.ownerGroupId||t.groupId||'g-infra',createdBy:t.createdBy||u,usedBy:num(t.usedBy,0)}}
+function uniqueTemplates(items){const seen=new Set();return items.filter(t=>{const k=t.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true})}
+function saveState(){localStorage.setItem(STORE_KEY,JSON.stringify(state))}
+function resetDemo(){localStorage.removeItem(STORE_KEY);state=normalizeState(demoState());selectedHostIds.clear();selectedServiceIds.clear();selectedTemplateIds.clear();expandedHostId=null;saveState();renderAll();toast('Демо-данные сброшены')}
 
-function normalizeCatalogHost(h) {
-  return { sourceId:h.sourceId || 'cmdb-main', externalId:h.externalId || uid('ext'), name:h.name || 'catalog-host', addressType:h.addressType || 'ip', address:h.address || '127.0.0.1', proxyGroup:h.proxyGroup || h.segment || 'prod-dmz', environment:h.environment || 'prod', os:h.os || 'Linux', updatedAt:h.updatedAt || nowText() };
-}
-function normalizeService(svc) {
-  const oldAuth = svc.auth || null;
-  let authMode = svc.authMode || 'none';
-  if (oldAuth && !svc.authMode) authMode = 'basic';
-  const protocol = svc.protocol || 'http';
-  return {
-    id: svc.id || uid('svc'), name: svc.name || 'Сервис', type: svc.type || svc.agent || 'ExporterScrape', icon: svc.icon || '🔌',
-    defaultPort: num(svc.defaultPort, 80), metrics: svc.metrics || '/metrics', ownerGroupId: svc.ownerGroupId || 'g-infra',
-    authMode, basicUsername: svc.basicUsername || (oldAuth ? oldAuth.username || '' : ''), basicPassword: svc.basicPassword || (oldAuth ? oldAuth.password || '' : ''), bearerToken: svc.bearerToken || '',
-    protocol, clientCertificate: protocol === 'https' ? (svc.clientCertificate || '') : '', skipServerCertCheck: protocol === 'https' ? !!svc.skipServerCertCheck : false,
-    usedBy: num(svc.usedBy, 0)
-  };
-}
-function normalizeTemplate(tpl) {
-  return { id:tpl.id || uid('tpl'), name:tpl.name || 'Шаблон сервиса', type:tpl.type || tpl.agent || 'ExporterScrape', icon:tpl.icon || '🔌', defaultPort:num(tpl.defaultPort,80), metrics:tpl.metrics || '/metrics', protocol:tpl.protocol || 'http', skipServerCertCheck: !!tpl.skipServerCertCheck, ownerGroupId:tpl.ownerGroupId || 'g-infra', createdBy:tpl.createdBy || state.currentUserId || 'u-admin', usedBy:num(tpl.usedBy,0) };
-}
-function uniqueByName(items) {
-  const seen = new Set();
-  return items.filter(item => {
-    const key = item.name.toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
-function saveState() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-function resetDemoData() { localStorage.removeItem(STORE_KEY); state = defaultState(); selectedHostIds.clear(); selectedServiceIds.clear(); selectedTemplateIds.clear(); expandedHostId = null; saveState(); renderAll(); showToast('Демо-данные сброшены'); }
+function currentUser(){return state.users.find(u=>u.id===state.currentUserId)||state.users[0]}
+function userById(id){return state.users.find(u=>u.id===id)}
+function groupById(id){return state.groups.find(g=>g.id===id)}
+function isAdmin(){return !!currentUser().isAdmin}
+function userGroupIds(){return new Set(currentUser().groups||[])}
+function canMonitor(){return isAdmin()||!!currentUser().canMonitor}
+function canManageGroup(gid){return isAdmin()||userGroupIds().has(gid)}
+function canManageService(svc){return svc&&(isAdmin()||userGroupIds().has(svc.ownerGroupId))}
+function canManageAttachment(a){return isAdmin()||a.createdBy===currentUser().id||userGroupIds().has(a.ownerGroupId)}
+function hasAttachments(host){return (host.attachments||[]).length>0}
+function canEditHost(host){if(!host)return false;if(host.sourceType==='catalog')return false;if(hasAttachments(host)&&!isAdmin())return false;return isAdmin()||host.createdBy===currentUser().id}
+function canDeleteHost(host){if(!host)return false;if(hasAttachments(host))return isAdmin();return isAdmin()||host.createdBy===currentUser().id}
+function hostLockReason(host){if(host.sourceType==='catalog')return'Чувствительные поля управляются справочником и обновляются синхронизацией.';if(hasAttachments(host)&&!isAdmin())return'Хост уже используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы, чтобы не сломать сбор метрик другим пользователям.';if(!(isAdmin()||host.createdBy===currentUser().id))return'Редактировать ручной хост может только создатель или администратор MARS.';return''}
 
-function uid(prefix) { return prefix + '-' + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4); }
-function num(value, fallback) { const n = parseInt(value, 10); return Number.isFinite(n) ? n : fallback; }
-function esc(value) { return String(value ?? '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
-function jsArg(value) { return "'" + String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"; }
-function nowText() { const d = new Date(); return d.toLocaleString('ru-RU', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }
-function showToast(message) { const t = document.getElementById('toast'); t.textContent = message; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600); }
-function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); document.getElementById('modal').classList.remove('small'); }
-function openModal(title, subtitle, body, footer, small=false) { document.getElementById('modal-title').textContent = title; document.getElementById('modal-subtitle').textContent = subtitle || ''; document.getElementById('modal-body').innerHTML = body; document.getElementById('modal-footer').innerHTML = footer; document.getElementById('modal').classList.toggle('small', !!small); document.getElementById('modal-overlay').classList.add('show'); }
+function switchUser(id){state.currentUserId=id;selectedHostIds.clear();selectedServiceIds.clear();selectedTemplateIds.clear();saveState();renderAll()}
+function switchSection(sec){activeSection=sec;document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}
+function renderAll(){renderUserSwitcher();renderHosts();renderServices();renderTemplates();renderCollections();renderAccess()}
+function renderUserSwitcher(){const sel=$('current-user');sel.innerHTML=state.users.map(u=>`<option value="${u.id}" ${u.id===state.currentUserId?'selected':''}>${esc(u.name)}${u.isAdmin?' · admin':''}</option>`).join('');$('avatar').textContent=currentUser().initials||currentUser().name[0]}
 
-function currentUser() { return state.users.find(u => u.id === state.currentUserId) || state.users[0]; }
-function userById(id) { return state.users.find(u => u.id === id); }
-function groupById(id) { return state.groups.find(g => g.id === id); }
-function currentUserGroupIds() { return new Set(currentUser().groups || []); }
-function isAdmin() { return !!currentUser().isAdmin; }
-function canMonitor() { return isAdmin() || !!currentUser().canMonitor; }
-function canManageGroup(groupId) { return isAdmin() || currentUserGroupIds().has(groupId); }
-function canManageService(svc) { return isAdmin() || currentUserGroupIds().has(svc.ownerGroupId); }
-function canManageAttachment(att) { return isAdmin() || att.createdBy === currentUser().id || currentUserGroupIds().has(att.ownerGroupId); }
-function hostHasAttachments(host) { return (host.attachments || []).length > 0; }
-function canEditHost(host) { if (host.sourceType === 'catalog') return false; if (hostHasAttachments(host) && !isAdmin()) return false; return isAdmin() || host.createdBy === currentUser().id; }
-function canDeleteHost(host) { if (hostHasAttachments(host)) return isAdmin(); return isAdmin() || host.createdBy === currentUser().id; }
-function hostLockReason(host) {
-  if (host.sourceType === 'catalog') return 'Чувствительные поля управляются справочником и обновляются синхронизацией.';
-  if (hostHasAttachments(host) && !isAdmin()) return 'Хост уже используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы, чтобы не сломать сбор метрик другим пользователям.';
-  if (!(isAdmin() || host.createdBy === currentUser().id)) return 'Редактировать ручной хост может только создатель или администратор MARS.';
-  return '';
-}
+function page(id,title,sub,actions,body){$('section-'+id).innerHTML=`<div class="page-head"><div><h1 class="title">${title}</h1><div class="sub">${sub||''}</div></div><div class="actions">${actions||''}</div></div>${body}`}
+function selectOption(v,l,s){return`<option value="${esc(v)}" ${v===s?'selected':''}>${esc(l)}</option>`}
+function proxyOptions(selected,all=false){return(all?selectOption('all','Все группы прокси',selected):'')+state.proxyGroups.map(g=>selectOption(g.id,g.name,selected)).join('')}
+function typeOptions(s){return['ExporterScrape','SQL','BlackBox'].map(t=>selectOption(t,t,s)).join('')}
+function iconOptions(s){return['🌐','🐘','🔴','📊','🐰','🔌','🔒'].map(i=>selectOption(i,i,s)).join('')}
+function groupOptions(s){const gs=isAdmin()?state.groups:state.groups.filter(g=>userGroupIds().has(g.id));return gs.map(g=>selectOption(g.id,g.name,s||gs[0]?.id)).join('')}
+function isValidIp(v){const p=v.split('.');return p.length===4&&p.every(x=>/^\d+$/.test(x)&&+x>=0&&+x<=255)}
+function isValidFqdn(v){return/^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/.test(v)}
+function addressBadge(h){return h.addressType==='fqdn'?'<span class="addr fqdn">FQDN</span>':'<span class="addr ip">IP</span>'}
+function sourceBadge(h){if(h.sourceType==='catalog')return'<span class="badge b-purple">📚 Справочник</span>';if(h.prefilledFromCatalog)return'<span class="badge b-amber">📋 Ручной · заполнен из справочника</span>';return'<span class="badge b-blue">✍️ Ручной</span>'}
+function catalogByExternal(externalId){return state.catalogHosts.find(h=>h.externalId===externalId)}
+function catalogHost(sourceId,externalId){return state.catalogHosts.find(h=>h.sourceId===sourceId&&h.externalId===externalId)}
 
-function switchUser(id) { state.currentUserId = id; saveState(); selectedHostIds.clear(); selectedServiceIds.clear(); selectedTemplateIds.clear(); renderAll(); }
-function switchSection(section) { activeSection = section; document.querySelectorAll('.section').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active')); document.getElementById('section-' + section).classList.add('active'); document.getElementById('nav-' + section).classList.add('active'); renderAll(); }
-function renderAll() { renderUserSwitcher(); renderHostsSection(); renderServicesSection(); renderTemplatesSection(); renderCollectionsSection(); renderAccessSection(); }
-function renderUserSwitcher() {
-  const select = document.getElementById('current-user');
-  select.innerHTML = state.users.map(u => `<option value="${u.id}" ${u.id === state.currentUserId ? 'selected' : ''}>${esc(u.name)}${u.isAdmin ? ' · admin' : ''}</option>`).join('');
-  document.getElementById('user-avatar').textContent = currentUser().initials || currentUser().name.slice(0,1);
+function renderHosts(){
+  const filtered=filteredHosts();
+  const allSelected=filtered.length&&filtered.every(h=>selectedHostIds.has(hostKey(h.id)));
+  const body=`<div class="panel">
+    <div class="info"><b>Хост как monitoring target:</b> имя хоста, IP/FQDN и группа прокси считаются чувствительными полями. Для справочных хостов ими владеет CMDB; для ручных — MARS, но изменение блокируется, если хост уже используется в мониторинге.</div>
+    <div class="toolbar"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllHosts(this.checked)"><span class="muted">Выбрано: <b>${selectedHostIds.size}</b> из <b>${filtered.length}</b></span></div><div class="actions"><button class="sm outline" ${selectedHostIds.size===1&&canMonitor()?'':'disabled'} onclick="openAttachModal('service')">⚡ Присоединить сервис</button><button class="sm outline" ${selectedHostIds.size===1&&canMonitor()?'':'disabled'} onclick="openAttachModal('collection')">📦 Присоединить коллекцию</button></div></div>
+    <div class="filters">🔍 <input id="host-search" class="input" value="${esc($('host-search')?.value||'')}" placeholder="Поиск..." oninput="renderHosts()"><select id="host-proxy-filter" onchange="renderHosts()">${proxyOptions($('host-proxy-filter')?.value||'all',true)}</select><select id="host-source-filter" onchange="renderHosts()">${selectOption('all','Все источники',$('host-source-filter')?.value||'all')}${selectOption('manual','Ручные',$('host-source-filter')?.value||'all')}${selectOption('catalog','Справочные',$('host-source-filter')?.value||'all')}</select></div>
+    <div class="stats"><div class="stat"><div class="stat-label">Всего хостов</div><div class="stat-value">${state.hosts.length}</div></div><div class="stat"><div class="stat-label">Справочные</div><div class="stat-value">${state.hosts.filter(h=>h.sourceType==='catalog').length}</div></div><div class="stat"><div class="stat-label">Ручные</div><div class="stat-value">${state.hosts.filter(h=>h.sourceType!=='catalog').length}</div></div><div class="stat"><div class="stat-label">Attachment'ов</div><div class="stat-value">${state.hosts.reduce((s,h)=>s+h.attachments.length,0)}</div></div></div>
+    <div class="content">${filtered.length?filtered.map(hostCard).join(''):'<div class="empty">Хосты не найдены</div>'}</div><div class="footer"><b>Manual</b> — MARS владеет полями. <b>Catalog</b> — CMDB владеет полями и обновляет их при синхронизации. <b>Prefill</b> — справочник используется только как подсказка для разового заполнения.</div></div>`;
+  page('hosts','Управление хостами','Хосты глобальны для MARS. Источник данных определяет, кто владеет чувствительными полями.',`<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать справочник</button><button class="outline" onclick="resetDemo()">↺ Сбросить демо</button><button ${canMonitor()?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`,body)
 }
+function filteredHosts(){const s=($('host-search')?.value||'').toLowerCase(),p=$('host-proxy-filter')?.value||'all',src=$('host-source-filter')?.value||'all';return state.hosts.filter(h=>(h.name.toLowerCase().includes(s)||h.address.toLowerCase().includes(s)||h.proxyGroup.toLowerCase().includes(s))&&(p==='all'||h.proxyGroup===p)&&(src==='all'||h.sourceType===src))}
+function hostCard(h){const key=hostKey(h.id),sel=selectedHostIds.has(key),open=hostKey(expandedHostId)===key,lock=hostLockReason(h),hid=q(key),creator=userById(h.createdBy),groups=[...new Set(h.attachments.map(a=>groupById(a.ownerGroupId)?.name).filter(Boolean))];return`<div class="card host-card ${sel?'selected':''}"><div class="host-top"><div class="card-main"><input class="checkbox" type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation()" onchange="toggleHost(${hid})"><span class="icon">🖥️</span><div><div class="card-title">${esc(h.name)}</div><div class="meta"><span class="mono">${addressBadge(h)}${esc(h.address)}</span> · Группа прокси: <b>${esc(proxyName(h.proxyGroup))}</b></div><div class="pills">${sourceBadge(h)}<span class="badge ${h.status==='UP'?'b-green':'b-amber'}">${h.status==='UP'?'🟢 UP':'🟡 WARN'}</span><span class="badge">${h.attachments.length} сервисов</span>${lock?'<span class="badge b-red">🔒 критичные поля заблокированы</span>':'<span class="badge b-green">🔓 можно редактировать</span>'}</div><div class="meta">Создал: ${esc(creator?.name||'—')} · Группы attachment'ов: ${groups.length?esc(groups.join(', ')):'—'}</div></div></div><div class="actions">${h.sourceType==='catalog'?`<button class="xs outline" onclick="syncOneCatalogHost(${hid})">🔄 Sync</button>`:''}<button class="xs outline" onclick="openHostEditModal(${hid})" ${canEditHost(h)?'':'disabled'}>✏️ Редактировать</button><button class="xs ghost" onclick="toggleHostDetails(${hid})">${open?'▲ Свернуть':'→ Детали'}</button><button class="xs danger" onclick="openDeleteHostModal(${hid})" ${canDeleteHost(h)?'':'disabled'}>🗑️ Удалить</button></div></div><div class="details ${open?'open':''}">${open?hostDetails(h):''}</div></div>`}
+function proxyName(id){return state.proxyGroups.find(g=>g.id===id)?.name||id}
+function hostDetails(h){const lock=hostLockReason(h);return`${lock?`<div class="box amber-box">⚠️ ${esc(lock)}</div>`:''}${sourceDetails(h)}<h4>Присоединённые сервисы</h4>${h.attachments.length?h.attachments.map((a,i)=>attachmentCard(h,a,i)).join(''):'<div class="empty">Нет присоединённых сервисов</div>'}`}
+function sourceDetails(h){if(h.sourceType==='catalog'){const src=state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId),cat=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);return`<div class="box purple-box"><b>Источник данных:</b> ${esc(src?.name||'CMDB')}<br><span class="muted">External ID:</span> <span class="mono">${esc(h.catalogBinding?.externalId||'—')}</span><br><span class="muted">Последняя синхронизация:</span> ${esc(h.catalogBinding?.lastSyncAt||'—')}<br><span class="muted">Статус:</span> ${cat?'<span class="badge b-green">synced</span>':'<span class="badge b-red">missing</span>'}<div class="hint">Имя хоста, IP/FQDN и группа прокси управляются справочником.</div></div>`}if(h.prefilledFromCatalog){const src=state.catalogSources.find(s=>s.id===h.prefilledFromCatalog.sourceId);return`<div class="box amber-box"><b>Ручной хост, разово заполненный из справочника.</b><br><span class="muted">Источник заполнения:</span> ${esc(src?.name||'CMDB')} · <span class="mono">${esc(h.prefilledFromCatalog.externalId)}</span><br><span class="muted">Скопировано:</span> ${esc(h.prefilledFromCatalog.copiedAt||'—')}<div class="hint">Автоматическое обновление выключено.</div></div>`}return`<div class="box"><b>Источник данных:</b> Ручной ввод. <span class="hint">Синхронизация справочника не меняет поля этого хоста.</span></div>`}
+function attachmentCard(h,a,i){const svc=state.services.find(s=>s.id===a.serviceId);if(!svc)return'';const port=a.portOverride||svc.defaultPort,target=`${h.address}:${port}`,creator=userById(a.createdBy),g=groupById(a.ownerGroupId),can=canManageAttachment(a),hid=q(hostKey(h.id));return`<div class="attach-card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div class="card-main"><span class="icon">${esc(svc.icon)}</span><div><div class="card-title">${esc(svc.name)}</div><div class="meta">Target: <span class="mono">${esc(target)}</span> · ${esc(svc.type)} · ${authBadge(svc)}</div><div class="meta">Attachment создал: ${esc(creator?.name||'—')} · Владелец: ${esc(g?.name||'—')}</div></div></div><button class="xs ghost" style="color:var(--danger)" onclick="detachService(${hid},${i})" ${can?'':'disabled'}>🔌 Отсоединить</button></div><div class="port-row"><span class="muted">Порт:</span><input type="number" min="1" max="65535" id="port-${hostKey(h.id)}-${i}" value="${esc(port)}" ${can?'':'disabled'}><button class="xs success" onclick="applyPort(${hid},${i})" ${can?'':'disabled'}>✓ Применить</button><button class="xs outline" onclick="resetPort(${hid},${i})" ${can?'':'disabled'}>↺ Сбросить</button><span class="hint">${a.portOverride?'переопределён':'по умолчанию'}: ${esc(port)}</span></div></div>`}
+function toggleHost(id){const key=hostKey(id);selectedHostIds.has(key)?selectedHostIds.delete(key):selectedHostIds.add(key);renderHosts()}
+function toggleAllHosts(checked){filteredHosts().forEach(h=>checked?selectedHostIds.add(hostKey(h.id)):selectedHostIds.delete(hostKey(h.id)));renderHosts()}
+function toggleHostDetails(id){const key=hostKey(id);expandedHostId=hostKey(expandedHostId)===key?null:key;renderHosts()}
 
-function sourceBadge(host) {
-  if (host.sourceType === 'catalog') return '<span class="badge badge-purple">📚 Справочник</span>';
-  if (host.prefilledFromCatalog) return '<span class="badge badge-amber">📋 Ручной · заполнен из справочника</span>';
-  return '<span class="badge badge-blue">✍️ Ручной</span>';
-}
-function addressBadge(host) { return host.addressType === 'fqdn' ? '<span class="addr-badge addr-fqdn">FQDN</span>' : '<span class="addr-badge addr-ip">IP</span>'; }
-function sourceDetails(host) {
-  if (host.sourceType === 'catalog') {
-    const source = state.catalogSources.find(s => s.id === host.catalogBinding?.sourceId);
-    const catalog = findCatalogHost(host.catalogBinding?.sourceId, host.catalogBinding?.externalId);
-    return `<div class="box box-purple">
-      <strong>Источник данных:</strong> ${esc(source?.name || 'CMDB')}<br>
-      <span class="muted">External ID:</span> <span class="mono">${esc(host.catalogBinding?.externalId || '—')}</span><br>
-      <span class="muted">Последняя синхронизация:</span> ${esc(host.catalogBinding?.lastSyncAt || '—')}<br>
-      <span class="muted">Статус:</span> ${catalog ? '<span class="badge badge-green">synced</span>' : '<span class="badge badge-red">missing</span>'}<br>
-      <div class="hint">Имя хоста, IP/FQDN и группа прокси управляются справочником. Ручное редактирование этих полей отключено.</div>
-    </div>`;
-  }
-  if (host.prefilledFromCatalog) {
-    const source = state.catalogSources.find(s => s.id === host.prefilledFromCatalog.sourceId);
-    return `<div class="box box-amber">
-      <strong>Ручной хост, разово заполненный из справочника.</strong><br>
-      <span class="muted">Источник заполнения:</span> ${esc(source?.name || 'CMDB')} · <span class="mono">${esc(host.prefilledFromCatalog.externalId)}</span><br>
-      <span class="muted">Скопировано:</span> ${esc(host.prefilledFromCatalog.copiedAt || '—')}<br>
-      <div class="hint">Автоматическое обновление выключено. Синхронизация справочника не меняет поля этого хоста.</div>
-    </div>`;
-  }
-  return `<div class="box"><strong>Источник данных:</strong> Ручной ввод. <span class="hint">Синхронизация справочника не меняет поля этого хоста.</span></div>`;
-}
+function openHostCreateModal(){if(!canMonitor())return toast('Нет права на постановку на мониторинг');hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null};renderHostModal()}
+function openHostEditModal(id){const host=state.hosts.find(h=>hostKey(h.id)===hostKey(id));if(!host)return;if(!canEditHost(host))return toast(hostLockReason(host)||'Недостаточно прав');hostDraft={mode:'edit',catalogExternalId:host.catalogBinding?.externalId||null,editingHostId:hostKey(host.id)};renderHostModal(host)}
+function renderHostModal(host=null){const isEdit=!!host,cat=catalogByExternal(hostDraft.catalogExternalId);openModal(isEdit?'Редактировать хост':'Создать хост',isEdit?'Чувствительные поля можно менять только при соблюдении правил доступа':'Выберите источник данных для чувствительных полей хоста',isEdit?hostEditForm(host):hostCreateForm(cat),`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveHostFromModal()">${isEdit?'Сохранить изменения':'Создать хост'}</button>`)}
+function hostCreateForm(cat){const mode=hostDraft.mode,p=cat||{name:'',addressType:'ip',address:'',proxyGroup:'prod-dmz'},ro=mode==='catalog';return`<div class="box blue-box"><b>Источник владения полями:</b> manual — поля ведутся в MARS; catalog — поля ведёт справочник и обновляет синхронизация.</div><div class="field"><label>Как создать хост?</label><select id="host-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogExternalId=null;renderHostModal()">${selectOption('manual','Ввести вручную',mode)}${selectOption('manual-prefill','Заполнить из справочника, но создать ручной хост',mode)}${selectOption('catalog','Создать справочный хост с автообновлением',mode)}</select></div>${mode==='catalog'||mode==='manual-prefill'?catalogPicker():''}${mode==='catalog'&&!cat?'<div class="box amber-box">Выберите запись справочника.</div>':''}${mode==='manual-prefill'&&cat?'<div class="box amber-box">Поля скопированы из справочника разово. После создания этот хост останется ручным.</div>':''}${hostFields(p,ro)}`}
+function hostEditForm(h){return`${sourceDetails(h)}${hasAttachments(h)&&!isAdmin()?'<div class="box red-box">Хост используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы для обычного пользователя.</div>':''}${hostFields(h,!canEditHost(h))}`}
+function hostFields(p,ro=false){return`<div class="row"><div class="field"><label>Имя хоста *</label><input id="host-name" class="wide" value="${esc(p.name)}" ${ro?'disabled':''} oninput="validateHostForm()"><div class="hint">Используется как label в метриках.</div></div><div class="field"><label>Группа прокси *</label><select id="host-proxy" class="wide" ${ro?'disabled':''} onchange="validateHostForm()">${proxyOptions(p.proxyGroup,false)}</select><div class="hint">Определяет route сбора через proxy/collector.</div></div></div><div class="row"><div class="field"><label>Тип адреса *</label><select id="host-addr-type" class="wide" ${ro?'disabled':''} onchange="validateHostForm()">${selectOption('ip','IP-адрес',p.addressType)}${selectOption('fqdn','FQDN',p.addressType)}</select></div><div class="field"><label>IP/FQDN *</label><input id="host-address" class="wide mono" value="${esc(p.address)}" ${ro?'disabled':''} oninput="validateHostForm()"><div id="host-val" class="hint"></div></div></div>`}
+function catalogPicker(){const s=($('catalog-search')?.value||'').toLowerCase(),items=state.catalogHosts.filter(h=>!s||h.name.toLowerCase().includes(s)||h.address.toLowerCase().includes(s)||h.externalId.toLowerCase().includes(s));return`<div class="box"><div class="field"><label>Справочник хостов</label><input id="catalog-search" class="wide" value="${esc(s)}" placeholder="Поиск по имени, адресу или external ID..." oninput="renderHostModal()"></div><div style="max-height:220px;overflow:auto">${items.map(h=>`<div class="card clickable ${hostDraft.catalogExternalId===h.externalId?'selected':''}" onclick="hostDraft.catalogExternalId=${q(h.externalId)};renderHostModal()"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(h.name)}</div><div class="meta"><span class="mono">${esc(h.address)}</span> · ${esc(proxyName(h.proxyGroup))} · ${esc(h.os)} · <span class="mono">${esc(h.externalId)}</span></div></div></div>${hostDraft.catalogExternalId===h.externalId?'<span class="badge b-green">✓ выбрано</span>':''}</div>`).join('')}</div></div>`}
+function validateHostForm(){const v=$('host-val');if(!v)return true;const name=$('host-name')?.value.trim()||'',addr=$('host-address')?.value.trim()||'',type=$('host-addr-type')?.value||'ip',edit=hostDraft.editingHostId;if(!name){v.textContent='Имя хоста обязательно';v.style.color='var(--danger)';return false}if(state.hosts.some(h=>hostKey(h.id)!==hostKey(edit)&&h.name.toLowerCase()===name.toLowerCase())){v.textContent='Хост с таким именем уже существует';v.style.color='var(--danger)';return false}const ok=type==='ip'?isValidIp(addr):isValidFqdn(addr);v.textContent=ok?'Адрес корректен':'Проверьте формат IP/FQDN';v.style.color=ok?'var(--success)':'var(--danger)';return ok}
+function saveHostFromModal(){if(hostDraft.editingHostId){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostDraft.editingHostId));if(!h||!canEditHost(h))return toast('Редактирование недоступно');if(!validateHostForm())return;h.name=$('host-name').value.trim();h.addressType=$('host-addr-type').value;h.address=$('host-address').value.trim();h.proxyGroup=$('host-proxy').value;saveState();closeModal();renderAll();toast('Хост обновлён');return}const mode=hostDraft.mode,cat=catalogByExternal(hostDraft.catalogExternalId);if((mode==='catalog'||mode==='manual-prefill')&&!cat)return toast('Выберите запись справочника');let h;if(mode==='catalog'){if(state.hosts.some(x=>x.sourceType==='catalog'&&x.catalogBinding?.externalId===cat.externalId&&x.catalogBinding?.sourceId===cat.sourceId))return toast('Этот справочный хост уже заведён');h={id:uid('host'),name:cat.name,addressType:cat.addressType,address:cat.address,proxyGroup:cat.proxyGroup,status:'UP',sourceType:'catalog',createdBy:currentUser().id,createdAt:nowText(),prefilledFromCatalog:null,catalogBinding:{sourceId:cat.sourceId,externalId:cat.externalId,lastSyncAt:nowText(),syncStatus:'synced'},attachments:[]}}else{if(!validateHostForm())return;h={id:uid('host'),name:$('host-name').value.trim(),addressType:$('host-addr-type').value,address:$('host-address').value.trim(),proxyGroup:$('host-proxy').value,status:'UP',sourceType:'manual',createdBy:currentUser().id,createdAt:nowText(),prefilledFromCatalog:mode==='manual-prefill'&&cat?{sourceId:cat.sourceId,externalId:cat.externalId,copiedAt:nowText()}:null,catalogBinding:null,attachments:[]}}if(state.hosts.some(x=>x.name.toLowerCase()===h.name.toLowerCase()))return toast('Хост с таким именем уже существует');state.hosts.push(h);saveState();closeModal();renderAll();toast('Хост создан')}
+function openDeleteHostModal(id){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;if(!canDeleteHost(h))return toast('Удаление недоступно');confirmModal('Удаление хоста',`Удалить <b>${esc(h.name)}</b>?<br>Присоединённых сервисов: ${h.attachments.length}`,'deleteHost',q(hostKey(id)))}
+function deleteHost(id){state.hosts=state.hosts.filter(h=>hostKey(h.id)!==hostKey(id));selectedHostIds.delete(hostKey(id));if(hostKey(expandedHostId)===hostKey(id))expandedHostId=null;saveState();renderAll();toast('Хост удалён')}
+function syncCatalogHosts(){let c=0;state.hosts.filter(h=>h.sourceType==='catalog').forEach(h=>{if(applyCatalogSync(h))c++});saveState();renderAll();toast(`Синхронизировано хостов: ${c}`)}
+function syncOneCatalogHost(id){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;if(applyCatalogSync(h)){saveState();renderAll();toast('Хост синхронизирован')}else toast('Запись справочника не найдена')}
+function applyCatalogSync(h){const c=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);if(!c){h.catalogBinding.syncStatus='missing';return false}h.name=c.name;h.addressType=c.addressType;h.address=c.address;h.proxyGroup=c.proxyGroup;h.catalogBinding.lastSyncAt=nowText();h.catalogBinding.syncStatus='synced';return true}
 
-function renderHostsSection() {
-  const sec = document.getElementById('section-hosts');
-  const filtered = getFilteredHosts();
-  sec.innerHTML = `
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Управление хостами</h1>
-        <div class="page-subtitle">Хосты глобальны для MARS. Источник данных определяет, кто владеет чувствительными полями.</div>
-      </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn-outline" onclick="syncCatalogHosts()">🔄 Синхронизировать справочник</button>
-        <button class="btn-outline" onclick="resetDemoData()">↺ Сбросить демо</button>
-        <button onclick="openHostCreateModal()" ${canMonitor() ? '' : 'disabled'}>➕ Создать хост</button>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-info"><strong>Хост как monitoring target:</strong> имя хоста, IP/FQDN и группа прокси считаются чувствительными полями. Для справочных хостов ими владеет CMDB; для ручных — MARS, но изменение блокируется, если хост уже используется в мониторинге.</div>
-      <div class="panel-toolbar">
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <input class="checkbox" type="checkbox" ${filtered.length && filtered.every(h => selectedHostIds.has(h.id)) ? 'checked' : ''} onchange="toggleSelectAllHosts(this.checked)">
-          <span class="muted">Выбрано: <strong>${selectedHostIds.size}</strong> из <strong>${filtered.length}</strong></span>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="btn-sm btn-outline" onclick="openAttachModal('service')" ${selectedHostIds.size === 1 && canMonitor() ? '' : 'disabled'}>⚡ Присоединить сервис</button>
-          <button class="btn-sm btn-outline" onclick="openAttachModal('collection')" ${selectedHostIds.size === 1 && canMonitor() ? '' : 'disabled'}>📦 Присоединить коллекцию</button>
-        </div>
-      </div>
-      <div class="panel-filters">
-        <span class="muted">🔍</span>
-        <input id="host-search" class="input" placeholder="Поиск..." value="${esc(document.getElementById('host-search')?.value || '')}" oninput="renderHostsSection()">
-        <select id="host-proxy-filter" onchange="renderHostsSection()">
-          ${proxyGroupOptions(document.getElementById('host-proxy-filter')?.value || 'all', true)}
-        </select>
-        <select id="host-source-filter" onchange="renderHostsSection()">
-          ${selectOption('all','Все источники', document.getElementById('host-source-filter')?.value || 'all')}
-          ${selectOption('manual','Ручные', document.getElementById('host-source-filter')?.value || 'all')}
-          ${selectOption('catalog','Справочные', document.getElementById('host-source-filter')?.value || 'all')}
-        </select>
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Всего хостов</div><div class="stat-value">${state.hosts.length}</div></div>
-        <div class="stat-card"><div class="stat-label">Справочные</div><div class="stat-value">${state.hosts.filter(h => h.sourceType === 'catalog').length}</div></div>
-        <div class="stat-card"><div class="stat-label">Ручные</div><div class="stat-value">${state.hosts.filter(h => h.sourceType !== 'catalog').length}</div></div>
-        <div class="stat-card"><div class="stat-label">Attachment'ов</div><div class="stat-value">${state.hosts.reduce((sum,h) => sum + h.attachments.length, 0)}</div></div>
-      </div>
-      <div class="panel-content" id="hosts-list">${renderHostCards(filtered)}</div>
-      <div class="panel-footer">💡 <strong>Manual</strong> — MARS владеет полями. <strong>Catalog</strong> — CMDB владеет полями и обновляет их при синхронизации. <strong>Prefill</strong> — справочник используется только как подсказка для разового заполнения.</div>
-    </div>`;
-}
-function getFilteredHosts() {
-  const search = (document.getElementById('host-search')?.value || '').toLowerCase();
-  const proxy = document.getElementById('host-proxy-filter')?.value || 'all';
-  const source = document.getElementById('host-source-filter')?.value || 'all';
-  return state.hosts.filter(h => {
-    const matchText = h.name.toLowerCase().includes(search) || h.address.toLowerCase().includes(search) || h.proxyGroup.toLowerCase().includes(search);
-    const matchProxy = proxy === 'all' || h.proxyGroup === proxy;
-    const matchSource = source === 'all' || h.sourceType === source;
-    return matchText && matchProxy && matchSource;
-  });
-}
-function renderHostCards(hosts) {
-  if (!hosts.length) return '<div class="empty">Хосты не найдены</div>';
-  return hosts.map(host => {
-    const selected = selectedHostIds.has(host.id);
-    const expanded = expandedHostId === host.id;
-    const lock = hostLockReason(host);
-    const createdBy = userById(host.createdBy);
-    const ownerGroups = [...new Set(host.attachments.map(a => groupById(a.ownerGroupId)?.name).filter(Boolean))];
-    const hid = jsArg(host.id);
-    return `<div class="card host-card ${selected ? 'selected' : ''}">
-      <div class="host-card-top">
-        <div class="card-main">
-          <input class="checkbox" type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleHostSelection(${hid})">
-          <span class="icon">🖥️</span>
-          <div>
-            <div class="card-title">${esc(host.name)}</div>
-            <div class="card-meta"><span class="mono">${addressBadge(host)}${esc(host.address)}</span> · Группа прокси: <strong>${esc(host.proxyGroup)}</strong></div>
-            <div class="pills">
-              ${sourceBadge(host)}
-              <span class="badge ${host.status === 'UP' ? 'badge-green' : 'badge-amber'}">${host.status === 'UP' ? '🟢 UP' : '🟡 WARN'}</span>
-              <span class="badge">${host.attachments.length} сервисов</span>
-              ${lock ? '<span class="badge badge-red">🔒 критичные поля заблокированы</span>' : '<span class="badge badge-green">🔓 можно редактировать</span>'}
-            </div>
-            <div class="card-meta">Создал: ${esc(createdBy?.name || '—')} · Группы attachment'ов: ${ownerGroups.length ? esc(ownerGroups.join(', ')) : '—'}</div>
-          </div>
-        </div>
-        <div class="card-actions">
-          ${host.sourceType === 'catalog' ? `<button class="btn-xs btn-outline" onclick="syncOneCatalogHost(${hid})">🔄 Sync</button>` : ''}
-          <button class="btn-xs btn-outline" onclick="openHostEditModal(${hid})" ${canEditHost(host) ? '' : 'disabled'}>✏️ Редактировать</button>
-          <button class="btn-xs btn-ghost" onclick="toggleHostExpand(${hid})">${expanded ? '▲ Свернуть' : '→ Детали'}</button>
-          <button class="btn-xs btn-danger" onclick="openDeleteHostModal(${hid})" ${canDeleteHost(host) ? '' : 'disabled'}>🗑️ Удалить</button>
-        </div>
-      </div>
-      <div class="details ${expanded ? 'open' : ''}">${expanded ? renderHostDetails(host) : ''}</div>
-    </div>`;
-  }).join('');
-}
-function renderHostDetails(host) {
-  const lock = hostLockReason(host);
-  return `
-    ${lock ? `<div class="box box-amber">⚠️ ${esc(lock)}</div>` : ''}
-    ${sourceDetails(host)}
-    <h4 style="margin:14px 0 10px;">Присоединённые сервисы</h4>
-    ${host.attachments.length ? host.attachments.map((att, idx) => renderAttachment(host, att, idx)).join('') : '<div class="empty">Нет присоединённых сервисов</div>'}
-  `;
-}
-function renderAttachment(host, att, idx) {
-  const svc = state.services.find(s => s.id === att.serviceId);
-  if (!svc) return '';
-  const port = att.portOverride || svc.defaultPort;
-  const target = `${host.address}:${port}`;
-  const creator = userById(att.createdBy);
-  const group = groupById(att.ownerGroupId);
-  const canManage = canManageAttachment(att);
-  const hid = jsArg(host.id);
-  return `<div class="service-attachment">
-    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <span class="icon">${esc(svc.icon)}</span>
-        <div>
-          <div class="card-title">${esc(svc.name)}</div>
-          <div class="card-meta">Target: <span class="mono">${esc(target)}</span> · ${esc(svc.type)} · ${authBadge(svc)}</div>
-          <div class="card-meta">Attachment создал: ${esc(creator?.name || '—')} · Владелец: ${esc(group?.name || '—')}</div>
-        </div>
-      </div>
-      <button class="btn-xs btn-ghost" style="color:var(--danger)" onclick="detachService(${hid}, ${idx})" ${canManage ? '' : 'disabled'}>🔌 Отсоединить</button>
-    </div>
-    <div class="port-row">
-      <span class="muted">Порт:</span>
-      <input type="number" min="1" max="65535" id="port-${host.id}-${idx}" value="${esc(port)}" ${canManage ? '' : 'disabled'}>
-      <button class="btn-xs btn-success" onclick="applyPortOverride(${hid}, ${idx})" ${canManage ? '' : 'disabled'}>✓ Применить</button>
-      <button class="btn-xs btn-outline" onclick="resetPortOverride(${hid}, ${idx})" ${canManage ? '' : 'disabled'}>↺ Сбросить</button>
-      <span class="hint">${att.portOverride ? 'переопределён' : 'по умолчанию'}: ${esc(port)}</span>
-    </div>
-  </div>`;
-}
-function toggleHostSelection(id) { selectedHostIds.has(id) ? selectedHostIds.delete(id) : selectedHostIds.add(id); renderHostsSection(); }
-function toggleSelectAllHosts(checked) { const hosts = getFilteredHosts(); if (checked) hosts.forEach(h => selectedHostIds.add(h.id)); else hosts.forEach(h => selectedHostIds.delete(h.id)); renderHostsSection(); }
-function toggleHostExpand(id) { expandedHostId = expandedHostId === id ? null : id; renderHostsSection(); }
+function authBadge(s){if(s.authMode==='basic')return'<span class="badge b-amber">🔐 Basic Auth</span>';if(s.authMode==='bearer')return'<span class="badge b-purple">🔐 Bearer Token</span>';return'<span class="badge">🔓 Без авторизации</span>'}
+function protocolLine(s){if(s.type!=='ExporterScrape')return'';return` · ${String(s.protocol||'http').toUpperCase()}${s.protocol==='https'?(s.clientCertificate?' · client cert':'')+(s.skipServerCertCheck?' · skip TLS verify':''):''}`}
+function serviceCollections(id){return state.collections.filter(c=>c.serviceIds.includes(id))}
+function usage(id){return state.hosts.reduce((n,h)=>n+h.attachments.filter(a=>a.serviceId===id).length,0)}
+function renderServices(){const arr=state.services,all=arr.length&&arr.every(s=>selectedServiceIds.has(s.id));const body=`<div class="panel"><div class="info"><b>Auth доступна для любого типа сервиса:</b> без авторизации, Basic Auth или Bearer Token. Для ExporterScrape можно выбрать HTTP/HTTPS; при HTTPS доступна вставка клиентского сертификата строкой.</div><div class="toolbar"><div style="display:flex;gap:12px;align-items:center"><input class="checkbox" type="checkbox" ${all?'checked':''} onchange="toggleAllServices(this.checked)"><span class="muted">Выбрано: <b>${selectedServiceIds.size}</b> из <b>${arr.length}</b></span></div><button class="sm danger" ${selectedServiceIds.size?'':'disabled'} onclick="openBulkDeleteServices()">🗑️ Удалить выбранные</button></div><div class="stats"><div class="stat"><div class="stat-label">Сервисов</div><div class="stat-value">${arr.length}</div></div><div class="stat"><div class="stat-label">Basic Auth</div><div class="stat-value">${arr.filter(s=>s.authMode==='basic').length}</div></div><div class="stat"><div class="stat-label">Bearer Token</div><div class="stat-value">${arr.filter(s=>s.authMode==='bearer').length}</div></div><div class="stat"><div class="stat-label">HTTPS Exporter</div><div class="stat-value">${arr.filter(s=>s.type==='ExporterScrape'&&s.protocol==='https').length}</div></div></div><div class="content">${arr.length?arr.map(serviceCard).join(''):'<div class="empty">Нет сервисов</div>'}</div></div>`;page('services','🔌 Сервисы','Сервис принадлежит группе. Управлять им может участник группы или MARS admin.',`<button ${canMonitor()?'':'disabled'} onclick="openServiceModal()">➕ Создать сервис</button>`,body)}
+function serviceCard(s){const can=canManageService(s),cols=serviceCollections(s.id),g=groupById(s.ownerGroupId);return`<div class="card ${selectedServiceIds.has(s.id)?'selected':''}"><div class="card-main"><input class="checkbox" type="checkbox" ${selectedServiceIds.has(s.id)?'checked':''} onchange="toggleService(${q(s.id)})" ${can?'':'disabled'}><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">Тип: ${esc(s.type)} · Порт: <span class="mono">${s.defaultPort}</span> · Метрики: <span class="mono">${esc(s.metrics)}</span>${protocolLine(s)}</div><div class="pills"><span class="badge b-blue">👥 ${esc(g?.name||'—')}</span>${authBadge(s)}<span class="badge">${usage(s.id)} хостов</span></div><div class="line"><span class="line-label">Коллекции:</span>${cols.length?cols.map(c=>`<span class="badge b-green">📦 ${esc(c.name)}</span>`).join(''):'<span class="muted">—</span>'}</div></div></div><div class="actions"><button class="xs outline" onclick="openCloneService(${q(s.id)})" ${can?'':'disabled'}>⧉ Клонировать</button><button class="xs purple" onclick="openCreateTemplateFromService(${q(s.id)})" ${can?'':'disabled'}>🧩 Создать шаблон</button><button class="xs outline" onclick="openServiceModal(${q(s.id)})" ${can?'':'disabled'}>✏️ Редактировать</button><button class="xs danger" onclick="openDeleteService(${q(s.id)})" ${can?'':'disabled'}>🗑️</button></div></div>`}
+function toggleService(id){const s=state.services.find(x=>x.id===id);if(!canManageService(s))return toast('Нет прав');selectedServiceIds.has(id)?selectedServiceIds.delete(id):selectedServiceIds.add(id);renderServices()}
+function toggleAllServices(ch){state.services.filter(canManageService).forEach(s=>ch?selectedServiceIds.add(s.id):selectedServiceIds.delete(s.id));renderServices()}
+function openServiceModal(id='',base=null){const existing=id?state.services.find(s=>s.id===id):null;if(existing&&!canManageService(existing))return toast('Недостаточно прав');const s=existing||base||{name:'',type:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',ownerGroupId:(isAdmin()?state.groups[0]?.id:currentUser().groups[0])||'g-infra',authMode:'none',basicUsername:'',basicPassword:'',bearerToken:'',protocol:'http',clientCertificate:'',skipServerCertCheck:false};openModal(existing?'Редактировать сервис':base?'Создать сервис из шаблона':'Создать сервис',existing?'Изменение доступно участникам группы-владельца':'Настрой один раз — применяй везде',serviceForm(s,!!base),`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveService(${q(existing?existing.id:'')})">${existing?'Сохранить':'Создать сервис'}</button>`);renderServiceDynamic()}
+function serviceForm(s,fromTpl=false){return`<div class="row"><div class="field"><label>Название *</label><input id="svc-name" class="wide" value="${esc(s.name)}"></div><div class="field"><label>Группа-владелец *</label><select id="svc-group" class="wide">${groupOptions(s.ownerGroupId)}</select></div></div><div class="row3"><div class="field"><label>Тип *</label><select id="svc-type" class="wide" onchange="renderServiceDynamic()">${typeOptions(s.type)}</select></div><div class="field"><label>Иконка</label><select id="svc-icon" class="wide">${iconOptions(s.icon)}</select></div><div class="field"><label>Порт по умолчанию *</label><input id="svc-port" type="number" min="1" max="65535" class="wide" value="${esc(s.defaultPort)}"></div></div><div class="field"><label>Путь к метрикам</label><input id="svc-metrics" class="wide mono" value="${esc(s.metrics)}"></div><div id="exporter-fields" data-protocol="${esc(s.protocol||'http')}" data-cert="${esc(s.clientCertificate||'')}" data-skip="${s.skipServerCertCheck?'1':'0'}"></div><div class="field"><label>Авторизация</label><select id="svc-auth" class="wide" onchange="renderServiceDynamic()">${selectOption('none','Без авторизации',s.authMode||'none')}${selectOption('basic','Basic Auth',s.authMode||'none')}${selectOption('bearer','Bearer Token',s.authMode||'none')}</select></div><div id="auth-fields" data-user="${esc(s.basicUsername||'')}" data-pass="${esc(s.basicPassword||'')}" data-token="${esc(s.bearerToken||'')}"></div>${fromTpl?'<div class="box blue-box">Сервис создаётся из шаблона без auth. Авторизацию можно настроить здесь перед созданием.</div>':''}`}
+function renderServiceDynamic(){const type=$('svc-type')?.value||'ExporterScrape',exp=$('exporter-fields');if(exp){const prevP=$('svc-protocol')?.value||exp.dataset.protocol||'http',prevC=$('svc-cert')?.value||exp.dataset.cert||'',prevS=$('svc-skip')?.checked||exp.dataset.skip==='1';exp.dataset.protocol=prevP;exp.dataset.cert=prevC;exp.dataset.skip=prevS?'1':'0';exp.innerHTML=type==='ExporterScrape'?`<div class="box"><div class="field"><label>Протокол сбора</label><select id="svc-protocol" class="wide" onchange="renderServiceDynamic()">${selectOption('http','HTTP',prevP)}${selectOption('https','HTTPS',prevP)}</select></div>${prevP==='https'?`<div class="field"><label>Клиентский сертификат</label><textarea id="svc-cert" rows="5" class="wide mono" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----">${esc(prevC)}</textarea><div class="hint">Сертификат вставляется строкой. При HTTP это поле не отображается.</div></div><label style="display:flex;gap:8px;align-items:center"><input id="svc-skip" type="checkbox" ${prevS?'checked':''}> Пропустить проверку серверного сертификата</label>`:''}</div>`:''}
+  const auth=$('auth-fields');if(auth){const mode=$('svc-auth')?.value||'none',u=$('svc-user')?.value||auth.dataset.user||'',p=$('svc-pass')?.value||auth.dataset.pass||'',tok=$('svc-token')?.value||auth.dataset.token||'';auth.dataset.user=u;auth.dataset.pass=p;auth.dataset.token=tok;if(mode==='basic')auth.innerHTML=`<div class="box"><div class="row"><div class="field"><label>Username</label><input id="svc-user" class="wide" value="${esc(u)}"></div><div class="field"><label>Password</label><input id="svc-pass" type="password" class="wide" value="${esc(p)}"></div></div></div>`;else if(mode==='bearer')auth.innerHTML=`<div class="box"><div class="field"><label>Bearer Token</label><textarea id="svc-token" rows="3" class="wide mono">${esc(tok)}</textarea></div></div>`;else auth.innerHTML=''}}
+function serviceFromForm(id=''){const type=$('svc-type').value,protocol=type==='ExporterScrape'?($('svc-protocol')?.value||'http'):'http';return{id:id||uid('svc'),name:$('svc-name').value.trim(),type,icon:$('svc-icon').value,defaultPort:num($('svc-port').value,0),metrics:$('svc-metrics').value.trim()||'/metrics',ownerGroupId:$('svc-group').value,authMode:$('svc-auth').value,basicUsername:$('svc-user')?.value||'',basicPassword:$('svc-pass')?.value||'',bearerToken:$('svc-token')?.value||'',protocol,clientCertificate:protocol==='https'?($('svc-cert')?.value||''):'',skipServerCertCheck:protocol==='https'?!!$('svc-skip')?.checked:false,usedBy:state.services.find(s=>s.id===id)?.usedBy||0,createdBy:state.services.find(s=>s.id===id)?.createdBy||currentUser().id}}
+function saveService(id=''){const s=serviceFromForm(id);if(!s.name||s.defaultPort<1||s.defaultPort>65535)return toast('Заполните обязательные поля');if(!canManageGroup(s.ownerGroupId))return toast('Недостаточно прав на группу');if(state.services.some(x=>x.id!==id&&x.name.toLowerCase()===s.name.toLowerCase()))return toast('Сервис с таким именем уже существует');if(id){const i=state.services.findIndex(x=>x.id===id);if(i>-1)state.services[i]=s}else state.services.push(s);saveState();closeModal();renderAll();toast(id?'Сервис обновлён':'Сервис создан')}
+function openCloneService(id){const s=state.services.find(x=>x.id===id);if(!s||!canManageService(s))return;openModal('Клонировать сервис',s.name,`<div class="field"><label>Имя нового сервиса</label><input id="clone-name" class="wide" value="${esc(s.name+' copy')}"></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="cloneService(${q(id)})">Создать копию</button>`,true)}
+function cloneService(id){const s=state.services.find(x=>x.id===id),name=$('clone-name').value.trim();if(!name)return toast('Введите имя');if(state.services.some(x=>x.name.toLowerCase()===name.toLowerCase()))return toast('Сервис с таким именем уже существует');state.services.push({...s,id:uid('svc'),name,usedBy:0,createdBy:currentUser().id});saveState();closeModal();renderAll();toast('Сервис склонирован')}
+function openDeleteService(id){const s=state.services.find(x=>x.id===id);if(!s||!canManageService(s))return;confirmModal('Удаление сервиса',`Удалить <b>${esc(s.name)}</b>?<br>Attachment'ов: ${usage(id)}<br>Коллекций: ${serviceCollections(id).length}`,'deleteService',q(id))}
+function deleteService(id){state.hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));state.collections.forEach(c=>c.serviceIds=c.serviceIds.filter(sid=>sid!==id));state.services=state.services.filter(s=>s.id!==id);selectedServiceIds.delete(id);saveState();renderAll();toast('Сервис удалён')}
+function openBulkDeleteServices(){const ids=[...selectedServiceIds].filter(id=>canManageService(state.services.find(s=>s.id===id)));if(!ids.length)return toast('Нет доступных к удалению сервисов');openModal('Массовое удаление сервисов','Будут очищены связанные attachment и коллекции',`<div class="box red-box">Удалить сервисов: ${ids.length}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="bulkDeleteServices()">Удалить</button>`,true)}
+function bulkDeleteServices(){[...selectedServiceIds].forEach(id=>{const s=state.services.find(x=>x.id===id);if(s&&canManageService(s))deleteServiceNoRender(id)});selectedServiceIds.clear();saveState();closeModal();renderAll();toast('Сервисы удалены')}
+function deleteServiceNoRender(id){state.hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));state.collections.forEach(c=>c.serviceIds=c.serviceIds.filter(sid=>sid!==id));state.services=state.services.filter(s=>s.id!==id)}
 
-function openHostCreateModal() {
-  if (!canMonitor()) return showToast('Нет права на постановку на мониторинг');
-  hostDraft = { mode:'manual', catalogExternalId:null, editingHostId:null };
-  renderHostModal();
-}
-function openHostEditModal(id) {
-  const host = state.hosts.find(h => h.id === id);
-  if (!host) return;
-  if (!canEditHost(host)) return showToast(hostLockReason(host) || 'Недостаточно прав');
-  hostDraft = { mode:'edit', catalogExternalId:host.catalogBinding?.externalId || null, editingHostId:id };
-  renderHostModal(host);
-}
-function renderHostModal(host=null) {
-  const isEdit = !!host;
-  const catalog = findCatalogByExternalId(hostDraft.catalogExternalId);
-  const title = isEdit ? 'Редактировать хост' : 'Создать хост';
-  const subtitle = isEdit ? 'Чувствительные поля можно менять только при соблюдении правил доступа' : 'Выберите источник данных для чувствительных полей хоста';
-  const body = isEdit ? hostEditForm(host) : hostCreateForm(catalog);
-  const footer = `<button class="btn-ghost" onclick="closeModal()">Отмена</button><div class="modal-footer-right"><button onclick="saveHostFromModal()">${isEdit ? 'Сохранить изменения' : 'Создать хост'}</button></div>`;
-  openModal(title, subtitle, body, footer);
-}
-function hostCreateForm(catalog) {
-  const mode = hostDraft.mode;
-  const selected = catalog || null;
-  const prefill = selected ? selected : { name:'', addressType:'ip', address:'', proxyGroup:'prod-dmz' };
-  const readonlyCatalog = mode === 'catalog';
-  const catalogBlock = (mode === 'catalog' || mode === 'manual-prefill') ? catalogPickerBlock() : '';
-  return `
-    <div class="box box-blue"><strong>Источник владения полями:</strong> manual — поля ведутся в MARS; catalog — поля ведёт справочник и обновляет синхронизация.</div>
-    <div class="form-group">
-      <label class="form-label">Как создать хост?</label>
-      <select id="host-create-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogExternalId=null;renderHostModal()">
-        ${selectOption('manual','Ввести вручную', mode)}
-        ${selectOption('manual-prefill','Заполнить из справочника, но создать ручной хост', mode)}
-        ${selectOption('catalog','Создать справочный хост с автообновлением', mode)}
-      </select>
-    </div>
-    ${catalogBlock}
-    ${mode === 'catalog' && !selected ? '<div class="box box-amber">Выберите запись справочника, чтобы создать справочный хост.</div>' : ''}
-    ${mode === 'manual-prefill' && selected ? '<div class="box box-amber">Поля скопированы из справочника разово. После создания этот хост останется ручным и не будет обновляться синхронизацией.</div>' : ''}
-    <div class="row">
-      <div class="form-group"><label class="form-label">Имя хоста *</label><input id="host-name-input" class="wide" value="${esc(prefill.name)}" ${readonlyCatalog ? 'disabled' : ''} oninput="validateHostForm()"><div class="hint">Используется как label в метриках.</div></div>
-      <div class="form-group"><label class="form-label">Группа прокси *</label><select id="host-proxy-input" class="wide" ${readonlyCatalog ? 'disabled' : ''} onchange="validateHostForm()">${proxyGroupOptions(prefill.proxyGroup, false)}</select><div class="hint">Определяет route сбора через proxy/collector.</div></div>
-    </div>
-    <div class="row">
-      <div class="form-group"><label class="form-label">Тип адреса *</label><select id="host-address-type-input" class="wide" ${readonlyCatalog ? 'disabled' : ''} onchange="validateHostForm()">${selectOption('ip','IP-адрес', prefill.addressType)}${selectOption('fqdn','FQDN', prefill.addressType)}</select></div>
-      <div class="form-group"><label class="form-label">IP/FQDN *</label><input id="host-address-input" class="wide mono" value="${esc(prefill.address)}" ${readonlyCatalog ? 'disabled' : ''} oninput="validateHostForm()"><div id="host-form-validation" class="hint"></div></div>
-    </div>
-  `;
-}
-function hostEditForm(host) {
-  const readOnly = !canEditHost(host);
-  return `
-    ${sourceDetails(host)}
-    ${host.sourceType === 'catalog' ? '<div class="box box-amber">Справочные хосты не редактируются вручную. Измените данные во внешней CMDB и выполните синхронизацию.</div>' : ''}
-    ${hostHasAttachments(host) && !isAdmin() ? '<div class="box box-red">Хост используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы для обычного пользователя.</div>' : ''}
-    <div class="row">
-      <div class="form-group"><label class="form-label">Имя хоста *</label><input id="host-name-input" class="wide" value="${esc(host.name)}" ${readOnly ? 'disabled' : ''} oninput="validateHostForm()"></div>
-      <div class="form-group"><label class="form-label">Группа прокси *</label><select id="host-proxy-input" class="wide" ${readOnly ? 'disabled' : ''} onchange="validateHostForm()">${proxyGroupOptions(host.proxyGroup, false)}</select></div>
-    </div>
-    <div class="row">
-      <div class="form-group"><label class="form-label">Тип адреса *</label><select id="host-address-type-input" class="wide" ${readOnly ? 'disabled' : ''} onchange="validateHostForm()">${selectOption('ip','IP-адрес', host.addressType)}${selectOption('fqdn','FQDN', host.addressType)}</select></div>
-      <div class="form-group"><label class="form-label">IP/FQDN *</label><input id="host-address-input" class="wide mono" value="${esc(host.address)}" ${readOnly ? 'disabled' : ''} oninput="validateHostForm()"><div id="host-form-validation" class="hint"></div></div>
-    </div>
-  `;
-}
-function catalogPickerBlock() {
-  const search = document.getElementById('catalog-search-input')?.value?.toLowerCase() || '';
-  const items = state.catalogHosts.filter(h => !search || h.name.toLowerCase().includes(search) || h.address.toLowerCase().includes(search) || h.externalId.toLowerCase().includes(search));
-  return `<div class="box">
-    <div class="form-group"><label class="form-label">Справочник хостов</label><input id="catalog-search-input" class="wide" placeholder="Поиск по имени, адресу или external ID..." value="${esc(search)}" oninput="renderHostModal()"></div>
-    <div style="max-height:220px;overflow:auto;">
-      ${items.map(h => `<div class="card clickable ${hostDraft.catalogExternalId === h.externalId ? 'selected' : ''}" onclick="hostDraft.catalogExternalId='${esc(h.externalId)}';renderHostModal()">
-        <div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(h.name)}</div><div class="card-meta"><span class="mono">${esc(h.address)}</span> · ${esc(h.proxyGroup)} · ${esc(h.os)} · <span class="mono">${esc(h.externalId)}</span></div></div></div>
-        ${hostDraft.catalogExternalId === h.externalId ? '<span class="badge badge-green">✓ выбрано</span>' : ''}
-      </div>`).join('')}
-    </div>
-  </div>`;
-}
-function validateHostForm() {
-  const val = document.getElementById('host-form-validation');
-  if (!val) return true;
-  const name = document.getElementById('host-name-input')?.value.trim() || '';
-  const address = document.getElementById('host-address-input')?.value.trim() || '';
-  const type = document.getElementById('host-address-type-input')?.value || 'ip';
-  let ok = true;
-  const editingId = hostDraft.editingHostId;
-  if (!name) { val.textContent = 'Имя хоста обязательно'; val.className='hint text-danger'; return false; }
-  if (state.hosts.some(h => h.id !== editingId && h.name.toLowerCase() === name.toLowerCase())) { val.textContent = 'Хост с таким именем уже существует'; val.className='hint text-danger'; return false; }
-  if (type === 'ip' && !isValidIp(address)) ok = false;
-  if (type === 'fqdn' && !isValidFqdn(address)) ok = false;
-  val.textContent = ok ? 'Адрес корректен' : 'Проверьте формат IP/FQDN';
-  val.className = ok ? 'hint text-success' : 'hint text-danger';
-  return ok;
-}
-function saveHostFromModal() {
-  if (hostDraft.editingHostId) {
-    const host = state.hosts.find(h => h.id === hostDraft.editingHostId);
-    if (!host || !canEditHost(host)) return showToast('Редактирование недоступно');
-    if (!validateHostForm()) return;
-    host.name = document.getElementById('host-name-input').value.trim();
-    host.addressType = document.getElementById('host-address-type-input').value;
-    host.address = document.getElementById('host-address-input').value.trim();
-    host.proxyGroup = document.getElementById('host-proxy-input').value;
-    saveState(); closeModal(); renderAll(); showToast('Хост обновлён'); return;
-  }
-  const mode = hostDraft.mode;
-  const catalog = findCatalogByExternalId(hostDraft.catalogExternalId);
-  if ((mode === 'catalog' || mode === 'manual-prefill') && !catalog) return showToast('Выберите запись справочника');
-  let newHost;
-  if (mode === 'catalog') {
-    if (state.hosts.some(h => h.sourceType === 'catalog' && h.catalogBinding?.externalId === catalog.externalId && h.catalogBinding?.sourceId === catalog.sourceId)) return showToast('Этот справочный хост уже заведён');
-    newHost = { id: Date.now(), name:catalog.name, addressType:catalog.addressType, address:catalog.address, proxyGroup:catalog.proxyGroup, status:'UP', sourceType:'catalog', createdBy:currentUser().id, createdAt:nowText(), prefilledFromCatalog:null, catalogBinding:{ sourceId:catalog.sourceId, externalId:catalog.externalId, lastSyncAt:nowText(), syncStatus:'synced' }, attachments:[] };
-  } else {
-    if (!validateHostForm()) return;
-    newHost = { id: Date.now(), name:document.getElementById('host-name-input').value.trim(), addressType:document.getElementById('host-address-type-input').value, address:document.getElementById('host-address-input').value.trim(), proxyGroup:document.getElementById('host-proxy-input').value, status:'UP', sourceType:'manual', createdBy:currentUser().id, createdAt:nowText(), prefilledFromCatalog: mode === 'manual-prefill' && catalog ? { sourceId:catalog.sourceId, externalId:catalog.externalId, copiedAt:nowText() } : null, catalogBinding:null, attachments:[] };
-  }
-  if (state.hosts.some(h => h.name.toLowerCase() === newHost.name.toLowerCase())) return showToast('Хост с таким именем уже существует');
-  state.hosts.push(newHost); saveState(); closeModal(); renderAll(); showToast('Хост создан');
-}
-function openDeleteHostModal(id) {
-  const host = state.hosts.find(h => h.id === id);
-  if (!host) return;
-  if (!canDeleteHost(host)) return showToast('Удаление недоступно');
-  const body = `<div class="box ${host.attachments.length ? 'box-red' : 'box-amber'}">
-    <strong>${esc(host.name)}</strong> · ${esc(host.address)}<br>
-    Присоединённых сервисов: ${host.attachments.length}<br>
-    ${host.attachments.length ? '⚠️ Удаление хоста удалит все attachment\'ы. В прототипе это действие доступно только администратору MARS.' : 'Хост не используется в мониторинге.'}
-  </div>`;
-  const footer = `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="deleteHost(${jsArg(id)})">Удалить</button>`;
-  openModal('Удаление хоста', 'Подтвердите действие', body, footer, true);
-}
-function deleteHost(id) { state.hosts = state.hosts.filter(h => h.id !== id); selectedHostIds.delete(id); if (expandedHostId === id) expandedHostId = null; saveState(); closeModal(); renderAll(); showToast('Хост удалён'); }
-function findCatalogByExternalId(externalId) { return state.catalogHosts.find(h => h.externalId === externalId); }
-function findCatalogHost(sourceId, externalId) { return state.catalogHosts.find(h => h.sourceId === sourceId && h.externalId === externalId); }
-function syncCatalogHosts() { let count = 0; state.hosts.filter(h => h.sourceType === 'catalog').forEach(h => { if (applyCatalogSync(h)) count++; }); saveState(); renderAll(); showToast(`Синхронизировано хостов: ${count}`); }
-function syncOneCatalogHost(id) { const host = state.hosts.find(h => h.id === id); if (!host) return; if (applyCatalogSync(host)) { saveState(); renderAll(); showToast('Хост синхронизирован'); } else showToast('Запись справочника не найдена'); }
-function applyCatalogSync(host) { const c = findCatalogHost(host.catalogBinding?.sourceId, host.catalogBinding?.externalId); if (!c) { host.catalogBinding.syncStatus = 'missing'; return false; } host.name = c.name; host.addressType = c.addressType; host.address = c.address; host.proxyGroup = c.proxyGroup; host.catalogBinding.lastSyncAt = nowText(); host.catalogBinding.syncStatus = 'synced'; return true; }
+function renderTemplates(){const arr=state.serviceTemplates,all=arr.length&&arr.every(t=>selectedTemplateIds.has(t.id));const body=`<div class="panel"><div class="info"><b>Правило:</b> шаблоны сервисов не содержат auth. Имя шаблона уникально.</div><div class="toolbar"><div style="display:flex;gap:12px;align-items:center"><input class="checkbox" type="checkbox" ${all?'checked':''} onchange="toggleAllTemplates(this.checked)"><span class="muted">Выбрано: <b>${selectedTemplateIds.size}</b> из <b>${arr.length}</b></span></div><button class="sm danger" ${selectedTemplateIds.size?'':'disabled'} onclick="openBulkDeleteTemplates()">🗑️ Удалить выбранные</button></div><div class="content">${arr.length?arr.map(templateCard).join(''):'<div class="empty">Нет шаблонов</div>'}</div></div>`;page('templates','🧩 Шаблоны сервисов','Клик по шаблону создаёт сервис на его основе. В UI шаблонов нет упоминаний об аутентификации.','',body)}
+function templateCard(t){const g=groupById(t.ownerGroupId);return`<div class="card clickable ${selectedTemplateIds.has(t.id)?'selected':''}" onclick="openServiceFromTemplate(${q(t.id)})"><div class="card-main"><input class="checkbox" type="checkbox" ${selectedTemplateIds.has(t.id)?'checked':''} onclick="event.stopPropagation()" onchange="toggleTemplate(${q(t.id)})"><span class="icon">${esc(t.icon)}</span><div><div class="card-title">${esc(t.name)}</div><div class="meta">Тип: ${esc(t.type)} · Порт: <span class="mono">${t.defaultPort}</span> · Метрики: <span class="mono">${esc(t.metrics)}</span>${t.type==='ExporterScrape'?' · '+String(t.protocol||'http').toUpperCase():''}</div><div class="pills"><span class="badge b-blue">👥 ${esc(g?.name||'—')}</span><span class="badge">создано: ${t.usedBy||0}</span></div></div></div><div class="actions" onclick="event.stopPropagation()"><button class="xs outline" onclick="openEditTemplate(${q(t.id)})">✏️ Редактировать</button><button class="xs danger" onclick="openDeleteTemplate(${q(t.id)})">🗑️</button></div></div>`}
+function toggleTemplate(id){selectedTemplateIds.has(id)?selectedTemplateIds.delete(id):selectedTemplateIds.add(id);renderTemplates()}
+function toggleAllTemplates(ch){state.serviceTemplates.forEach(t=>ch?selectedTemplateIds.add(t.id):selectedTemplateIds.delete(t.id));renderTemplates()}
+function openCreateTemplateFromService(id){const s=state.services.find(x=>x.id===id);if(!s)return;const name=`Шаблон "${s.name}"`;openModal('Создать шаблон сервиса','Из карточки сервиса',`<div class="box blue-box">Шаблон будет создан без аутентификации. Имя должно быть уникальным.</div><div class="field"><label>Название шаблона</label><input id="tpl-name" class="wide" value="${esc(name)}" oninput="validateTemplateName()"><div id="tpl-val" class="hint"></div></div><div class="box"><b>Основа:</b> ${esc(s.name)}<br>Тип: ${esc(s.type)} · Порт: ${s.defaultPort} · Метрики: <span class="mono">${esc(s.metrics)}</span></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="createTemplateFromService(${q(id)})">Создать шаблон</button>`,true);validateTemplateName()}
+function validateTemplateName(editId=''){const el=$('tpl-name'),msg=$('tpl-val');if(!el||!msg)return false;const name=el.value.trim(),exists=state.serviceTemplates.some(t=>t.id!==editId&&t.name.toLowerCase()===name.toLowerCase());msg.textContent=!name?'Введите название':exists?'Шаблон с таким именем уже существует':'Имя свободно';msg.style.color=!name||exists?'var(--danger)':'var(--success)';return!!name&&!exists}
+function createTemplateFromService(id){const s=state.services.find(x=>x.id===id);if(!s||!validateTemplateName())return;state.serviceTemplates.push({id:uid('tpl'),name:$('tpl-name').value.trim(),type:s.type,icon:s.icon,defaultPort:s.defaultPort,metrics:s.metrics,protocol:s.protocol||'http',skipServerCertCheck:!!s.skipServerCertCheck,ownerGroupId:s.ownerGroupId,createdBy:currentUser().id,usedBy:0});saveState();closeModal();renderAll();toast('Шаблон создан')}
+function openServiceFromTemplate(id){const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;const s={name:t.name.replace(/^Шаблон\s+"(.+)"$/,'$1'),type:t.type,icon:t.icon,defaultPort:t.defaultPort,metrics:t.metrics,ownerGroupId:canManageGroup(t.ownerGroupId)?t.ownerGroupId:(isAdmin()?state.groups[0]?.id:currentUser().groups[0])||'g-infra',authMode:'none',basicUsername:'',basicPassword:'',bearerToken:'',protocol:t.protocol||'http',clientCertificate:'',skipServerCertCheck:!!t.skipServerCertCheck};openServiceModal('',s)}
+function openEditTemplate(id){const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;openModal('Редактировать шаблон сервиса','Без настроек auth',`<div class="box blue-box">Шаблон не содержит авторизацию.</div><div class="field"><label>Название *</label><input id="tpl-name" class="wide" value="${esc(t.name)}" oninput="validateTemplateName(${q(id)})"><div id="tpl-val" class="hint"></div></div><div class="row3"><div class="field"><label>Тип</label><select id="tpl-type" class="wide">${typeOptions(t.type)}</select></div><div class="field"><label>Иконка</label><select id="tpl-icon" class="wide">${iconOptions(t.icon)}</select></div><div class="field"><label>Порт</label><input id="tpl-port" type="number" min="1" max="65535" class="wide" value="${t.defaultPort}"></div></div><div class="field"><label>Метрики</label><input id="tpl-metrics" class="wide mono" value="${esc(t.metrics)}"></div><div class="field"><label>Протокол для ExporterScrape</label><select id="tpl-protocol" class="wide">${selectOption('http','HTTP',t.protocol||'http')}${selectOption('https','HTTPS',t.protocol||'http')}</select></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveTemplate(${q(id)})">Сохранить</button>`);validateTemplateName(id)}
+function saveTemplate(id){if(!validateTemplateName(id))return;const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;t.name=$('tpl-name').value.trim();t.type=$('tpl-type').value;t.icon=$('tpl-icon').value;t.defaultPort=num($('tpl-port').value,80);t.metrics=$('tpl-metrics').value.trim()||'/metrics';t.protocol=$('tpl-protocol').value;saveState();closeModal();renderAll();toast('Шаблон обновлён')}
+function openDeleteTemplate(id){const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;confirmModal('Удаление шаблона',`Удалить шаблон <b>${esc(t.name)}</b>?`,'deleteTemplate',q(id))}
+function deleteTemplate(id){state.serviceTemplates=state.serviceTemplates.filter(t=>t.id!==id);selectedTemplateIds.delete(id);saveState();renderAll();toast('Шаблон удалён')}
+function openBulkDeleteTemplates(){openModal('Массовое удаление шаблонов','Подтвердите действие',`<div class="box red-box">Удалить шаблонов: ${selectedTemplateIds.size}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="bulkDeleteTemplates()">Удалить</button>`,true)}
+function bulkDeleteTemplates(){state.serviceTemplates=state.serviceTemplates.filter(t=>!selectedTemplateIds.has(t.id));selectedTemplateIds.clear();saveState();closeModal();renderAll();toast('Шаблоны удалены')}
 
-function isValidIp(value) { const parts = value.split('.'); return parts.length === 4 && parts.every(p => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255); }
-function isValidFqdn(value) { return /^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/.test(value); }
-function proxyGroupOptions(selected, includeAll) {
-  const opts = [ ['prod-dmz','Production DMZ'], ['analytics','Analytics'], ['k8s','K8s Cluster'] ];
-  return (includeAll ? selectOption('all','Все группы прокси', selected) : '') + opts.map(([v,l]) => selectOption(v,l,selected)).join('');
-}
-function selectOption(value, label, selected) { return `<option value="${esc(value)}" ${value === selected ? 'selected' : ''}>${esc(label)}</option>`; }
+function renderCollections(){const avg=state.collections.length?(state.collections.reduce((s,c)=>s+c.serviceIds.length,0)/state.collections.length).toFixed(1):'0';const body=`<div class="panel"><div class="info"><b>Коллекция</b> хранит ссылки на сервисы. В карточках сервисов видно, в каких коллекциях они используются.</div><div class="stats three"><div class="stat"><div class="stat-label">Коллекций</div><div class="stat-value">${state.collections.length}</div></div><div class="stat"><div class="stat-label">Используется на хостах</div><div class="stat-value">${state.collections.reduce((s,c)=>s+c.usedBy,0)}</div></div><div class="stat"><div class="stat-label">Среднее сервисов</div><div class="stat-value">${avg}</div></div></div><div class="content">${state.collections.length?state.collections.map(collectionCard).join(''):'<div class="empty">Нет коллекций</div>'}</div></div>`;page('collections','📦 Коллекции','Группы сервисов для пакетного присоединения к хостам.',`<button onclick="openCollectionModal()">➕ Создать коллекцию</button>`,body)}
+function collectionCard(c){const svcs=c.serviceIds.map(id=>state.services.find(s=>s.id===id)).filter(Boolean);return`<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(c.name)} <span class="badge b-blue">${svcs.length} сервисов</span></div><div class="meta">${esc(c.description||'')}</div><div class="line"><span class="line-label">Сервисы:</span>${svcs.length?svcs.map(s=>`<span class="badge">${esc(s.icon)} ${esc(s.name)}</span>`).join(''):'<span class="muted">—</span>'}</div></div></div><div class="actions"><button class="xs danger" onclick="deleteCollection(${q(c.id)})">🗑️ Удалить</button></div></div>`}
+function openCollectionModal(){collectionDraftIds=[];collectionDraftName='';collectionDraftDesc='';renderCollectionModal()}
+function renderCollectionModal(){openModal('Создать коллекцию','Выберите сервисы из библиотеки',`<div class="field"><label>Название *</label><input id="col-name" class="wide" value="${esc(collectionDraftName)}" oninput="collectionDraftName=this.value"></div><div class="field"><label>Описание</label><textarea id="col-desc" rows="2" class="wide" oninput="collectionDraftDesc=this.value">${esc(collectionDraftDesc)}</textarea></div><div class="box"><b>Сервисы коллекции</b><div id="col-picked" style="margin-top:10px">${collectionDraftIds.length?collectionDraftIds.map(id=>{const s=state.services.find(x=>x.id===id);return s?`<span class="badge" style="margin:3px">${esc(s.icon)} ${esc(s.name)} <button class="xs ghost" onclick="removeFromCollectionDraft(${q(id)})">✕</button></span>`:''}).join(''):'<div class="muted">Коллекция пуста</div>'}</div><button class="outline" onclick="openServicePicker()">➕ Добавить сервис</button></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`)}
+function openServicePicker(){const items=state.services.filter(s=>!collectionDraftIds.includes(s.id));openModal('Добавить сервис в коллекцию','Выберите сервис',items.length?items.map(s=>`<div class="card clickable" onclick="addToCollectionDraft(${q(s.id)})"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">${esc(s.type)} · ${s.defaultPort}</div></div></div></div>`).join(''):'<div class="empty">Все сервисы уже добавлены</div>',`<button class="ghost" onclick="renderCollectionModal()">Назад</button>`,true)}
+function addToCollectionDraft(id){if(!collectionDraftIds.includes(id))collectionDraftIds.push(id);renderCollectionModal()}
+function removeFromCollectionDraft(id){collectionDraftIds=collectionDraftIds.filter(x=>x!==id);renderCollectionModal()}
+function saveCollection(){collectionDraftName=$('col-name')?.value.trim()||collectionDraftName;collectionDraftDesc=$('col-desc')?.value.trim()||collectionDraftDesc;if(!collectionDraftName||!collectionDraftIds.length)return toast('Введите название и добавьте сервисы');state.collections.push({id:uid('col'),name:collectionDraftName,description:collectionDraftDesc,serviceIds:[...collectionDraftIds],usedBy:0});saveState();closeModal();renderAll();toast('Коллекция создана')}
+function deleteCollection(id){state.collections=state.collections.filter(c=>c.id!==id);saveState();renderAll();toast('Коллекция удалена')}
 
-function serviceCollections(serviceId) { return state.collections.filter(c => c.serviceIds.includes(serviceId)); }
-function authBadge(svc) { if (svc.authMode === 'basic') return '<span class="badge badge-amber">🔐 Basic Auth</span>'; if (svc.authMode === 'bearer') return '<span class="badge badge-purple">🔐 Bearer Token</span>'; return '<span class="badge">🔓 Без авторизации</span>'; }
-function protocolLine(svc) { if (svc.type !== 'ExporterScrape') return ''; return ` · ${String(svc.protocol || 'http').toUpperCase()}${svc.protocol === 'https' ? (svc.clientCertificate ? ' · client cert' : '') + (svc.skipServerCertCheck ? ' · skip TLS verify' : '') : ''}`; }
-function ownerGroupOptions(selected) {
-  const userGroups = isAdmin() ? state.groups : state.groups.filter(g => currentUserGroupIds().has(g.id));
-  return userGroups.map(g => selectOption(g.id, g.name, selected || userGroups[0]?.id)).join('');
-}
-function typeOptions(selected) { return ['ExporterScrape','SQL','BlackBox'].map(t => selectOption(t, t === 'ExporterScrape' ? 'ExporterScrape' : t, selected)).join(''); }
-function iconOptions(selected) { return ['🌐','🐘','🔴','📊','🐰','🔌'].map(i => selectOption(i, i, selected)).join(''); }
+function openAttachModal(type){if(!canMonitor())return toast('Нет права на постановку на мониторинг');if(selectedHostIds.size!==1)return toast('Выберите один хост');const host=state.hosts.find(h=>hostKey(h.id)===[...selectedHostIds][0]),items=type==='service'?state.services:state.collections;openModal(type==='service'?'Присоединить сервис':'Присоединить коллекцию','Attachment получит владельца по группе сервиса',`<div class="box blue-box">Хост: <b>${esc(host.name)}</b> · ${esc(host.address)}</div>${items.length?items.map(i=>`<div class="card clickable" onclick="attachItem(${q(type)},${q(i.id)})"><div class="card-main"><span class="icon">${type==='service'?esc(i.icon):'📦'}</span><div><div class="card-title">${esc(i.name)}</div><div class="meta">${type==='service'?esc(i.type)+' · '+i.defaultPort:i.serviceIds.length+' сервисов'}</div></div></div></div>`).join(''):'<div class="empty">Нет доступных элементов</div>'}`,`<button class="ghost" onclick="closeModal()">Отмена</button>`)}
+function attachItem(type,itemId){const host=state.hosts.find(h=>hostKey(h.id)===[...selectedHostIds][0]),ids=type==='service'?[itemId]:(state.collections.find(c=>c.id===itemId)?.serviceIds||[]);let added=0;ids.forEach(id=>{const s=state.services.find(x=>x.id===id);if(!s||host.attachments.some(a=>a.serviceId===id))return;host.attachments.push({serviceId:id,createdBy:currentUser().id,ownerGroupId:s.ownerGroupId,portOverride:null});added++});if(type==='collection'){const c=state.collections.find(x=>x.id===itemId);if(c)c.usedBy++}else{const s=state.services.find(x=>x.id===itemId);if(s)s.usedBy++}saveState();closeModal();expandedHostId=hostKey(host.id);renderAll();toast(`Присоединено сервисов: ${added}`)}
+function detachService(hostId,i){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];if(!h||!a)return;if(!canManageAttachment(a))return toast('Недостаточно прав');h.attachments.splice(i,1);saveState();renderAll();toast('Сервис отсоединён')}
+function applyPort(hostId,i){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];if(!a||!canManageAttachment(a))return toast('Недостаточно прав');const val=$(`port-${hostKey(hostId)}-${i}`).value.trim();if(!val)a.portOverride=null;else{const p=num(val,0);if(p<1||p>65535)return toast('Некорректный порт');a.portOverride=p}saveState();renderAll();toast('Порт обновлён')}
+function resetPort(hostId,i){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];if(!a||!canManageAttachment(a))return toast('Недостаточно прав');a.portOverride=null;saveState();renderAll();toast('Порт сброшен')}
 
-function renderServicesSection() {
-  const sec = document.getElementById('section-services');
-  const filtered = state.services;
-  sec.innerHTML = `
-    <div class="page-header"><div><h1 class="page-title">🔌 Сервисы</h1><div class="page-subtitle">Сервис принадлежит группе. Управлять им может участник группы или администратор MARS.</div></div><button onclick="openServiceModal()" ${canMonitor() ? '' : 'disabled'}>➕ Создать сервис</button></div>
-    <div class="panel">
-      <div class="panel-info"><strong>Auth доступна для любого типа сервиса:</strong> без авторизации, Basic Auth или Bearer Token. Для ExporterScrape можно выбрать HTTP/HTTPS; при HTTPS доступна вставка клиентского сертификата строкой.</div>
-      <div class="panel-toolbar"><div style="display:flex;gap:12px;align-items:center;"><input class="checkbox" type="checkbox" ${filtered.length && filtered.every(s => selectedServiceIds.has(s.id)) ? 'checked' : ''} onchange="toggleSelectAllServices(this.checked)"><span class="muted">Выбрано: <strong>${selectedServiceIds.size}</strong> из <strong>${filtered.length}</strong></span></div><button class="btn-sm btn-danger" onclick="openBulkDeleteServicesModal()" ${selectedServiceIds.size ? '' : 'disabled'}>🗑️ Удалить выбранные</button></div>
-      <div class="stats-grid"><div class="stat-card"><div class="stat-label">Сервисов</div><div class="stat-value">${state.services.length}</div></div><div class="stat-card"><div class="stat-label">С Basic Auth</div><div class="stat-value">${state.services.filter(s => s.authMode === 'basic').length}</div></div><div class="stat-card"><div class="stat-label">С Bearer Token</div><div class="stat-value">${state.services.filter(s => s.authMode === 'bearer').length}</div></div><div class="stat-card"><div class="stat-label">HTTPS Exporter</div><div class="stat-value">${state.services.filter(s => s.type === 'ExporterScrape' && s.protocol === 'https').length}</div></div></div>
-      <div class="panel-content">${filtered.length ? filtered.map(renderServiceCard).join('') : '<div class="empty">Нет сервисов</div>'}</div>
-    </div>`;
-}
-function renderServiceCard(svc) {
-  const group = groupById(svc.ownerGroupId);
-  const collections = serviceCollections(svc.id);
-  const canManage = canManageService(svc);
-  return `<div class="card ${selectedServiceIds.has(svc.id) ? 'selected' : ''}">
-    <div class="card-main">
-      <input class="checkbox" type="checkbox" ${selectedServiceIds.has(svc.id) ? 'checked' : ''} onchange="toggleServiceSelection('${svc.id}')">
-      <span class="icon">${esc(svc.icon)}</span>
-      <div>
-        <div class="card-title">${esc(svc.name)}</div>
-        <div class="card-meta">Тип: ${esc(svc.type)} · Порт: <span class="mono">${svc.defaultPort}</span> · Метрики: <span class="mono">${esc(svc.metrics)}</span>${protocolLine(svc)}</div>
-        <div class="pills"><span class="badge badge-blue">👥 ${esc(group?.name || '—')}</span>${authBadge(svc)}<span class="badge">${hostUsageCount(svc.id)} хостов</span></div>
-        <div class="collections-line"><span class="collections-label">Коллекции:</span>${collections.length ? collections.map(c => `<span class="badge badge-green">📦 ${esc(c.name)}</span>`).join('') : '<span class="muted">—</span>'}</div>
-      </div>
-    </div>
-    <div class="card-actions">
-      <button class="btn-xs btn-outline" onclick="openCloneServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>⧉ Клонировать</button>
-      <button class="btn-xs btn-purple" onclick="openCreateTemplateFromServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>🧩 Создать шаблон</button>
-      <button class="btn-xs btn-outline" onclick="openServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>✏️ Редактировать</button>
-      <button class="btn-xs btn-danger" onclick="openDeleteServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>🗑️</button>
-    </div>
-  </div>`;
-}
-function hostUsageCount(serviceId) { return state.hosts.reduce((sum,h) => sum + h.attachments.filter(a => a.serviceId === serviceId).length, 0); }
-function toggleServiceSelection(id) { selectedServiceIds.has(id) ? selectedServiceIds.delete(id) : selectedServiceIds.add(id); renderServicesSection(); }
-function toggleSelectAllServices(checked) { if (checked) state.services.forEach(s => selectedServiceIds.add(s.id)); else selectedServiceIds.clear(); renderServicesSection(); }
+function renderAccess(){const rows=[['Создать хост','Пользователь с правом “Постановка на мониторинг”'],['Редактировать manual host без attachment','Создатель или MARS admin'],['Редактировать manual host с attachment','Только MARS admin'],['Редактировать catalog host','Нельзя вручную: поля обновляются из справочника'],['Удалить хост без attachment','Создатель или MARS admin'],['Удалить хост с attachment','Только MARS admin'],['Присоединить сервис','Любой пользователь с правом “Постановка на мониторинг”'],['Отсоединить attachment','Автор attachment, участник группы-владельца или MARS admin']];const body=`<div class="panel"><div class="info"><b>Ключевая идея:</b> хосты и attachment'ы видны всем, но управление service/attachment зависит от группы. Чувствительные поля хоста защищены жизненным циклом и источником данных.</div><div class="content"><h3>Пользователи</h3>${state.users.map(u=>`<div class="card"><div class="card-main"><span class="avatar" style="background:${u.isAdmin?'#7C3AED':'var(--primary)'}">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)} ${u.id===state.currentUserId?'<span class="badge b-blue">текущий</span>':''}</div><div class="meta">${u.isAdmin?'MARS admin':'Пользователь'} · Постановка на мониторинг: ${u.canMonitor?'да':'нет'}</div><div class="pills">${u.groups.map(id=>`<span class="badge b-blue">${esc(groupById(id)?.name||id)}</span>`).join('')}</div></div></div><button class="sm outline" onclick="switchUser(${q(u.id)})">Переключиться</button></div>`).join('')}<h3>Группы</h3>${state.groups.map(g=>`<div class="card"><div class="card-main"><span class="icon">👥</span><div><div class="card-title">${esc(g.name)}</div><div class="meta">Участники: ${state.users.filter(u=>u.groups.includes(g.id)).map(u=>esc(u.name)).join(', ')||'—'}</div></div></div></div>`).join('')}<h3>Правила по хостам</h3><div class="box"><table style="width:100%;border-collapse:collapse"><tbody>${rows.map(r=>`<tr><td style="padding:8px;border-bottom:1px solid var(--slate-200);font-weight:800">${r[0]}</td><td style="padding:8px;border-bottom:1px solid var(--slate-200)">${r[1]}</td></tr>`).join('')}</tbody></table></div></div></div>`;page('access','👥 Доступ','Демо-модель пользователей, групп и прав для проверки сценариев.','',body)}
 
-function openServiceModal(id=null, fromTemplate=null) {
-  const svc = id ? state.services.find(s => s.id === id) : null;
-  if (svc && !canManageService(svc)) return showToast('Недостаточно прав');
-  const formSvc = svc || fromTemplate || { name:'', type:'ExporterScrape', icon:'🌐', defaultPort:80, metrics:'/metrics', ownerGroupId:(isAdmin()?state.groups[0]?.id:currentUser().groups[0]) || 'g-infra', authMode:'none', basicUsername:'', basicPassword:'', bearerToken:'', protocol:'http', clientCertificate:'', skipServerCertCheck:false };
-  const title = svc ? 'Редактировать сервис' : (fromTemplate ? 'Создать сервис из шаблона' : 'Создать сервис');
-  const subtitle = svc ? 'Изменение доступно участникам группы-владельца' : 'Настрой один раз — применяй везде';
-  const body = serviceForm(formSvc, !!fromTemplate);
-  const footer = `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveService('${svc ? svc.id : ''}')">${svc ? 'Сохранить изменения' : 'Создать сервис'}</button>`;
-  openModal(title, subtitle, body, footer);
-  renderServiceDynamicFields();
-}
-function serviceForm(svc, fromTemplate) {
-  return `<div class="row"><div class="form-group"><label class="form-label">Название *</label><input id="svc-name" class="wide" value="${esc(svc.name)}"></div><div class="form-group"><label class="form-label">Группа-владелец *</label><select id="svc-owner-group" class="wide">${ownerGroupOptions(svc.ownerGroupId)}</select></div></div>
-    <div class="row3"><div class="form-group"><label class="form-label">Тип *</label><select id="svc-type" class="wide" onchange="renderServiceDynamicFields()">${typeOptions(svc.type)}</select></div><div class="form-group"><label class="form-label">Иконка</label><select id="svc-icon" class="wide">${iconOptions(svc.icon)}</select></div><div class="form-group"><label class="form-label">Порт по умолчанию *</label><input id="svc-port" type="number" min="1" max="65535" class="wide" value="${esc(svc.defaultPort)}"></div></div>
-    <div class="form-group"><label class="form-label">Путь к метрикам</label><input id="svc-metrics" class="wide mono" value="${esc(svc.metrics)}"></div>
-    <div id="svc-exporter-fields" data-protocol="${esc(svc.protocol || 'http')}" data-cert="${esc(svc.clientCertificate || '')}" data-skip="${svc.skipServerCertCheck ? '1' : '0'}"></div>
-    <div class="form-group"><label class="form-label">Авторизация</label><select id="svc-auth-mode" class="wide" onchange="renderServiceDynamicFields()">${selectOption('none','Без авторизации', svc.authMode || 'none')}${selectOption('basic','Basic Auth', svc.authMode || 'none')}${selectOption('bearer','Bearer Token', svc.authMode || 'none')}</select></div>
-    <div id="svc-auth-fields" data-user="${esc(svc.basicUsername || '')}" data-pass="${esc(svc.basicPassword || '')}" data-token="${esc(svc.bearerToken || '')}"></div>
-    ${fromTemplate ? '<div class="box box-blue">Сервис создаётся из шаблона без auth. При необходимости настройте авторизацию после создания сервиса.</div>' : ''}`;
-}
-function renderServiceDynamicFields() {
-  const type = document.getElementById('svc-type')?.value || 'ExporterScrape';
-  const exp = document.getElementById('svc-exporter-fields');
-  if (exp) {
-    const prevProtocol = document.getElementById('svc-protocol')?.value || exp.dataset.protocol || 'http';
-    const prevCert = document.getElementById('svc-client-cert')?.value || exp.dataset.cert || '';
-    const prevSkip = document.getElementById('svc-skip-server-cert')?.checked || exp.dataset.skip === '1';
-    exp.dataset.protocol = prevProtocol; exp.dataset.cert = prevCert; exp.dataset.skip = prevSkip ? '1' : '0';
-    exp.innerHTML = type === 'ExporterScrape' ? `<div class="box"><div class="form-group"><label class="form-label">Протокол сбора</label><select id="svc-protocol" class="wide" onchange="renderServiceDynamicFields()">${selectOption('http','HTTP',prevProtocol)}${selectOption('https','HTTPS',prevProtocol)}</select></div>${prevProtocol === 'https' ? `<div class="form-group"><label class="form-label">Клиентский сертификат</label><textarea id="svc-client-cert" rows="5" class="wide mono" placeholder="-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----">${esc(prevCert)}</textarea><div class="hint">Сертификат вставляется строкой. При HTTP это поле не отображается.</div></div><label style="display:flex;gap:8px;align-items:center;"><input id="svc-skip-server-cert" type="checkbox" ${prevSkip ? 'checked' : ''}> Пропустить проверку серверного сертификата</label>` : ''}</div>` : '';
-  }
-  const auth = document.getElementById('svc-auth-fields');
-  if (auth) {
-    const mode = document.getElementById('svc-auth-mode')?.value || 'none';
-    const u = document.getElementById('svc-basic-user')?.value || auth.dataset.user || '';
-    const p = document.getElementById('svc-basic-pass')?.value || auth.dataset.pass || '';
-    const token = document.getElementById('svc-bearer-token')?.value || auth.dataset.token || '';
-    auth.dataset.user = u; auth.dataset.pass = p; auth.dataset.token = token;
-    if (mode === 'basic') auth.innerHTML = `<div class="box"><div class="row"><div class="form-group"><label class="form-label">Username</label><input id="svc-basic-user" class="wide" value="${esc(u)}"></div><div class="form-group"><label class="form-label">Password</label><input id="svc-basic-pass" type="password" class="wide" value="${esc(p)}"></div></div></div>`;
-    else if (mode === 'bearer') auth.innerHTML = `<div class="box"><div class="form-group"><label class="form-label">Bearer Token</label><textarea id="svc-bearer-token" rows="3" class="wide mono">${esc(token)}</textarea></div></div>`;
-    else auth.innerHTML = '';
-  }
-}
-function serviceFromForm(id='') {
-  const type = document.getElementById('svc-type').value;
-  const protocol = type === 'ExporterScrape' ? document.getElementById('svc-protocol')?.value || 'http' : 'http';
-  const ownerGroupId = document.getElementById('svc-owner-group').value;
-  return { id: id || uid('svc'), name:document.getElementById('svc-name').value.trim(), type, icon:document.getElementById('svc-icon').value, defaultPort:num(document.getElementById('svc-port').value,0), metrics:document.getElementById('svc-metrics').value.trim() || '/metrics', ownerGroupId, authMode:document.getElementById('svc-auth-mode').value, basicUsername:document.getElementById('svc-basic-user')?.value || '', basicPassword:document.getElementById('svc-basic-pass')?.value || '', bearerToken:document.getElementById('svc-bearer-token')?.value || '', protocol, clientCertificate: protocol === 'https' ? (document.getElementById('svc-client-cert')?.value || '') : '', skipServerCertCheck: protocol === 'https' ? !!document.getElementById('svc-skip-server-cert')?.checked : false, usedBy: state.services.find(s => s.id === id)?.usedBy || 0 };
-}
-function saveService(id='') {
-  const svc = serviceFromForm(id);
-  if (!svc.name || svc.defaultPort < 1 || svc.defaultPort > 65535) return showToast('Заполните обязательные поля');
-  if (!canManageGroup(svc.ownerGroupId)) return showToast('Недостаточно прав на группу');
-  if (state.services.some(s => s.id !== id && s.name.toLowerCase() === svc.name.toLowerCase())) return showToast('Сервис с таким именем уже существует');
-  if (id) { const idx = state.services.findIndex(s => s.id === id); if (idx !== -1) state.services[idx] = svc; }
-  else state.services.push(svc);
-  saveState(); closeModal(); renderAll(); showToast(id ? 'Сервис обновлён' : 'Сервис создан');
-}
-function openDeleteServiceModal(id) { const svc = state.services.find(s => s.id === id); if (!svc || !canManageService(svc)) return showToast('Удаление недоступно'); openModal('Удаление сервиса', 'Сервис будет удалён из хостов и коллекций', `<div class="box box-red">Удалить сервис <strong>${esc(svc.name)}</strong>?<br>Attachment'ов: ${hostUsageCount(id)}<br>Коллекций: ${serviceCollections(id).length}</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="deleteService('${id}')">Удалить</button>`, true); }
-function deleteService(id) { state.hosts.forEach(h => h.attachments = h.attachments.filter(a => a.serviceId !== id)); state.collections.forEach(c => c.serviceIds = c.serviceIds.filter(sid => sid !== id)); state.services = state.services.filter(s => s.id !== id); selectedServiceIds.delete(id); saveState(); closeModal(); renderAll(); showToast('Сервис удалён'); }
-function openBulkDeleteServicesModal() { const ids = [...selectedServiceIds].filter(id => canManageService(state.services.find(s => s.id === id))); if (!ids.length) return showToast('Нет выбранных сервисов, доступных для удаления'); openModal('Массовое удаление сервисов', 'Будут очищены связанные attachment и коллекции', `<div class="box box-red">Удалить сервисов: ${ids.length}</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="bulkDeleteServices()">Удалить</button>`, true); }
-function bulkDeleteServices() { [...selectedServiceIds].forEach(id => { const svc = state.services.find(s => s.id === id); if (svc && canManageService(svc)) { state.hosts.forEach(h => h.attachments = h.attachments.filter(a => a.serviceId !== id)); state.collections.forEach(c => c.serviceIds = c.serviceIds.filter(sid => sid !== id)); state.services = state.services.filter(s => s.id !== id); } }); selectedServiceIds.clear(); saveState(); closeModal(); renderAll(); showToast('Сервисы удалены'); }
-function openCloneServiceModal(id) { const svc = state.services.find(s => s.id === id); if (!svc || !canManageService(svc)) return; const body = `<div class="form-group"><label class="form-label">Имя нового сервиса</label><input id="clone-service-name" class="wide" value="${esc(svc.name + ' copy')}"></div>`; openModal('Клонировать сервис', svc.name, body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="cloneService('${id}')">Создать копию</button>`, true); }
-function cloneService(id) { const svc = state.services.find(s => s.id === id); const name = document.getElementById('clone-service-name').value.trim(); if (!name) return showToast('Введите имя'); if (state.services.some(s => s.name.toLowerCase() === name.toLowerCase())) return showToast('Сервис с таким именем уже существует'); const copy = { ...svc, id:uid('svc'), name, usedBy:0 }; state.services.push(copy); saveState(); closeModal(); renderAll(); showToast('Сервис склонирован'); }
-
-function renderTemplatesSection() {
-  const sec = document.getElementById('section-templates');
-  sec.innerHTML = `<div class="page-header"><div><h1 class="page-title">🧩 Шаблоны сервисов</h1><div class="page-subtitle">Шаблоны не содержат аутентификацию и используются как основа для создания сервисов.</div></div></div>
-    <div class="panel"><div class="panel-info"><strong>Правило:</strong> имя шаблона уникально. В UI шаблонов не отображаются и не хранятся настройки авторизации.</div><div class="panel-toolbar"><div style="display:flex;gap:12px;align-items:center;"><input class="checkbox" type="checkbox" ${state.serviceTemplates.length && state.serviceTemplates.every(t => selectedTemplateIds.has(t.id)) ? 'checked' : ''} onchange="toggleSelectAllTemplates(this.checked)"><span class="muted">Выбрано: <strong>${selectedTemplateIds.size}</strong> из <strong>${state.serviceTemplates.length}</strong></span></div><button class="btn-sm btn-danger" onclick="openBulkDeleteTemplatesModal()" ${selectedTemplateIds.size ? '' : 'disabled'}>🗑️ Удалить выбранные</button></div><div class="panel-content">${state.serviceTemplates.length ? state.serviceTemplates.map(renderTemplateCard).join('') : '<div class="empty">Нет шаблонов</div>'}</div></div>`;
-}
-function renderTemplateCard(tpl) { const group = groupById(tpl.ownerGroupId); return `<div class="card clickable ${selectedTemplateIds.has(tpl.id) ? 'selected' : ''}" onclick="openCreateServiceFromTemplateModal('${tpl.id}')"><div class="card-main"><input class="checkbox" type="checkbox" ${selectedTemplateIds.has(tpl.id) ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleTemplateSelection('${tpl.id}')"><span class="icon">${esc(tpl.icon)}</span><div><div class="card-title">${esc(tpl.name)}</div><div class="card-meta">Тип: ${esc(tpl.type)} · Порт: <span class="mono">${tpl.defaultPort}</span> · Метрики: <span class="mono">${esc(tpl.metrics)}</span>${tpl.type === 'ExporterScrape' ? ' · ' + String(tpl.protocol || 'http').toUpperCase() : ''}</div><div class="pills"><span class="badge badge-blue">👥 ${esc(group?.name || '—')}</span><span class="badge">без auth</span></div></div></div><div class="card-actions"><button class="btn-xs btn-outline" onclick="event.stopPropagation();openEditTemplateModal('${tpl.id}')">✏️ Редактировать</button><button class="btn-xs btn-danger" onclick="event.stopPropagation();openDeleteTemplateModal('${tpl.id}')">🗑️</button></div></div>`; }
-function toggleTemplateSelection(id) { selectedTemplateIds.has(id) ? selectedTemplateIds.delete(id) : selectedTemplateIds.add(id); renderTemplatesSection(); }
-function toggleSelectAllTemplates(checked) { if (checked) state.serviceTemplates.forEach(t => selectedTemplateIds.add(t.id)); else selectedTemplateIds.clear(); renderTemplatesSection(); }
-function openCreateTemplateFromServiceModal(serviceId) { const svc = state.services.find(s => s.id === serviceId); if (!svc) return; const defaultName = `Шаблон "${svc.name}"`; const body = `<div class="box box-blue">Шаблон будет создан без аутентификации. Имя шаблона должно быть уникальным.</div><div class="form-group"><label class="form-label">Название шаблона</label><input id="template-name-input" class="wide" value="${esc(defaultName)}" oninput="validateTemplateName()"><div id="template-name-validation" class="hint"></div></div><div class="box"><strong>Основа:</strong> ${esc(svc.name)}<br>Тип: ${esc(svc.type)} · Порт: ${svc.defaultPort} · Метрики: <span class="mono">${esc(svc.metrics)}</span></div>`; openModal('Создать шаблон сервиса', 'Из карточки сервиса', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="createTemplateFromService('${serviceId}')">Создать шаблон</button>`, true); validateTemplateName(); }
-function validateTemplateName(editingId='') { const el = document.getElementById('template-name-input'); const msg = document.getElementById('template-name-validation'); if (!el || !msg) return false; const name = el.value.trim(); const exists = state.serviceTemplates.some(t => t.id !== editingId && t.name.toLowerCase() === name.toLowerCase()); msg.textContent = !name ? 'Введите название' : exists ? 'Шаблон с таким именем уже существует' : 'Имя свободно'; msg.className = !name || exists ? 'hint text-danger' : 'hint text-success'; return !!name && !exists; }
-function createTemplateFromService(serviceId) { const svc = state.services.find(s => s.id === serviceId); if (!svc || !validateTemplateName()) return; const tpl = { id:uid('tpl'), name:document.getElementById('template-name-input').value.trim(), type:svc.type, icon:svc.icon, defaultPort:svc.defaultPort, metrics:svc.metrics, protocol:svc.protocol || 'http', skipServerCertCheck:!!svc.skipServerCertCheck, ownerGroupId:svc.ownerGroupId, createdBy:currentUser().id, usedBy:0 }; state.serviceTemplates.push(tpl); saveState(); closeModal(); renderAll(); showToast('Шаблон создан'); }
-function openCreateServiceFromTemplateModal(id) { const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; const service = { name:tpl.name.replace(/^Шаблон\s+"(.+)"$/,'$1'), type:tpl.type, icon:tpl.icon, defaultPort:tpl.defaultPort, metrics:tpl.metrics, ownerGroupId: canManageGroup(tpl.ownerGroupId) ? tpl.ownerGroupId : ((isAdmin()?state.groups[0]?.id:currentUser().groups[0]) || 'g-infra'), authMode:'none', basicUsername:'', basicPassword:'', bearerToken:'', protocol:tpl.protocol || 'http', clientCertificate:'', skipServerCertCheck:!!tpl.skipServerCertCheck };
-  openServiceModal(null, service);
-  document.getElementById('modal-subtitle').textContent = `На основе: ${tpl.name}`;
-}
-function openEditTemplateModal(id) { const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; const body = `<div class="box box-blue">Шаблон не содержит авторизацию. Изменяются только базовые параметры.</div><div class="form-group"><label class="form-label">Название *</label><input id="template-name-input" class="wide" value="${esc(tpl.name)}" oninput="validateTemplateName('${id}')"><div id="template-name-validation" class="hint"></div></div><div class="row3"><div class="form-group"><label class="form-label">Тип</label><select id="tpl-type" class="wide">${typeOptions(tpl.type)}</select></div><div class="form-group"><label class="form-label">Иконка</label><select id="tpl-icon" class="wide">${iconOptions(tpl.icon)}</select></div><div class="form-group"><label class="form-label">Порт</label><input id="tpl-port" type="number" min="1" max="65535" class="wide" value="${tpl.defaultPort}"></div></div><div class="form-group"><label class="form-label">Метрики</label><input id="tpl-metrics" class="wide mono" value="${esc(tpl.metrics)}"></div><div class="form-group"><label class="form-label">Протокол для ExporterScrape</label><select id="tpl-protocol" class="wide">${selectOption('http','HTTP',tpl.protocol || 'http')}${selectOption('https','HTTPS',tpl.protocol || 'http')}</select></div>`; openModal('Редактировать шаблон сервиса', 'Без настроек auth', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveTemplate('${id}')">Сохранить</button>`); validateTemplateName(id); }
-function saveTemplate(id) { if (!validateTemplateName(id)) return; const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; tpl.name = document.getElementById('template-name-input').value.trim(); tpl.type = document.getElementById('tpl-type').value; tpl.icon = document.getElementById('tpl-icon').value; tpl.defaultPort = num(document.getElementById('tpl-port').value,80); tpl.metrics = document.getElementById('tpl-metrics').value.trim() || '/metrics'; tpl.protocol = document.getElementById('tpl-protocol').value; saveState(); closeModal(); renderAll(); showToast('Шаблон обновлён'); }
-function openDeleteTemplateModal(id) { const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; openModal('Удаление шаблона', 'Подтвердите действие', `<div class="box box-red">Удалить шаблон <strong>${esc(tpl.name)}</strong>?</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="deleteTemplate('${id}')">Удалить</button>`, true); }
-function deleteTemplate(id) { state.serviceTemplates = state.serviceTemplates.filter(t => t.id !== id); selectedTemplateIds.delete(id); saveState(); closeModal(); renderAll(); showToast('Шаблон удалён'); }
-function openBulkDeleteTemplatesModal() { openModal('Массовое удаление шаблонов', 'Подтвердите действие', `<div class="box box-red">Удалить шаблонов: ${selectedTemplateIds.size}</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="bulkDeleteTemplates()">Удалить</button>`, true); }
-function bulkDeleteTemplates() { state.serviceTemplates = state.serviceTemplates.filter(t => !selectedTemplateIds.has(t.id)); selectedTemplateIds.clear(); saveState(); closeModal(); renderAll(); showToast('Шаблоны удалены'); }
-
-function renderCollectionsSection() {
-  const sec = document.getElementById('section-collections');
-  const avg = state.collections.length ? (state.collections.reduce((s,c)=>s+c.serviceIds.length,0)/state.collections.length).toFixed(1) : '0';
-  sec.innerHTML = `<div class="page-header"><div><h1 class="page-title">📦 Коллекции</h1><div class="page-subtitle">Группы сервисов для пакетного присоединения к хостам.</div></div><button onclick="openCollectionModal()">➕ Создать коллекцию</button></div><div class="panel"><div class="panel-info"><strong>Коллекция</strong> хранит ссылки на сервисы. В карточках сервисов видно, в каких коллекциях они используются.</div><div class="stats-grid three"><div class="stat-card"><div class="stat-label">Коллекций</div><div class="stat-value">${state.collections.length}</div></div><div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value">${state.collections.reduce((s,c)=>s+c.usedBy,0)}</div></div><div class="stat-card"><div class="stat-label">Среднее сервисов</div><div class="stat-value">${avg}</div></div></div><div class="panel-content">${state.collections.length ? state.collections.map(renderCollectionCard).join('') : '<div class="empty">Нет коллекций</div>'}</div></div>`;
-}
-function renderCollectionCard(col) { const svcs = col.serviceIds.map(id => state.services.find(s => s.id === id)).filter(Boolean); return `<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(col.name)} <span class="badge badge-blue">${svcs.length} сервисов</span></div><div class="card-meta">${esc(col.description || '')}</div><div class="collections-line"><span class="collections-label">Сервисы:</span>${svcs.length ? svcs.map(s => `<span class="badge">${esc(s.icon)} ${esc(s.name)}</span>`).join('') : '<span class="muted">—</span>'}</div></div></div><div class="card-actions"><button class="btn-xs btn-danger" onclick="deleteCollection('${col.id}')">🗑️ Удалить</button></div></div>`; }
-function openCollectionModal() { collectionDraftServiceIds = []; collectionDraftName = ''; collectionDraftDesc = ''; const body = `<div class="form-group"><label class="form-label">Название *</label><input id="col-name" class="wide"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-desc" rows="2" class="wide"></textarea></div><div class="box"><strong>Сервисы коллекции</strong><div id="collection-services-box" style="margin-top:10px;"></div><button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button></div>`; openModal('Создать коллекцию', 'Выберите сервисы из библиотеки', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`); renderCollectionDraft(); }
-function renderCollectionDraft() { const box = document.getElementById('collection-services-box'); if (!box) return; box.innerHTML = collectionDraftServiceIds.length ? collectionDraftServiceIds.map(id => { const s = state.services.find(x=>x.id===id); return s ? `<span class="badge" style="margin:3px;">${esc(s.icon)} ${esc(s.name)} <button class="btn-xs btn-ghost" onclick="removeFromCollectionDraft('${id}')">✕</button></span>` : ''; }).join('') : '<div class="muted">Коллекция пуста</div>'; }
-function openServicePickerForCollection() { collectionDraftName = document.getElementById('col-name')?.value || collectionDraftName; collectionDraftDesc = document.getElementById('col-desc')?.value || collectionDraftDesc; const items = state.services.filter(s => !collectionDraftServiceIds.includes(s.id)); const body = items.length ? items.map(s => `<div class="card clickable" onclick="addToCollectionDraft('${s.id}')"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="card-meta">${esc(s.type)} · ${s.defaultPort}</div></div></div></div>`).join('') : '<div class="empty">Все сервисы уже добавлены</div>'; openModal('Добавить сервис в коллекцию', 'Выберите сервис', body, `<button class="btn-ghost" onclick="openCollectionModalRestore()">Назад</button>`, true); }
-function openCollectionModalRestore() { openModal('Создать коллекцию', 'Выберите сервисы из библиотеки', `<div class="form-group"><label class="form-label">Название *</label><input id="col-name" class="wide" value="${esc(collectionDraftName)}"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-desc" rows="2" class="wide">${esc(collectionDraftDesc)}</textarea></div><div class="box"><strong>Сервисы коллекции</strong><div id="collection-services-box" style="margin-top:10px;"></div><button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button></div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`); renderCollectionDraft(); }
-function addToCollectionDraft(id) { collectionDraftServiceIds.push(id); const name = collectionDraftName; const desc = collectionDraftDesc; openModal('Создать коллекцию', 'Выберите сервисы из библиотеки', `<div class="form-group"><label class="form-label">Название *</label><input id="col-name" class="wide" value="${esc(name)}"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-desc" rows="2" class="wide">${esc(desc)}</textarea></div><div class="box"><strong>Сервисы коллекции</strong><div id="collection-services-box" style="margin-top:10px;"></div><button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button></div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`); renderCollectionDraft(); }
-function removeFromCollectionDraft(id) { collectionDraftServiceIds = collectionDraftServiceIds.filter(x => x !== id); renderCollectionDraft(); }
-function saveCollection() { const name = document.getElementById('col-name').value.trim(); if (!name || !collectionDraftServiceIds.length) return showToast('Введите название и добавьте сервисы'); state.collections.push({ id:uid('col'), name, description:document.getElementById('col-desc').value.trim(), serviceIds:[...collectionDraftServiceIds], usedBy:0 }); saveState(); closeModal(); renderAll(); showToast('Коллекция создана'); }
-function deleteCollection(id) { state.collections = state.collections.filter(c => c.id !== id); saveState(); renderAll(); showToast('Коллекция удалена'); }
-
-function openAttachModal(type) {
-  if (selectedHostIds.size !== 1) return showToast('Выберите один хост');
-  if (!canMonitor()) return showToast('Нет права на постановку на мониторинг');
-  const host = state.hosts.find(h => h.id === [...selectedHostIds][0]);
-  const items = type === 'service' ? state.services : state.collections;
-  const body = `<div class="box box-blue">Хост: <strong>${esc(host.name)}</strong> · ${esc(host.address)}</div>${items.length ? items.map(item => `<div class="card clickable" onclick="attachItemToHost('${type}', '${item.id}')"><div class="card-main"><span class="icon">${type === 'service' ? esc(item.icon) : '📦'}</span><div><div class="card-title">${esc(item.name)}</div><div class="card-meta">${type === 'service' ? esc(item.type) + ' · ' + item.defaultPort : (item.serviceIds.length + ' сервисов')}</div></div></div></div>`).join('') : '<div class="empty">Нет доступных элементов</div>'}`;
-  openModal(type === 'service' ? 'Присоединить сервис' : 'Присоединить коллекцию', 'Attachment получит владельца по группе сервиса', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button>`);
-}
-function attachItemToHost(type, itemId) {
-  const host = state.hosts.find(h => h.id === [...selectedHostIds][0]);
-  const serviceIds = type === 'service' ? [itemId] : (state.collections.find(c => c.id === itemId)?.serviceIds || []);
-  let added = 0;
-  serviceIds.forEach(id => {
-    const svc = state.services.find(s => s.id === id);
-    if (!svc || host.attachments.some(a => a.serviceId === id)) return;
-    host.attachments.push({ serviceId:id, createdBy:currentUser().id, ownerGroupId:svc.ownerGroupId, portOverride:null });
-    added++;
-  });
-  if (type === 'collection') { const col = state.collections.find(c => c.id === itemId); if (col) col.usedBy++; }
-  else { const svc = state.services.find(s => s.id === itemId); if (svc) svc.usedBy++; }
-  saveState(); closeModal(); expandedHostId = host.id; renderAll(); showToast(`Присоединено сервисов: ${added}`);
-}
-function detachService(hostId, idx) { const host = state.hosts.find(h => h.id === hostId); const att = host?.attachments[idx]; if (!host || !att) return; if (!canManageAttachment(att)) return showToast('Недостаточно прав'); host.attachments.splice(idx,1); saveState(); renderAll(); showToast('Сервис отсоединён'); }
-function applyPortOverride(hostId, idx) { const host = state.hosts.find(h => h.id === hostId); const att = host?.attachments[idx]; if (!att || !canManageAttachment(att)) return showToast('Недостаточно прав'); const val = document.getElementById(`port-${hostId}-${idx}`).value.trim(); if (!val) att.portOverride = null; else { const p = num(val,0); if (p < 1 || p > 65535) return showToast('Некорректный порт'); att.portOverride = p; } saveState(); renderAll(); showToast('Порт обновлён'); }
-function resetPortOverride(hostId, idx) { const host = state.hosts.find(h => h.id === hostId); const att = host?.attachments[idx]; if (!att || !canManageAttachment(att)) return showToast('Недостаточно прав'); att.portOverride = null; saveState(); renderAll(); showToast('Порт сброшен'); }
-
-function renderAccessSection() {
-  const sec = document.getElementById('section-access');
-  sec.innerHTML = `<div class="page-header"><div><h1 class="page-title">👥 Доступ</h1><div class="page-subtitle">Демо-модель пользователей, групп и прав для проверки сценариев.</div></div></div><div class="panel"><div class="panel-info"><strong>Ключевая идея:</strong> хосты видны всем, attachment'ы видны всем, но управление service/attachment зависит от группы. Чувствительные поля хоста защищены жизненным циклом и источником данных.</div><div class="panel-content"><h3>Пользователи</h3>${state.users.map(renderUserCard).join('')}<h3 style="margin-top:22px;">Группы</h3>${state.groups.map(g => `<div class="card"><div class="card-main"><span class="icon">👥</span><div><div class="card-title">${esc(g.name)}</div><div class="card-meta">Участники: ${state.users.filter(u => u.groups.includes(g.id)).map(u => esc(u.name)).join(', ') || '—'}</div></div></div></div>`).join('')}<h3 style="margin-top:22px;">Правила по хостам</h3><div class="box"><table style="width:100%;border-collapse:collapse;"><tbody>${policyRow('Создать хост','Пользователь с правом “Постановка на мониторинг”')} ${policyRow('Редактировать manual host без attachment','Создатель или MARS admin')} ${policyRow('Редактировать manual host с attachment','Только MARS admin')} ${policyRow('Редактировать catalog host','Нельзя вручную: поля обновляются из справочника')} ${policyRow('Удалить хост без attachment','Создатель или MARS admin')} ${policyRow('Удалить хост с attachment','Только MARS admin в прототипе')} ${policyRow('Присоединить сервис','Любой пользователь с правом “Постановка на мониторинг”')} ${policyRow('Отсоединить attachment','Автор attachment, участник группы-владельца или MARS admin')}</tbody></table></div></div></div>`;
-}
-function renderUserCard(u) { return `<div class="card"><div class="card-main"><span class="avatar" style="background:${u.isAdmin ? 'var(--purple-600)' : 'var(--primary)'};width:42px;height:42px;">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)}</div><div class="card-meta">${u.isAdmin ? 'MARS admin' : 'Пользователь'} · Постановка на мониторинг: ${u.canMonitor ? 'да' : 'нет'}</div><div class="pills">${u.groups.map(id => `<span class="badge badge-blue">${esc(groupById(id)?.name || id)}</span>`).join('')}</div></div></div></div>`; }
-function policyRow(a,b) { return `<tr><td style="padding:8px;border-bottom:1px solid var(--slate-200);font-weight:700;">${a}</td><td style="padding:8px;border-bottom:1px solid var(--slate-200);">${b}</td></tr>`; }
-
-loadState();
-renderAll();
+loadState();renderAll();
 </script>
 </body>
 </html>
