@@ -6,7 +6,8 @@
   <title>MARS — Система мониторинга</title>
   <style>
     :root {
-      --primary:#3B82F6; --primary-hover:#2563EB; --success:#10B981; --warning:#F59E0B; --danger:#EF4444;
+      --primary:#3B82F6; --primary-hover:#2563EB; --success:#10B981; --success-hover:#059669;
+      --warning:#F59E0B; --danger:#EF4444; --danger-hover:#DC2626;
       --slate-50:#F8FAFC; --slate-100:#F1F5F9; --slate-200:#E2E8F0; --slate-300:#CBD5E1;
       --slate-400:#94A3B8; --slate-500:#64748B; --slate-600:#475569; --slate-700:#334155;
       --slate-800:#1E293B; --slate-900:#0F172A; --blue-50:#EFF6FF; --blue-100:#DBEAFE;
@@ -17,73 +18,53 @@
       --red-100:#FEE2E2; --red-200:#FECACA; --red-700:#B91C1C;
     }
     * { box-sizing:border-box; }
-    body {
-      margin:0; background:var(--slate-100); color:var(--slate-800);
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    }
-    nav { position:sticky; top:0; z-index:20; background:white; border-bottom:1px solid var(--slate-200); }
-    .nav-container {
-      max-width:1280px; margin:0 auto; min-height:64px; padding:0 24px;
-      display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
-    }
-    .nav-left { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
-    .brand { font-size:20px; font-weight:800; color:var(--slate-900); }
+    body { margin:0; background:var(--slate-100); color:var(--slate-800); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
+    nav { position:sticky; top:0; z-index:30; background:#fff; border-bottom:1px solid var(--slate-200); }
+    .nav-container { max-width:1280px; margin:0 auto; min-height:64px; padding:0 24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+    .nav-left { display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+    .brand { font-weight:850; font-size:20px; color:var(--slate-900); white-space:nowrap; }
     .tabs { display:flex; gap:4px; flex-wrap:wrap; }
-    .nav-tab {
-      padding:12px 14px; color:var(--slate-600); cursor:pointer; font-size:14px;
-      border-bottom:2px solid transparent; transition:.2s;
-    }
+    .nav-tab { padding:12px 14px; cursor:pointer; color:var(--slate-600); border-bottom:2px solid transparent; font-size:14px; transition:.2s; }
     .nav-tab:hover { color:var(--primary); }
-    .nav-tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:700; }
+    .nav-tab.active { color:var(--primary); border-bottom-color:var(--primary); font-weight:750; }
     .user-switcher { display:flex; align-items:center; gap:10px; }
-    .avatar {
-      width:34px; height:34px; border-radius:999px; background:var(--primary); color:white;
-      display:grid; place-items:center; font-weight:800; font-size:14px;
-    }
+    .avatar { width:34px; height:34px; border-radius:50%; background:var(--primary); color:#fff; display:grid; place-items:center; font-weight:800; }
     .main { max-width:1280px; margin:0 auto; padding:24px; }
     .section { display:none; }
     .section.active { display:block; }
-    .page-header {
-      display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap;
-    }
-    .page-title { margin:0; font-size:24px; font-weight:750; }
-    .page-subtitle { color:var(--slate-500); font-size:14px; margin-top:4px; }
-    .panel { background:white; border:1px solid var(--slate-200); border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); overflow:hidden; }
-    .panel-info { padding:14px 20px; background:var(--blue-50); border-bottom:1px solid var(--blue-200); color:var(--blue-800); font-size:14px; }
-    .panel-toolbar, .panel-filters {
-      padding:12px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
-      background:var(--slate-50); border-bottom:1px solid var(--slate-200);
-    }
-    .panel-filters { justify-content:flex-start; background:white; }
-    .panel-content { padding:16px 20px; max-height:740px; overflow:auto; }
-    .panel-footer { padding:14px 20px; border-top:1px solid var(--green-100); background:var(--green-50); color:var(--green-700); font-size:14px; }
+    .page-header { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap; }
+    .page-title { margin:0; font-size:24px; font-weight:800; color:var(--slate-900); }
+    .page-subtitle { margin-top:4px; color:var(--slate-500); font-size:14px; }
+    .panel { background:#fff; border:1px solid var(--slate-200); border-radius:14px; box-shadow:0 1px 3px rgba(0,0,0,.05); overflow:hidden; }
+    .panel-info { padding:14px 20px; background:var(--blue-50); border-bottom:1px solid var(--blue-200); color:var(--blue-800); font-size:14px; line-height:1.45; }
+    .panel-toolbar, .panel-filters { padding:12px 20px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; background:var(--slate-50); border-bottom:1px solid var(--slate-200); }
+    .panel-filters { justify-content:flex-start; background:#fff; }
+    .panel-content { padding:16px 20px; max-height:760px; overflow:auto; }
+    .panel-footer { padding:14px 20px; border-top:1px solid var(--green-100); background:var(--green-50); color:var(--green-700); font-size:14px; line-height:1.4; }
     .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; padding:14px 20px; background:var(--slate-50); border-bottom:1px solid var(--slate-200); }
     .stats-grid.three { grid-template-columns:repeat(3,1fr); }
-    .stat-card { background:white; border:1px solid var(--slate-200); border-radius:12px; padding:14px; }
+    .stat-card { background:#fff; border:1px solid var(--slate-200); border-radius:12px; padding:14px; }
     .stat-label { color:var(--slate-500); font-size:13px; margin-bottom:5px; }
-    .stat-value { font-size:24px; font-weight:850; color:var(--slate-800); }
-    button {
-      border:none; border-radius:9px; padding:8px 14px; background:var(--primary); color:white;
-      font-weight:650; font-size:14px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:7px;
-    }
+    .stat-value { color:var(--slate-900); font-size:24px; font-weight:850; }
+    button { border:0; border-radius:9px; padding:8px 14px; background:var(--primary); color:#fff; font-weight:700; font-size:14px; cursor:pointer; transition:.2s; display:inline-flex; align-items:center; gap:7px; }
     button:hover { background:var(--primary-hover); }
     button:disabled { opacity:.45; cursor:not-allowed; }
-    .btn-outline { background:white; color:var(--slate-700); border:1px solid var(--slate-300); }
+    .btn-outline { background:#fff; color:var(--slate-700); border:1px solid var(--slate-300); }
     .btn-outline:hover { background:var(--slate-50); }
     .btn-ghost { background:transparent; color:var(--slate-700); }
     .btn-ghost:hover { background:var(--slate-100); }
     .btn-danger { background:var(--danger); }
+    .btn-danger:hover { background:var(--danger-hover); }
     .btn-success { background:var(--success); }
+    .btn-success:hover { background:var(--success-hover); }
     .btn-purple { background:var(--purple-600); }
     .btn-purple:hover { background:var(--purple-700); }
     .btn-sm { padding:5px 10px; font-size:12px; }
     .btn-xs { padding:4px 8px; font-size:11px; }
-    input, select, textarea {
-      padding:9px 11px; border:1px solid var(--slate-300); border-radius:9px;
-      font-size:14px; outline:none; background:white;
-    }
+    input, select, textarea { padding:9px 11px; border:1px solid var(--slate-300); border-radius:9px; font-size:14px; outline:none; background:#fff; }
     textarea { resize:vertical; }
     input:focus, select:focus, textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(59,130,246,.12); }
+    input:disabled, select:disabled, textarea:disabled { background:var(--slate-100); color:var(--slate-500); cursor:not-allowed; }
     .input { width:260px; }
     .wide { width:100%; }
     .mono { font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace; }
@@ -93,72 +74,53 @@
     .row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
     .form-group { margin-bottom:16px; }
-    .form-label { display:block; font-size:14px; font-weight:700; margin-bottom:7px; color:var(--slate-700); }
+    .form-label { display:block; font-weight:750; font-size:14px; color:var(--slate-700); margin-bottom:7px; }
     .hint { font-size:12px; color:var(--slate-500); margin-top:5px; line-height:1.45; }
-    .box { border:1px solid var(--slate-200); background:var(--slate-50); border-radius:12px; padding:14px; margin:12px 0; }
+    .box { border:1px solid var(--slate-200); background:var(--slate-50); border-radius:12px; padding:14px; margin:12px 0; line-height:1.45; }
     .box-blue { background:var(--blue-50); border-color:var(--blue-200); color:var(--blue-800); }
     .box-amber { background:var(--amber-50); border-color:var(--amber-200); color:var(--amber-800); }
+    .box-red { background:var(--red-50); border-color:var(--red-200); color:var(--red-700); }
     .box-purple { background:var(--purple-50); border-color:var(--purple-100); }
-    .card {
-      background:white; border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:12px;
-      display:flex; justify-content:space-between; align-items:center; gap:14px; transition:.2s;
-    }
+    .card { background:#fff; border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:14px; transition:.2s; }
     .card:hover { border-color:var(--primary); box-shadow:0 2px 8px rgba(59,130,246,.12); }
     .card.selected { background:var(--blue-50); border-color:var(--primary); }
     .card.clickable { cursor:pointer; }
     .card-main { display:flex; align-items:flex-start; gap:13px; flex:1; min-width:0; }
     .icon { font-size:28px; line-height:1; }
-    .card-title { font-weight:800; font-size:16px; color:var(--slate-900); }
+    .card-title { font-weight:850; font-size:16px; color:var(--slate-900); }
     .card-meta { color:var(--slate-500); font-size:13px; margin-top:5px; line-height:1.55; }
     .card-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; flex-wrap:wrap; }
-    .badge {
-      display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:7px;
-      font-size:12px; font-weight:700; background:var(--slate-100); color:var(--slate-700);
-    }
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:7px; font-size:12px; font-weight:750; background:var(--slate-100); color:var(--slate-700); }
     .badge-blue { background:var(--blue-100); color:var(--blue-700); }
     .badge-green { background:var(--green-100); color:var(--green-700); }
     .badge-amber { background:var(--amber-100); color:var(--amber-700); }
     .badge-purple { background:var(--purple-100); color:var(--purple-700); }
     .badge-red { background:var(--red-100); color:var(--red-700); }
-    .pills { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
-    .collections-line { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px; }
-    .collections-label { color:var(--slate-500); font-weight:700; font-size:12px; }
+    .pills, .collections-line { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-top:8px; }
+    .collections-label { color:var(--slate-500); font-weight:800; font-size:12px; }
     .checkbox { width:18px; height:18px; accent-color:var(--primary); flex:0 0 auto; }
     .details { display:none; border-top:1px solid var(--slate-200); margin-top:12px; padding-top:12px; width:100%; }
     .details.open { display:block; }
     .host-card { display:block; }
     .host-card-top { display:flex; justify-content:space-between; align-items:center; gap:14px; }
-    .service-attachment { border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:10px; background:white; }
+    .service-attachment { border:1px solid var(--slate-200); border-radius:12px; padding:14px; margin-bottom:10px; background:#fff; }
     .port-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:11px; padding-top:11px; border-top:1px dashed var(--slate-200); }
     .port-row input { width:90px; text-align:center; }
-    .addr-badge { font-size:10px; border-radius:5px; padding:2px 6px; font-weight:800; margin-right:6px; }
+    .addr-badge { font-size:10px; border-radius:5px; padding:2px 6px; font-weight:850; margin-right:6px; }
     .addr-ip { background:var(--blue-100); color:var(--blue-700); }
     .addr-fqdn { background:var(--green-100); color:var(--green-700); }
     .empty { text-align:center; color:var(--slate-500); padding:34px; }
-    .modal-overlay {
-      display:none; position:fixed; inset:0; background:rgba(15,23,42,.62); backdrop-filter:blur(4px);
-      z-index:50; align-items:center; justify-content:center; padding:18px;
-    }
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,.62); backdrop-filter:blur(4px); z-index:60; align-items:center; justify-content:center; padding:18px; }
     .modal-overlay.show { display:flex; }
-    .modal {
-      width:100%; max-width:850px; max-height:92vh; background:white; border-radius:14px;
-      box-shadow:0 25px 60px rgba(0,0,0,.28); overflow:hidden; display:flex; flex-direction:column;
-    }
+    .modal { width:100%; max-width:880px; max-height:92vh; background:#fff; border-radius:14px; box-shadow:0 25px 60px rgba(0,0,0,.28); overflow:hidden; display:flex; flex-direction:column; }
     .modal.small { max-width:560px; }
-    .modal-header, .modal-footer {
-      padding:16px 20px; background:var(--slate-50); border-bottom:1px solid var(--slate-200);
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
+    .modal-header, .modal-footer { padding:16px 20px; background:var(--slate-50); border-bottom:1px solid var(--slate-200); display:flex; align-items:center; justify-content:space-between; gap:12px; }
     .modal-footer { border-top:1px solid var(--slate-200); border-bottom:0; }
     .modal-title { font-size:18px; font-weight:850; }
     .modal-subtitle { color:var(--slate-500); font-size:13px; margin-top:3px; }
     .modal-body { padding:20px; overflow:auto; }
     .modal-footer-right { display:flex; gap:8px; flex-wrap:wrap; }
-    .toast {
-      position:fixed; right:20px; bottom:20px; z-index:80; background:var(--slate-800); color:white;
-      padding:14px 18px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.25);
-      opacity:0; transform:translateY(70px); transition:.25s;
-    }
+    .toast { position:fixed; right:20px; bottom:20px; z-index:90; background:var(--slate-800); color:#fff; padding:14px 18px; border-radius:12px; box-shadow:0 12px 30px rgba(0,0,0,.25); opacity:0; transform:translateY(70px); transition:.25s; }
     .toast.show { opacity:1; transform:none; }
     .hidden { display:none !important; }
     @media (max-width:900px) {
@@ -215,1895 +177,705 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const STORE_KEY = 'mars-ui-state-v13';
-const LEGACY_KEYS = [
-  'mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9',
-  'mars-ui-state-v8','mars-ui-state-v7','mars-ui-state-v6','mars-ui-state-v5',
-  'mars-ui-state-v4','mars-ui-state-v3','mars-ui-state-v2','mars-ui-state'
-];
+const STORE_KEY = 'mars-ui-state-v14';
+const LEGACY_KEYS = ['mars-ui-state-v13','mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9','mars-ui-state-v8','mars-ui-state-v7','mars-ui-state-v6','mars-ui-state-v5','mars-ui-state-v4','mars-ui-state-v3','mars-ui-state-v2','mars-ui-state'];
 
-let state = null;
+let state = defaultState();
 let activeSection = 'hosts';
-let selectedHosts = new Set();
-let selectedServices = new Set();
-let selectedTemplates = new Set();
+let selectedHostIds = new Set();
+let selectedServiceIds = new Set();
+let selectedTemplateIds = new Set();
 let expandedHostId = null;
-let editingHostId = null;
-let editingServiceId = null;
-let editingTemplateId = null;
-let activeAttachment = null;
-let collectionDraft = { name: '', description: '', serviceIds: [] };
+let hostDraft = { mode:'manual', catalogExternalId:null, editingHostId:null };
+let collectionDraftServiceIds = [];
+let collectionDraftName = '';
+let collectionDraftDesc = '';
 
-const $ = (id) => document.getElementById(id);
-const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
-  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-}[char]));
-
-function makeId(prefix) {
-  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
-}
-
-function demoState() {
+function defaultState() {
   return {
-    currentUserId: 'u-admin',
-    proxyGroups: [
-      { id: 'prod-dmz', name: 'Production DMZ' },
-      { id: 'analytics', name: 'Analytics' },
-      { id: 'k8s', name: 'K8s Cluster' }
+    currentUserId:'u-alice',
+    users:[
+      { id:'u-admin', name:'MARS Admin', initials:'MA', isAdmin:true, canMonitor:true, groups:['g-infra','g-db','g-app'] },
+      { id:'u-alice', name:'Alice Infra', initials:'AI', isAdmin:false, canMonitor:true, groups:['g-infra'] },
+      { id:'u-bob', name:'Bob DB', initials:'BD', isAdmin:false, canMonitor:true, groups:['g-db'] },
+      { id:'u-eve', name:'Eve ReadOnly', initials:'ER', isAdmin:false, canMonitor:false, groups:['g-app'] }
     ],
-    groups: [
-      { id: 'grp-infra', name: 'Team-Infra', description: 'Инфраструктурные сервисы и exporter-мониторинг' },
-      { id: 'grp-data', name: 'Team-Data', description: 'Базы данных и аналитика' },
-      { id: 'grp-platform', name: 'Team-Platform', description: 'Платформа и Kubernetes' }
+    groups:[
+      { id:'g-infra', name:'Team Infra' },
+      { id:'g-db', name:'Team DB' },
+      { id:'g-app', name:'Team App' }
     ],
-    users: [
-      { id: 'u-admin', name: 'Alice Admin', initials: 'A', isAdmin: true, canMonitor: true, groups: ['grp-infra', 'grp-data', 'grp-platform'] },
-      { id: 'u-infra', name: 'Ivan Infra', initials: 'I', isAdmin: false, canMonitor: true, groups: ['grp-infra'] },
-      { id: 'u-data', name: 'Daria Data', initials: 'D', isAdmin: false, canMonitor: true, groups: ['grp-data'] },
-      { id: 'u-viewer', name: 'Victor Viewer', initials: 'V', isAdmin: false, canMonitor: false, groups: ['grp-platform'] }
+    catalogSources:[
+      { id:'cmdb-main', name:'CMDB Main' }
     ],
-    services: [
-      {
-        id: 'svc-1', name: 'PostgreSQL', type: 'SQL', icon: '🐘', port: 5432, metrics: '/metrics',
-        groupId: 'grp-data', createdBy: 'u-data', auth: { mode: 'basic', username: 'monitor', password: '' },
-        protocol: null, tls: null
-      },
-      {
-        id: 'svc-2', name: 'Nginx', type: 'ExporterScrape', icon: '🌐', port: 80, metrics: '/nginx_metrics',
-        groupId: 'grp-infra', createdBy: 'u-infra', auth: { mode: 'none' },
-        protocol: 'http', tls: null
-      },
-      {
-        id: 'svc-3', name: 'Redis Cache', type: 'ExporterScrape', icon: '🔴', port: 6379, metrics: '/metrics',
-        groupId: 'grp-platform', createdBy: 'u-admin', auth: { mode: 'bearer', token: '' },
-        protocol: 'http', tls: null
-      },
-      {
-        id: 'svc-4', name: 'Secure Nginx', type: 'ExporterScrape', icon: '🔒', port: 443, metrics: '/metrics',
-        groupId: 'grp-infra', createdBy: 'u-admin', auth: { mode: 'none' },
-        protocol: 'https', tls: { clientCert: '-----BEGIN CERTIFICATE-----\\nMIID...demo...\\n-----END CERTIFICATE-----', skipServerVerify: false }
-      }
+    catalogHosts:[
+      { sourceId:'cmdb-main', externalId:'srv-1001', name:'web-prod-01', addressType:'ip', address:'10.0.1.50', proxyGroup:'prod-dmz', environment:'prod', os:'Ubuntu 22.04', updatedAt:'2026-04-30 09:15' },
+      { sourceId:'cmdb-main', externalId:'srv-1002', name:'db-analytics', addressType:'fqdn', address:'db-analytics.internal.example.com', proxyGroup:'analytics', environment:'prod', os:'PostgreSQL Appliance', updatedAt:'2026-04-30 09:15' },
+      { sourceId:'cmdb-main', externalId:'srv-1003', name:'cache-01', addressType:'ip', address:'192.168.1.10', proxyGroup:'k8s', environment:'stage', os:'Debian 12', updatedAt:'2026-04-30 09:15' },
+      { sourceId:'cmdb-main', externalId:'srv-1004', name:'app-k8s-node-07', addressType:'fqdn', address:'node-07.k8s.internal.example.com', proxyGroup:'k8s', environment:'prod', os:'Talos Linux', updatedAt:'2026-04-30 09:15' }
     ],
-    serviceTemplates: [
-      {
-        id: 'tpl-1', name: 'Шаблон "Nginx Standard"', type: 'ExporterScrape', icon: '🌐', port: 80, metrics: '/metrics',
-        groupId: 'grp-infra', createdBy: 'u-admin', protocol: 'http', tls: null
-      },
-      {
-        id: 'tpl-2', name: 'Шаблон "PostgreSQL Advanced"', type: 'SQL', icon: '🐘', port: 5432, metrics: '/metrics',
-        groupId: 'grp-data', createdBy: 'u-admin', protocol: null, tls: null
-      }
+    hosts:[
+      { id:1, name:'web-prod-01', addressType:'ip', address:'10.0.1.50', proxyGroup:'prod-dmz', status:'UP', sourceType:'catalog', createdBy:'u-alice', createdAt:'2026-04-30 09:30', prefilledFromCatalog:null, catalogBinding:{ sourceId:'cmdb-main', externalId:'srv-1001', lastSyncAt:'2026-04-30 09:30', syncStatus:'synced' }, attachments:[
+        { serviceId:'svc-1', createdBy:'u-bob', ownerGroupId:'g-db', portOverride:null },
+        { serviceId:'svc-2', createdBy:'u-alice', ownerGroupId:'g-infra', portOverride:null }
+      ]},
+      { id:2, name:'manual-api-01', addressType:'fqdn', address:'api-01.manual.internal.example.com', proxyGroup:'prod-dmz', status:'WARN', sourceType:'manual', createdBy:'u-alice', createdAt:'2026-04-30 09:45', prefilledFromCatalog:null, catalogBinding:null, attachments:[] },
+      { id:3, name:'cache-01-copy', addressType:'ip', address:'192.168.1.10', proxyGroup:'k8s', status:'UP', sourceType:'manual', createdBy:'u-bob', createdAt:'2026-04-30 10:00', prefilledFromCatalog:{ sourceId:'cmdb-main', externalId:'srv-1003', copiedAt:'2026-04-30 10:00' }, catalogBinding:null, attachments:[
+        { serviceId:'svc-3', createdBy:'u-bob', ownerGroupId:'g-db', portOverride:6380 }
+      ]}
     ],
-    collections: [
-      { id: 'col-1', name: 'Web Stack', description: 'Nginx + PostgreSQL', serviceIds: ['svc-1', 'svc-2'], createdBy: 'u-admin', usedBy: 12 },
-      { id: 'col-2', name: 'Cache Stack', description: 'Redis + Nginx', serviceIds: ['svc-2', 'svc-3'], createdBy: 'u-infra', usedBy: 8 }
+    services:[
+      { id:'svc-1', name:'PostgreSQL', type:'SQL', icon:'🐘', defaultPort:5432, metrics:'/metrics', ownerGroupId:'g-db', authMode:'basic', basicUsername:'monitor', basicPassword:'', bearerToken:'', protocol:'http', clientCertificate:'', skipServerCertCheck:false, usedBy:12 },
+      { id:'svc-2', name:'Nginx HTTPS', type:'ExporterScrape', icon:'🌐', defaultPort:443, metrics:'/nginx_metrics', ownerGroupId:'g-infra', authMode:'none', basicUsername:'', basicPassword:'', bearerToken:'', protocol:'https', clientCertificate:'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----', skipServerCertCheck:true, usedBy:24 },
+      { id:'svc-3', name:'Redis Cache', type:'ExporterScrape', icon:'🔴', defaultPort:6379, metrics:'/metrics', ownerGroupId:'g-db', authMode:'bearer', basicUsername:'', basicPassword:'', bearerToken:'', protocol:'http', clientCertificate:'', skipServerCertCheck:false, usedBy:8 }
     ],
-    hosts: [
-      {
-        id: 'host-1', name: 'web-prod-01', addressType: 'ip', address: '10.0.1.50', proxyGroup: 'prod-dmz',
-        status: 'UP', createdBy: 'u-infra',
-        attachments: [
-          { id: 'att-1', serviceId: 'svc-1', portOverride: null, auth: { mode: 'basic', username: 'admin', password: 'secret' }, attachedBy: 'u-admin' },
-          { id: 'att-2', serviceId: 'svc-2', portOverride: null, auth: null, attachedBy: 'u-infra' }
-        ]
-      },
-      {
-        id: 'host-2', name: 'db-analytics', addressType: 'fqdn', address: 'db-analytics.internal.example.com', proxyGroup: 'analytics',
-        status: 'WARN', createdBy: 'u-data',
-        attachments: [
-          { id: 'att-3', serviceId: 'svc-1', portOverride: null, auth: { mode: 'basic', username: 'admin', password: 'pass123' }, attachedBy: 'u-data' }
-        ]
-      },
-      {
-        id: 'host-3', name: 'cache-01', addressType: 'ip', address: '192.168.1.10', proxyGroup: 'k8s',
-        status: 'UP', createdBy: 'u-admin',
-        attachments: [
-          { id: 'att-4', serviceId: 'svc-3', portOverride: null, auth: null, attachedBy: 'u-admin' }
-        ]
-      }
+    serviceTemplates:[
+      { id:'tpl-1', name:'Шаблон "Nginx Standard"', type:'ExporterScrape', icon:'🌐', defaultPort:80, metrics:'/metrics', protocol:'http', skipServerCertCheck:false, ownerGroupId:'g-infra', createdBy:'u-alice', usedBy:347 },
+      { id:'tpl-2', name:'Шаблон "PostgreSQL Advanced"', type:'SQL', icon:'🐘', defaultPort:5432, metrics:'/metrics', protocol:'http', skipServerCertCheck:false, ownerGroupId:'g-db', createdBy:'u-bob', usedBy:134 }
+    ],
+    collections:[
+      { id:'col-1', name:'Web Stack', description:'Nginx + PostgreSQL', serviceIds:['svc-1','svc-2'], usedBy:12 },
+      { id:'col-2', name:'Cache Stack', description:'Redis + Nginx', serviceIds:['svc-2','svc-3'], usedBy:8 }
     ]
   };
 }
 
-function normalizeAuth(auth) {
-  if (!auth || auth.mode === 'none' || auth === false) return { mode: 'none' };
-  if (auth.mode === 'basic' || auth.username !== undefined || auth.user !== undefined) {
-    return {
-      mode: 'basic',
-      username: auth.username ?? auth.user ?? '',
-      password: auth.password ?? auth.pass ?? ''
-    };
-  }
-  if (auth.mode === 'bearer' || auth.token !== undefined) {
-    return { mode: 'bearer', token: auth.token ?? '' };
-  }
-  return { mode: 'none' };
-}
-
-function normalizeTls(tls) {
-  if (!tls) return null;
-  return {
-    clientCert: tls.clientCert ?? tls.cert ?? '',
-    skipServerVerify: !!(tls.skipServerVerify ?? tls.skip)
-  };
-}
-
-function normalizeState(raw) {
-  const base = demoState();
-  if (!raw || typeof raw !== 'object') return base;
-
-  const groups = Array.isArray(raw.groups) && raw.groups.length ? raw.groups.map((g, index) => ({
-    id: g.id || `grp-${index}`,
-    name: g.name || `Group ${index + 1}`,
-    description: g.description || ''
-  })) : base.groups;
-
-  const users = Array.isArray(raw.users) && raw.users.length ? raw.users.map((u, index) => ({
-    id: u.id || `user-${index}`,
-    name: u.name || `User ${index + 1}`,
-    initials: u.initials || (u.name || 'U').slice(0, 1).toUpperCase(),
-    isAdmin: !!u.isAdmin,
-    canMonitor: !!u.canMonitor,
-    groups: Array.isArray(u.groups) ? u.groups : []
-  })) : base.users;
-
-  const proxyGroups = Array.isArray(raw.proxyGroups) && raw.proxyGroups.length
-    ? raw.proxyGroups
-    : (Array.isArray(raw.segments) ? raw.segments.map(x => ({ id: x.id || x, name: x.name || x })) : base.proxyGroups);
-
-  const rawServices = Array.isArray(raw.services) ? raw.services : [];
-  const rawTemplates = Array.isArray(raw.serviceTemplates) ? raw.serviceTemplates : rawServices.filter(s => s.template || s.isTemplate);
-
-  const services = rawServices.filter(s => !(s.template || s.isTemplate)).map((s, index) => ({
-    id: s.id || `svc-${index}`,
-    name: s.name || `Service ${index + 1}`,
-    type: s.type || s.agent || 'ExporterScrape',
-    icon: s.icon || '🔌',
-    port: Number(s.port ?? s.defaultPort ?? 80),
-    metrics: s.metrics || '/metrics',
-    groupId: s.groupId || s.group || groups[0].id,
-    createdBy: s.createdBy || s.by || users[0].id,
-    auth: normalizeAuth(s.auth),
-    protocol: (s.type || s.agent) === 'ExporterScrape' ? (s.protocol || 'http') : null,
-    tls: normalizeTls(s.tls)
-  }));
-
-  const serviceTemplates = rawTemplates.map((t, index) => ({
-    id: t.id || `tpl-${index}`,
-    name: t.name || `Шаблон "${t.serviceName || index + 1}"`,
-    type: t.type || t.agent || 'ExporterScrape',
-    icon: t.icon || '🧩',
-    port: Number(t.port ?? t.defaultPort ?? 80),
-    metrics: t.metrics || '/metrics',
-    groupId: t.groupId || t.group || groups[0].id,
-    createdBy: t.createdBy || t.by || users[0].id,
-    protocol: (t.type || t.agent) === 'ExporterScrape' ? (t.protocol || 'http') : null,
-    tls: normalizeTls(t.tls)
-  })).map(t => ({ ...t, auth: undefined }));
-
-  const collections = Array.isArray(raw.collections) ? raw.collections.map((c, index) => ({
-    id: c.id || `col-${index}`,
-    name: c.name || `Collection ${index + 1}`,
-    description: c.description || c.desc || '',
-    serviceIds: Array.isArray(c.serviceIds) ? c.serviceIds : (Array.isArray(c.services) ? c.services : []),
-    createdBy: c.createdBy || c.by || users[0].id,
-    usedBy: Number(c.usedBy ?? c.used ?? 0)
-  })) : base.collections;
-
-  const hosts = Array.isArray(raw.hosts) ? raw.hosts.map((h, index) => ({
-    id: String(h.id || `host-${index}`),
-    name: h.name || `host-${index + 1}`,
-    addressType: h.addressType || (String(h.address || h.addr || '').match(/^[0-9.]+$/) ? 'ip' : 'fqdn'),
-    address: h.address || h.addr || '',
-    proxyGroup: h.proxyGroup || h.seg || h.segment || proxyGroups[0].id,
-    status: h.status || 'UP',
-    createdBy: h.createdBy || h.by || users[0].id,
-    attachments: (Array.isArray(h.attachments) ? h.attachments : (Array.isArray(h.att) ? h.att : [])).map((a, aIndex) => ({
-      id: a.id || `att-${index}-${aIndex}`,
-      serviceId: a.serviceId || a.sid,
-      portOverride: a.portOverride ?? a.port ?? null,
-      auth: a.auth ? normalizeAuth(a.auth) : null,
-      attachedBy: a.attachedBy || a.by || users[0].id
-    })).filter(a => a.serviceId)
-  })) : base.hosts;
-
-  const currentUserId = raw.currentUserId || raw.cur || users[0].id;
-
-  return {
-    currentUserId,
-    users,
-    groups,
-    proxyGroups,
-    services,
-    serviceTemplates,
-    collections,
-    hosts
-  };
-}
-
 function loadState() {
-  const keys = [STORE_KEY, ...LEGACY_KEYS];
-  for (const key of keys) {
-    try {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      state = normalizeState(JSON.parse(raw));
-      saveState();
-      return;
-    } catch (error) {
-      console.warn('Cannot load state from', key, error);
+  let raw = localStorage.getItem(STORE_KEY);
+  if (!raw) {
+    for (const key of LEGACY_KEYS) {
+      raw = localStorage.getItem(key);
+      if (raw) break;
     }
   }
-  state = demoState();
-  saveState();
-}
-
-function saveState() {
-  localStorage.setItem(STORE_KEY, JSON.stringify(state));
-}
-
-function currentUser() {
-  return state.users.find(u => u.id === state.currentUserId) || state.users[0];
-}
-
-function isAdmin() {
-  return !!currentUser().isAdmin;
-}
-
-function canMonitor() {
-  return !!currentUser().canMonitor;
-}
-
-function canManageGroup(groupId) {
-  return isAdmin() || currentUser().groups.includes(groupId);
-}
-
-function canManageService(service) {
-  return !!service && canManageGroup(service.groupId);
-}
-
-function canDeleteHost(host) {
-  return !!host && (isAdmin() || host.createdBy === state.currentUserId);
-}
-
-function canEditHost(host) {
-  return canDeleteHost(host);
-}
-
-function userName(userId) {
-  return state.users.find(u => u.id === userId)?.name || '—';
-}
-
-function groupName(groupId) {
-  return state.groups.find(g => g.id === groupId)?.name || groupId || '—';
-}
-
-function proxyGroupName(id) {
-  return state.proxyGroups.find(g => g.id === id)?.name || id || '—';
-}
-
-function authLabel(auth) {
-  const normalized = normalizeAuth(auth);
-  if (normalized.mode === 'basic') return 'Basic Auth';
-  if (normalized.mode === 'bearer') return 'Bearer Token';
-  return 'Без авторизации';
-}
-
-function hasAuth(auth) {
-  return normalizeAuth(auth).mode !== 'none';
-}
-
-function serviceCollections(serviceId) {
-  return state.collections.filter(collection => collection.serviceIds.includes(serviceId));
-}
-
-function collectionsHtml(serviceId) {
-  const collections = serviceCollections(serviceId);
-  return `
-    <div class="collections-line">
-      <span class="collections-label">Коллекции:</span>
-      ${collections.length ? collections.map(c => `<span class="badge badge-purple">📦 ${escapeHtml(c.name)}</span>`).join('') : '<span class="badge">—</span>'}
-    </div>
-  `;
-}
-
-function tlsBadge(item) {
-  if (item.type !== 'ExporterScrape') return '';
-  const protocol = item.protocol || 'http';
-  if (protocol === 'http') {
-    return '<span class="badge badge-blue">HTTP</span>';
+  if (raw) {
+    try { state = normalizeState(JSON.parse(raw)); }
+    catch (e) { state = defaultState(); }
+  } else {
+    state = defaultState();
   }
-  const cert = item.tls?.clientCert ? '<span class="badge badge-purple">client cert</span>' : '';
-  const skip = item.tls?.skipServerVerify ? '<span class="badge badge-amber">skip server cert verify</span>' : '';
-  return `<span class="badge badge-blue">HTTPS</span>${cert}${skip}`;
-}
-
-function serviceMeta(service, showAuth = true) {
-  return `
-    <div class="card-meta">
-      Тип: <b>${escapeHtml(service.type)}</b> · Порт: <code>${service.port}</code> · Метрики: <code>${escapeHtml(service.metrics)}</code> · Группа: <b>${escapeHtml(groupName(service.groupId))}</b>
-    </div>
-    <div class="pills">
-      ${tlsBadge(service)}
-      ${showAuth ? `<span class="badge ${hasAuth(service.auth) ? 'badge-amber' : 'badge-green'}">${hasAuth(service.auth) ? '🔐' : '🔓'} ${escapeHtml(authLabel(service.auth))}</span>` : ''}
-    </div>
-  `;
-}
-
-function switchSection(section) {
-  activeSection = section;
-  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  $(`section-${section}`).classList.add('active');
-  $(`nav-${section}`).classList.add('active');
-  render();
-}
-
-function render() {
-  renderUserSwitcher();
-  renderHosts();
-  renderServices();
-  renderTemplates();
-  renderCollections();
-  renderAccess();
-}
-
-function renderUserSwitcher() {
-  $('current-user').innerHTML = state.users.map(user => `
-    <option value="${user.id}" ${user.id === state.currentUserId ? 'selected' : ''}>${escapeHtml(user.name)}${user.isAdmin ? ' · admin' : ''}</option>
-  `).join('');
-  const user = currentUser();
-  $('user-avatar').textContent = user.initials || user.name.slice(0, 1).toUpperCase();
-}
-
-function switchUser(userId) {
-  state.currentUserId = userId;
-  selectedHosts.clear();
-  selectedServices.clear();
-  selectedTemplates.clear();
   saveState();
-  render();
-  showToast(`Текущий пользователь: ${currentUser().name}`);
 }
 
-function page(section, title, subtitle, actions, content) {
-  $(`section-${section}`).innerHTML = `
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">${title}</h1>
-        <div class="page-subtitle">${subtitle}</div>
-      </div>
-      <div class="card-actions">${actions || ''}</div>
-    </div>
-    ${content}
-  `;
+function normalizeState(s) {
+  const d = defaultState();
+  const ns = { ...d, ...s };
+  ns.users = Array.isArray(ns.users) && ns.users.length ? ns.users : d.users;
+  ns.groups = Array.isArray(ns.groups) && ns.groups.length ? ns.groups : d.groups;
+  ns.catalogSources = Array.isArray(ns.catalogSources) && ns.catalogSources.length ? ns.catalogSources : d.catalogSources;
+  ns.catalogHosts = Array.isArray(ns.catalogHosts) && ns.catalogHosts.length ? ns.catalogHosts.map(normalizeCatalogHost) : d.catalogHosts;
+  ns.currentUserId = ns.users.some(u => u.id === ns.currentUserId) ? ns.currentUserId : ns.users[0].id;
+
+  let rawServices = Array.isArray(ns.services) ? ns.services.slice() : d.services.slice();
+  let migratedTemplates = rawServices.filter(svc => svc.isTemplate).map(svc => ({
+    id: svc.id || uid('tpl'), name: svc.name || 'Шаблон сервиса', type: svc.type || svc.agent || 'ExporterScrape', icon: svc.icon || '🔌',
+    defaultPort: num(svc.defaultPort, 80), metrics: svc.metrics || '/metrics', protocol: svc.protocol || 'http', skipServerCertCheck: !!svc.skipServerCertCheck,
+    ownerGroupId: svc.ownerGroupId || 'g-infra', createdBy: svc.createdBy || ns.currentUserId, usedBy: num(svc.usedBy, 0)
+  }));
+  rawServices = rawServices.filter(svc => !svc.isTemplate);
+  ns.services = rawServices.map(normalizeService);
+  ns.serviceTemplates = [...(Array.isArray(ns.serviceTemplates) ? ns.serviceTemplates : []), ...migratedTemplates].map(normalizeTemplate);
+  ns.serviceTemplates = uniqueByName(ns.serviceTemplates);
+
+  ns.hosts = (Array.isArray(ns.hosts) ? ns.hosts : d.hosts).map(h => {
+    const host = { ...h };
+    host.id = host.id || Date.now() + Math.random();
+    host.name = host.name || 'host';
+    host.addressType = host.addressType || 'ip';
+    host.address = host.address || '127.0.0.1';
+    host.proxyGroup = host.proxyGroup || host.segment || 'prod-dmz';
+    delete host.segment;
+    host.status = host.status || 'UP';
+    host.sourceType = host.sourceType || 'manual';
+    host.createdBy = host.createdBy || ns.currentUserId;
+    host.createdAt = host.createdAt || nowText();
+    host.prefilledFromCatalog = host.prefilledFromCatalog || null;
+    host.catalogBinding = host.sourceType === 'catalog' ? (host.catalogBinding || { sourceId:'cmdb-main', externalId:null, lastSyncAt:null, syncStatus:'unknown' }) : null;
+    host.attachments = (Array.isArray(host.attachments) ? host.attachments : []).map(att => ({
+      serviceId: att.serviceId,
+      createdBy: att.createdBy || host.createdBy || ns.currentUserId,
+      ownerGroupId: att.ownerGroupId || (ns.services.find(s => s.id === att.serviceId) || {}).ownerGroupId || 'g-infra',
+      portOverride: att.portOverride === undefined ? null : att.portOverride
+    })).filter(att => ns.services.some(s => s.id === att.serviceId));
+    return host;
+  });
+  ns.collections = (Array.isArray(ns.collections) ? ns.collections : d.collections).map(c => ({
+    id: c.id || uid('col'), name: c.name || 'Коллекция', description: c.description || '',
+    serviceIds: (Array.isArray(c.serviceIds) ? c.serviceIds : []).filter(id => ns.services.some(s => s.id === id)), usedBy: num(c.usedBy, 0)
+  }));
+  return ns;
 }
 
-/* HOSTS */
-
-function filteredHosts() {
-  const search = ($('host-search')?.value || '').toLowerCase();
-  const group = $('host-proxy-filter')?.value || 'all';
-  return state.hosts.filter(host => {
-    const matchesSearch = host.name.toLowerCase().includes(search) || host.address.toLowerCase().includes(search);
-    const matchesGroup = group === 'all' || host.proxyGroup === group;
-    return matchesSearch && matchesGroup;
+function normalizeCatalogHost(h) {
+  return { sourceId:h.sourceId || 'cmdb-main', externalId:h.externalId || uid('ext'), name:h.name || 'catalog-host', addressType:h.addressType || 'ip', address:h.address || '127.0.0.1', proxyGroup:h.proxyGroup || h.segment || 'prod-dmz', environment:h.environment || 'prod', os:h.os || 'Linux', updatedAt:h.updatedAt || nowText() };
+}
+function normalizeService(svc) {
+  const oldAuth = svc.auth || null;
+  let authMode = svc.authMode || 'none';
+  if (oldAuth && !svc.authMode) authMode = 'basic';
+  const protocol = svc.protocol || 'http';
+  return {
+    id: svc.id || uid('svc'), name: svc.name || 'Сервис', type: svc.type || svc.agent || 'ExporterScrape', icon: svc.icon || '🔌',
+    defaultPort: num(svc.defaultPort, 80), metrics: svc.metrics || '/metrics', ownerGroupId: svc.ownerGroupId || 'g-infra',
+    authMode, basicUsername: svc.basicUsername || (oldAuth ? oldAuth.username || '' : ''), basicPassword: svc.basicPassword || (oldAuth ? oldAuth.password || '' : ''), bearerToken: svc.bearerToken || '',
+    protocol, clientCertificate: protocol === 'https' ? (svc.clientCertificate || '') : '', skipServerCertCheck: protocol === 'https' ? !!svc.skipServerCertCheck : false,
+    usedBy: num(svc.usedBy, 0)
+  };
+}
+function normalizeTemplate(tpl) {
+  return { id:tpl.id || uid('tpl'), name:tpl.name || 'Шаблон сервиса', type:tpl.type || tpl.agent || 'ExporterScrape', icon:tpl.icon || '🔌', defaultPort:num(tpl.defaultPort,80), metrics:tpl.metrics || '/metrics', protocol:tpl.protocol || 'http', skipServerCertCheck: !!tpl.skipServerCertCheck, ownerGroupId:tpl.ownerGroupId || 'g-infra', createdBy:tpl.createdBy || state.currentUserId || 'u-admin', usedBy:num(tpl.usedBy,0) };
+}
+function uniqueByName(items) {
+  const seen = new Set();
+  return items.filter(item => {
+    const key = item.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }
+function saveState() { localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
+function resetDemoData() { localStorage.removeItem(STORE_KEY); state = defaultState(); selectedHostIds.clear(); selectedServiceIds.clear(); selectedTemplateIds.clear(); expandedHostId = null; saveState(); renderAll(); showToast('Демо-данные сброшены'); }
 
-function renderHosts() {
-  const hosts = filteredHosts();
-  const actions = `
-    <button class="btn-outline" onclick="resetDemo()">↺ Сбросить демо</button>
-    <button onclick="openHostForm()" ${canMonitor() ? '' : 'disabled'}>➕ Создать хост</button>
-  `;
+function uid(prefix) { return prefix + '-' + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-4); }
+function num(value, fallback) { const n = parseInt(value, 10); return Number.isFinite(n) ? n : fallback; }
+function esc(value) { return String(value ?? '').replace(/[&<>"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch])); }
+function jsArg(value) { return "'" + String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"; }
+function nowText() { const d = new Date(); return d.toLocaleString('ru-RU', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' }); }
+function showToast(message) { const t = document.getElementById('toast'); t.textContent = message; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2600); }
+function closeModal() { document.getElementById('modal-overlay').classList.remove('show'); document.getElementById('modal').classList.remove('small'); }
+function openModal(title, subtitle, body, footer, small=false) { document.getElementById('modal-title').textContent = title; document.getElementById('modal-subtitle').textContent = subtitle || ''; document.getElementById('modal-body').innerHTML = body; document.getElementById('modal-footer').innerHTML = footer; document.getElementById('modal').classList.toggle('small', !!small); document.getElementById('modal-overlay').classList.add('show'); }
 
-  const content = `
+function currentUser() { return state.users.find(u => u.id === state.currentUserId) || state.users[0]; }
+function userById(id) { return state.users.find(u => u.id === id); }
+function groupById(id) { return state.groups.find(g => g.id === id); }
+function currentUserGroupIds() { return new Set(currentUser().groups || []); }
+function isAdmin() { return !!currentUser().isAdmin; }
+function canMonitor() { return isAdmin() || !!currentUser().canMonitor; }
+function canManageGroup(groupId) { return isAdmin() || currentUserGroupIds().has(groupId); }
+function canManageService(svc) { return isAdmin() || currentUserGroupIds().has(svc.ownerGroupId); }
+function canManageAttachment(att) { return isAdmin() || att.createdBy === currentUser().id || currentUserGroupIds().has(att.ownerGroupId); }
+function hostHasAttachments(host) { return (host.attachments || []).length > 0; }
+function canEditHost(host) { if (host.sourceType === 'catalog') return false; if (hostHasAttachments(host) && !isAdmin()) return false; return isAdmin() || host.createdBy === currentUser().id; }
+function canDeleteHost(host) { if (hostHasAttachments(host)) return isAdmin(); return isAdmin() || host.createdBy === currentUser().id; }
+function hostLockReason(host) {
+  if (host.sourceType === 'catalog') return 'Чувствительные поля управляются справочником и обновляются синхронизацией.';
+  if (hostHasAttachments(host) && !isAdmin()) return 'Хост уже используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы, чтобы не сломать сбор метрик другим пользователям.';
+  if (!(isAdmin() || host.createdBy === currentUser().id)) return 'Редактировать ручной хост может только создатель или администратор MARS.';
+  return '';
+}
+
+function switchUser(id) { state.currentUserId = id; saveState(); selectedHostIds.clear(); selectedServiceIds.clear(); selectedTemplateIds.clear(); renderAll(); }
+function switchSection(section) { activeSection = section; document.querySelectorAll('.section').forEach(el => el.classList.remove('active')); document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active')); document.getElementById('section-' + section).classList.add('active'); document.getElementById('nav-' + section).classList.add('active'); renderAll(); }
+function renderAll() { renderUserSwitcher(); renderHostsSection(); renderServicesSection(); renderTemplatesSection(); renderCollectionsSection(); renderAccessSection(); }
+function renderUserSwitcher() {
+  const select = document.getElementById('current-user');
+  select.innerHTML = state.users.map(u => `<option value="${u.id}" ${u.id === state.currentUserId ? 'selected' : ''}>${esc(u.name)}${u.isAdmin ? ' · admin' : ''}</option>`).join('');
+  document.getElementById('user-avatar').textContent = currentUser().initials || currentUser().name.slice(0,1);
+}
+
+function sourceBadge(host) {
+  if (host.sourceType === 'catalog') return '<span class="badge badge-purple">📚 Справочник</span>';
+  if (host.prefilledFromCatalog) return '<span class="badge badge-amber">📋 Ручной · заполнен из справочника</span>';
+  return '<span class="badge badge-blue">✍️ Ручной</span>';
+}
+function addressBadge(host) { return host.addressType === 'fqdn' ? '<span class="addr-badge addr-fqdn">FQDN</span>' : '<span class="addr-badge addr-ip">IP</span>'; }
+function sourceDetails(host) {
+  if (host.sourceType === 'catalog') {
+    const source = state.catalogSources.find(s => s.id === host.catalogBinding?.sourceId);
+    const catalog = findCatalogHost(host.catalogBinding?.sourceId, host.catalogBinding?.externalId);
+    return `<div class="box box-purple">
+      <strong>Источник данных:</strong> ${esc(source?.name || 'CMDB')}<br>
+      <span class="muted">External ID:</span> <span class="mono">${esc(host.catalogBinding?.externalId || '—')}</span><br>
+      <span class="muted">Последняя синхронизация:</span> ${esc(host.catalogBinding?.lastSyncAt || '—')}<br>
+      <span class="muted">Статус:</span> ${catalog ? '<span class="badge badge-green">synced</span>' : '<span class="badge badge-red">missing</span>'}<br>
+      <div class="hint">Имя хоста, IP/FQDN и группа прокси управляются справочником. Ручное редактирование этих полей отключено.</div>
+    </div>`;
+  }
+  if (host.prefilledFromCatalog) {
+    const source = state.catalogSources.find(s => s.id === host.prefilledFromCatalog.sourceId);
+    return `<div class="box box-amber">
+      <strong>Ручной хост, разово заполненный из справочника.</strong><br>
+      <span class="muted">Источник заполнения:</span> ${esc(source?.name || 'CMDB')} · <span class="mono">${esc(host.prefilledFromCatalog.externalId)}</span><br>
+      <span class="muted">Скопировано:</span> ${esc(host.prefilledFromCatalog.copiedAt || '—')}<br>
+      <div class="hint">Автоматическое обновление выключено. Синхронизация справочника не меняет поля этого хоста.</div>
+    </div>`;
+  }
+  return `<div class="box"><strong>Источник данных:</strong> Ручной ввод. <span class="hint">Синхронизация справочника не меняет поля этого хоста.</span></div>`;
+}
+
+function renderHostsSection() {
+  const sec = document.getElementById('section-hosts');
+  const filtered = getFilteredHosts();
+  sec.innerHTML = `
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Управление хостами</h1>
+        <div class="page-subtitle">Хосты глобальны для MARS. Источник данных определяет, кто владеет чувствительными полями.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn-outline" onclick="syncCatalogHosts()">🔄 Синхронизировать справочник</button>
+        <button class="btn-outline" onclick="resetDemoData()">↺ Сбросить демо</button>
+        <button onclick="openHostCreateModal()" ${canMonitor() ? '' : 'disabled'}>➕ Создать хост</button>
+      </div>
+    </div>
     <div class="panel">
-      <div class="panel-info"><b>Контекст: Хост.</b> Хосты уникальны, глобальны и видны всем пользователям MARS.</div>
+      <div class="panel-info"><strong>Хост как monitoring target:</strong> имя хоста, IP/FQDN и группа прокси считаются чувствительными полями. Для справочных хостов ими владеет CMDB; для ручных — MARS, но изменение блокируется, если хост уже используется в мониторинге.</div>
       <div class="panel-toolbar">
-        <div>
-          <input class="checkbox" type="checkbox" onchange="toggleAllHosts(this.checked)" ${hosts.length && hosts.every(h => selectedHosts.has(h.id)) ? 'checked' : ''}>
-          <span class="muted">Выбрано: <b>${selectedHosts.size}</b> из <b>${hosts.length}</b></span>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <input class="checkbox" type="checkbox" ${filtered.length && filtered.every(h => selectedHostIds.has(h.id)) ? 'checked' : ''} onchange="toggleSelectAllHosts(this.checked)">
+          <span class="muted">Выбрано: <strong>${selectedHostIds.size}</strong> из <strong>${filtered.length}</strong></span>
         </div>
-        <div class="card-actions">
-          <button class="btn-sm btn-ghost" onclick="openAttachWizard('service')" ${canMonitor() && selectedHosts.size === 1 ? '' : 'disabled'}>⚡ Присоединить сервис</button>
-          <button class="btn-sm btn-ghost" onclick="openAttachWizard('collection')" ${canMonitor() && selectedHosts.size === 1 ? '' : 'disabled'}>📦 Присоединить коллекцию</button>
-          <button class="btn-sm btn-danger" onclick="deleteSelectedHosts()" ${selectedHosts.size ? '' : 'disabled'}>🗑️ Удалить</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-sm btn-outline" onclick="openAttachModal('service')" ${selectedHostIds.size === 1 && canMonitor() ? '' : 'disabled'}>⚡ Присоединить сервис</button>
+          <button class="btn-sm btn-outline" onclick="openAttachModal('collection')" ${selectedHostIds.size === 1 && canMonitor() ? '' : 'disabled'}>📦 Присоединить коллекцию</button>
         </div>
       </div>
       <div class="panel-filters">
-        <span>🔍</span>
-        <input id="host-search" class="input" value="${escapeHtml($('host-search')?.value || '')}" oninput="renderHosts()" placeholder="Поиск по имени или адресу...">
-        <select id="host-proxy-filter" onchange="renderHosts()">
-          <option value="all">Все группы прокси</option>
-          ${state.proxyGroups.map(group => `<option value="${group.id}" ${($('host-proxy-filter')?.value || 'all') === group.id ? 'selected' : ''}>${escapeHtml(group.name)}</option>`).join('')}
+        <span class="muted">🔍</span>
+        <input id="host-search" class="input" placeholder="Поиск..." value="${esc(document.getElementById('host-search')?.value || '')}" oninput="renderHostsSection()">
+        <select id="host-proxy-filter" onchange="renderHostsSection()">
+          ${proxyGroupOptions(document.getElementById('host-proxy-filter')?.value || 'all', true)}
         </select>
-      </div>
-      <div class="panel-content">${hosts.length ? hosts.map(hostCardHtml).join('') : '<div class="empty">Хосты не найдены</div>'}</div>
-      <div class="panel-footer">Присоединённые к хосту сервисы видны всем пользователям MARS.</div>
-    </div>
-  `;
-
-  page('hosts', 'Управление хостами', 'Постановка на мониторинг и присоединение сервисов/коллекций', actions, content);
-}
-
-function hostCardHtml(host) {
-  const isOpen = expandedHostId === host.id;
-  const isSelected = selectedHosts.has(host.id);
-  const addressBadge = host.addressType === 'fqdn'
-    ? '<span class="addr-badge addr-fqdn">FQDN</span>'
-    : '<span class="addr-badge addr-ip">IP</span>';
-
-  const attachmentsHtml = host.attachments.length
-    ? host.attachments.map((attachment, index) => hostAttachmentHtml(host, attachment, index)).join('')
-    : '<div class="muted">Нет присоединённых сервисов.</div>';
-
-  return `
-    <div class="card host-card ${isSelected ? 'selected' : ''}">
-      <div class="host-card-top">
-        <div class="card-main">
-          <input class="checkbox" type="checkbox" onchange="toggleHost('${host.id}')" ${isSelected ? 'checked' : ''}>
-          <span class="icon">🖥️</span>
-          <div>
-            <div class="card-title mono">${escapeHtml(host.name)}</div>
-            <div class="card-meta">${addressBadge}${escapeHtml(host.address)}</div>
-            <div class="pills">
-              <span class="badge">Группа прокси: ${escapeHtml(proxyGroupName(host.proxyGroup))}</span>
-              <span class="badge ${host.status === 'UP' ? 'badge-green' : 'badge-amber'}">${host.status === 'UP' ? '🟢 UP' : '🟡 WARN'}</span>
-              <span class="badge">Создал: ${escapeHtml(userName(host.createdBy))}</span>
-              <span class="badge badge-blue">${host.attachments.length} сервисов</span>
-            </div>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button class="btn-xs btn-outline" onclick="toggleHostDetails('${host.id}')">${isOpen ? '▲ Свернуть' : '→ Детали'}</button>
-          <button class="btn-xs btn-outline" onclick="openHostForm('${host.id}')" ${canEditHost(host) ? '' : 'disabled'}>✏️ Редактировать</button>
-          <button class="btn-xs btn-danger" onclick="deleteHost('${host.id}')" ${canDeleteHost(host) ? '' : 'disabled'}>🗑️ Удалить</button>
-        </div>
-      </div>
-      <div class="details ${isOpen ? 'open' : ''}">
-        <div class="box box-blue">
-          <b>${escapeHtml(host.name)}</b> · ${addressBadge}${escapeHtml(host.address)} · Группа прокси: <b>${escapeHtml(proxyGroupName(host.proxyGroup))}</b>
-        </div>
-        ${attachmentsHtml}
-      </div>
-    </div>
-  `;
-}
-
-function hostAttachmentHtml(host, attachment, index) {
-  const service = state.services.find(item => item.id === attachment.serviceId);
-  if (!service) return '';
-  const effectivePort = attachment.portOverride || service.port;
-  const effectiveAuth = attachment.auth || service.auth;
-
-  return `
-    <div class="service-attachment">
-      <div class="card-main">
-        <span class="icon">${service.icon}</span>
-        <div>
-          <div class="card-title">${escapeHtml(service.name)}</div>
-          <div class="card-meta mono">Target: ${escapeHtml(host.address)}:${effectivePort}</div>
-          ${serviceMeta(service, false)}
-          ${collectionsHtml(service.id)}
-          <div class="pills">
-            <span class="badge ${hasAuth(effectiveAuth) ? 'badge-amber' : 'badge-green'}">${hasAuth(effectiveAuth) ? '🔐' : '🔓'} ${escapeHtml(authLabel(effectiveAuth))}</span>
-            <span class="badge">Присоединил: ${escapeHtml(userName(attachment.attachedBy))}</span>
-          </div>
-        </div>
-      </div>
-      <div class="port-row">
-        <span class="muted">Порт:</span>
-        <input id="port-${host.id}-${index}" type="number" min="1" max="65535" value="${effectivePort}">
-        <button class="btn-xs btn-success" onclick="applyPortOverride('${host.id}', ${index})" ${canMonitor() ? '' : 'disabled'}>✓ Применить</button>
-        <button class="btn-xs btn-outline" onclick="resetPortOverride('${host.id}', ${index})" ${canMonitor() ? '' : 'disabled'}>↺ Сбросить</button>
-        <button class="btn-xs btn-danger" onclick="detachService('${host.id}', ${index})" ${canMonitor() ? '' : 'disabled'}>Отсоединить</button>
-        <span class="hint">${attachment.portOverride ? `переопределён: ${attachment.portOverride}` : `по умолчанию: ${service.port}`}</span>
-      </div>
-    </div>
-  `;
-}
-
-function toggleHost(id) {
-  selectedHosts.has(id) ? selectedHosts.delete(id) : selectedHosts.add(id);
-  renderHosts();
-}
-
-function toggleAllHosts(checked) {
-  filteredHosts().forEach(host => checked ? selectedHosts.add(host.id) : selectedHosts.delete(host.id));
-  renderHosts();
-}
-
-function toggleHostDetails(id) {
-  expandedHostId = expandedHostId === id ? null : id;
-  renderHosts();
-}
-
-function validateIp(value) {
-  const parts = value.split('.');
-  return parts.length === 4 && parts.every(part => /^\d+$/.test(part) && Number(part) >= 0 && Number(part) <= 255);
-}
-
-function validateFqdn(value) {
-  return /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/.test(value);
-}
-
-function hostNameUnique(name, skipId = null) {
-  const lowered = name.trim().toLowerCase();
-  return !!lowered && !state.hosts.some(host => host.id !== skipId && host.name.toLowerCase() === lowered);
-}
-
-function hostAddressUnique(address, skipId = null) {
-  const lowered = address.trim().toLowerCase();
-  return !!lowered && !state.hosts.some(host => host.id !== skipId && host.address.toLowerCase() === lowered);
-}
-
-function openHostForm(hostId = null) {
-  if (hostId) {
-    const host = state.hosts.find(item => item.id === hostId);
-    if (!canEditHost(host)) return showToast('Редактировать хост может создатель или MARS admin');
-    editingHostId = hostId;
-  } else {
-    if (!canMonitor()) return showToast('Нет разрешения на постановку на мониторинг');
-    editingHostId = null;
-  }
-
-  const host = hostId ? state.hosts.find(item => item.id === hostId) : {
-    name: '', addressType: 'ip', address: '', proxyGroup: state.proxyGroups[0].id
-  };
-
-  openModal(
-    hostId ? 'Редактирование хоста' : 'Создание хоста',
-    hostId ? 'Можно изменить имя, тип адреса, IP/FQDN и группу прокси' : 'Хосты уникальны и видны всем пользователям MARS',
-    `
-      <div class="form-group">
-        <label class="form-label">Имя хоста *</label>
-        <input id="host-name" class="wide mono" value="${escapeHtml(host.name)}" oninput="checkHostForm()">
-        <div id="host-name-hint" class="hint"></div>
-      </div>
-      <div class="row">
-        <div class="form-group">
-          <label class="form-label">Тип адреса *</label>
-          <select id="host-address-type" class="wide" onchange="checkHostForm()">
-            <option value="ip" ${host.addressType === 'ip' ? 'selected' : ''}>🌐 IP-адрес</option>
-            <option value="fqdn" ${host.addressType === 'fqdn' ? 'selected' : ''}>🔗 FQDN</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">IP/FQDN хоста *</label>
-          <input id="host-address" class="wide mono" value="${escapeHtml(host.address)}" oninput="checkHostForm()" placeholder="10.0.1.50 или server.example.com">
-          <div id="host-address-hint" class="hint"></div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Группа прокси *</label>
-        <select id="host-proxy-group" class="wide" onchange="checkHostForm()">
-          ${state.proxyGroups.map(group => `<option value="${group.id}" ${host.proxyGroup === group.id ? 'selected' : ''}>${escapeHtml(group.name)}</option>`).join('')}
+        <select id="host-source-filter" onchange="renderHostsSection()">
+          ${selectOption('all','Все источники', document.getElementById('host-source-filter')?.value || 'all')}
+          ${selectOption('manual','Ручные', document.getElementById('host-source-filter')?.value || 'all')}
+          ${selectOption('catalog','Справочные', document.getElementById('host-source-filter')?.value || 'all')}
         </select>
-      </div>
-    `,
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="host-save-btn" onclick="saveHost()">${hostId ? 'Сохранить' : 'Создать хост'}</button></div>
-    `
-  );
-  checkHostForm();
-}
-
-function checkHostForm() {
-  const name = $('host-name')?.value.trim() || '';
-  const addressType = $('host-address-type')?.value || 'ip';
-  const address = $('host-address')?.value.trim() || '';
-  const nameHint = $('host-name-hint');
-  const addressHint = $('host-address-hint');
-  const saveButton = $('host-save-btn');
-
-  let nameOk = hostNameUnique(name, editingHostId);
-  let addressFormatOk = addressType === 'ip' ? validateIp(address) : validateFqdn(address);
-  let addressUniqueOk = hostAddressUnique(address, editingHostId);
-
-  if (nameHint) {
-    if (!name) {
-      nameHint.textContent = 'Имя обязательно';
-      nameHint.className = 'hint text-danger';
-    } else if (!/^[a-zA-Z0-9-]+$/.test(name)) {
-      nameHint.textContent = 'Только латиница, цифры и дефис';
-      nameHint.className = 'hint text-danger';
-      nameOk = false;
-    } else if (!nameOk) {
-      nameHint.textContent = 'Хост с таким именем уже существует';
-      nameHint.className = 'hint text-danger';
-    } else {
-      nameHint.textContent = 'Имя свободно';
-      nameHint.className = 'hint text-success';
-    }
-  }
-
-  if (addressHint) {
-    if (!address) {
-      addressHint.textContent = 'Адрес обязателен';
-      addressHint.className = 'hint text-danger';
-    } else if (!addressFormatOk) {
-      addressHint.textContent = addressType === 'ip' ? 'Некорректный IP-адрес' : 'Некорректный FQDN';
-      addressHint.className = 'hint text-danger';
-    } else if (!addressUniqueOk) {
-      addressHint.textContent = 'Хост с таким адресом уже существует';
-      addressHint.className = 'hint text-danger';
-    } else {
-      addressHint.textContent = 'Адрес корректен и свободен';
-      addressHint.className = 'hint text-success';
-    }
-  }
-
-  if (saveButton) {
-    saveButton.disabled = !(nameOk && addressFormatOk && addressUniqueOk && $('host-proxy-group')?.value);
-  }
-}
-
-function saveHost() {
-  const data = {
-    name: $('host-name').value.trim(),
-    addressType: $('host-address-type').value,
-    address: $('host-address').value.trim(),
-    proxyGroup: $('host-proxy-group').value
-  };
-
-  if (editingHostId) {
-    const host = state.hosts.find(item => item.id === editingHostId);
-    if (!canEditHost(host)) return showToast('Редактировать хост может создатель или MARS admin');
-    Object.assign(host, data);
-    showToast('Хост обновлён');
-  } else {
-    if (!canMonitor()) return showToast('Нет разрешения на постановку на мониторинг');
-    state.hosts.push({
-      id: makeId('host'),
-      ...data,
-      status: 'UP',
-      createdBy: state.currentUserId,
-      attachments: []
-    });
-    showToast('Хост создан');
-  }
-
-  saveState();
-  closeModal();
-  render();
-}
-
-function deleteHost(hostId) {
-  const host = state.hosts.find(item => item.id === hostId);
-  if (!canDeleteHost(host)) return showToast('Удалить хост может создатель или MARS admin');
-  confirmAction('Удаление хоста', `Удалить хост <b>${escapeHtml(host.name)}</b>? Все присоединённые сервисы будут отсоединены.`, () => {
-    state.hosts = state.hosts.filter(item => item.id !== hostId);
-    selectedHosts.delete(hostId);
-    if (expandedHostId === hostId) expandedHostId = null;
-    saveState();
-    render();
-    showToast('Хост удалён');
-  });
-}
-
-function deleteSelectedHosts() {
-  const ids = Array.from(selectedHosts);
-  if (!ids.length) return;
-  const denied = ids.some(id => !canDeleteHost(state.hosts.find(host => host.id === id)));
-  if (denied) return showToast('В выборе есть хосты, которые вы не можете удалить');
-
-  confirmAction('Массовое удаление хостов', `Удалить выбранные хосты: <b>${ids.length}</b>?`, () => {
-    state.hosts = state.hosts.filter(host => !selectedHosts.has(host.id));
-    selectedHosts.clear();
-    expandedHostId = null;
-    saveState();
-    render();
-    showToast('Хосты удалены');
-  });
-}
-
-function applyPortOverride(hostId, index) {
-  const host = state.hosts.find(item => item.id === hostId);
-  if (!host || !canMonitor()) return;
-  const value = Number($(`port-${hostId}-${index}`).value);
-  if (!value || value < 1 || value > 65535) return showToast('Некорректный порт');
-  const service = state.services.find(item => item.id === host.attachments[index].serviceId);
-  host.attachments[index].portOverride = value === service.port ? null : value;
-  saveState();
-  renderHosts();
-  showToast('Порт обновлён');
-}
-
-function resetPortOverride(hostId, index) {
-  const host = state.hosts.find(item => item.id === hostId);
-  if (!host || !canMonitor()) return;
-  host.attachments[index].portOverride = null;
-  saveState();
-  renderHosts();
-  showToast('Порт сброшен');
-}
-
-function detachService(hostId, index) {
-  const host = state.hosts.find(item => item.id === hostId);
-  if (!host || !canMonitor()) return;
-  const attachment = host.attachments[index];
-  const service = state.services.find(item => item.id === attachment.serviceId);
-  host.attachments.splice(index, 1);
-  saveState();
-  renderHosts();
-  showToast(`Сервис "${service?.name || '—'}" отсоединён`);
-}
-
-/* SERVICES */
-
-function renderServices() {
-  const services = state.services;
-  const content = `
-    <div class="panel">
-      <div class="panel-info"><b>Сервисы.</b> Сервис принадлежит группе. Создать, редактировать и удалить его может участник группы-владельца или MARS admin.</div>
-      <div class="panel-toolbar">
-        <div>
-          <input class="checkbox" type="checkbox" onchange="toggleAllServices(this.checked)" ${services.length && services.every(s => selectedServices.has(s.id)) ? 'checked' : ''}>
-          <span class="muted">Выбрано: <b>${selectedServices.size}</b> из <b>${services.length}</b></span>
-        </div>
-        <div class="card-actions">
-          <button class="btn-sm btn-danger" onclick="deleteSelectedServices()" ${selectedServices.size ? '' : 'disabled'}>🗑️ Удалить выбранные</button>
-        </div>
       </div>
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Сервисов</div><div class="stat-value">${services.length}</div></div>
-        <div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value">${services.reduce((sum, service) => sum + serviceUsageCount(service.id), 0)}</div></div>
-        <div class="stat-card"><div class="stat-label">С auth</div><div class="stat-value">${services.filter(service => hasAuth(service.auth)).length}</div></div>
-        <div class="stat-card"><div class="stat-label">HTTPS</div><div class="stat-value">${services.filter(service => service.protocol === 'https').length}</div></div>
+        <div class="stat-card"><div class="stat-label">Всего хостов</div><div class="stat-value">${state.hosts.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Справочные</div><div class="stat-value">${state.hosts.filter(h => h.sourceType === 'catalog').length}</div></div>
+        <div class="stat-card"><div class="stat-label">Ручные</div><div class="stat-value">${state.hosts.filter(h => h.sourceType !== 'catalog').length}</div></div>
+        <div class="stat-card"><div class="stat-label">Attachment'ов</div><div class="stat-value">${state.hosts.reduce((sum,h) => sum + h.attachments.length, 0)}</div></div>
       </div>
-      <div class="panel-content">${services.length ? services.map(serviceCardHtml).join('') : '<div class="empty">Нет сервисов</div>'}</div>
-    </div>
-  `;
-
-  page('services', '🔌 Библиотека сервисов', 'Настрой один раз — применяй везде', `<button onclick="openServiceForm()">➕ Создать сервис</button>`, content);
+      <div class="panel-content" id="hosts-list">${renderHostCards(filtered)}</div>
+      <div class="panel-footer">💡 <strong>Manual</strong> — MARS владеет полями. <strong>Catalog</strong> — CMDB владеет полями и обновляет их при синхронизации. <strong>Prefill</strong> — справочник используется только как подсказка для разового заполнения.</div>
+    </div>`;
 }
-
-function serviceCardHtml(service) {
-  const selected = selectedServices.has(service.id);
-  return `
-    <div class="card ${selected ? 'selected' : ''}">
-      <div class="card-main">
-        <input class="checkbox" type="checkbox" onchange="toggleService('${service.id}')" ${selected ? 'checked' : ''}>
-        <span class="icon">${service.icon}</span>
-        <div>
-          <div class="card-title">${escapeHtml(service.name)} <span class="badge badge-blue">Сервис</span></div>
-          ${serviceMeta(service, true)}
-          ${collectionsHtml(service.id)}
-          <div class="pills">
-            <span class="badge">Создал: ${escapeHtml(userName(service.createdBy))}</span>
-            <span class="badge">Используется: ${serviceUsageCount(service.id)} хостов</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-xs btn-outline" onclick="openServiceForm('${service.id}')" ${canManageService(service) ? '' : 'disabled'}>✏️ Редактировать</button>
-        <button class="btn-xs btn-outline" onclick="openCloneServiceModal('${service.id}')" ${canManageService(service) ? '' : 'disabled'}>⧉ Клонировать</button>
-        <button class="btn-xs btn-purple" onclick="openTemplateFromServiceModal('${service.id}')" ${canManageService(service) ? '' : 'disabled'}>🧩 Создать шаблон</button>
-        <button class="btn-xs btn-danger" onclick="deleteService('${service.id}')" ${canManageService(service) ? '' : 'disabled'}>🗑️ Удалить</button>
-      </div>
-    </div>
-  `;
-}
-
-function serviceUsageCount(serviceId) {
-  return state.hosts.reduce((count, host) => count + host.attachments.filter(attachment => attachment.serviceId === serviceId).length, 0);
-}
-
-function toggleService(id) {
-  selectedServices.has(id) ? selectedServices.delete(id) : selectedServices.add(id);
-  renderServices();
-}
-
-function toggleAllServices(checked) {
-  state.services.forEach(service => checked ? selectedServices.add(service.id) : selectedServices.delete(service.id));
-  renderServices();
-}
-
-function serviceNameUnique(name, skipId = null) {
-  const lowered = name.trim().toLowerCase();
-  return !!lowered && !state.services.some(service => service.id !== skipId && service.name.toLowerCase() === lowered);
-}
-
-function templateNameUnique(name, skipId = null) {
-  const lowered = name.trim().toLowerCase();
-  return !!lowered && !state.serviceTemplates.some(template => template.id !== skipId && template.name.toLowerCase() === lowered);
-}
-
-function groupOptions(selectedGroupId) {
-  return state.groups.map(group => `
-    <option value="${group.id}" ${selectedGroupId === group.id ? 'selected' : ''} ${canManageGroup(group.id) ? '' : 'disabled'}>
-      ${escapeHtml(group.name)}${canManageGroup(group.id) ? '' : ' · нет доступа'}
-    </option>
-  `).join('');
-}
-
-function serviceFormHtml(prefix, item = {}, includeAuth = true) {
-  const selectedGroupId = item.groupId || currentUser().groups[0] || state.groups[0].id;
-  return `
-    <div class="row">
-      <div class="form-group">
-        <label class="form-label">Название *</label>
-        <input id="${prefix}-name" class="wide" value="${escapeHtml(item.name || '')}" oninput="checkServiceForm('${prefix}', ${includeAuth})">
-        <div id="${prefix}-name-hint" class="hint"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Группа-владелец *</label>
-        <select id="${prefix}-group" class="wide" onchange="checkServiceForm('${prefix}', ${includeAuth})">
-          ${groupOptions(selectedGroupId)}
-        </select>
-      </div>
-    </div>
-
-    <div class="row3">
-      <div class="form-group">
-        <label class="form-label">Тип *</label>
-        <select id="${prefix}-type" class="wide" onchange="updateTypeUi('${prefix}'); checkServiceForm('${prefix}', ${includeAuth})">
-          ${['ExporterScrape', 'SQL', 'BlackBox'].map(type => `<option value="${type}" ${item.type === type ? 'selected' : ''}>${type}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Иконка</label>
-        <select id="${prefix}-icon" class="wide">
-          ${['🌐', '🐘', '🔴', '📊', '🐰', '🔒', '🧩'].map(icon => `<option value="${icon}" ${item.icon === icon ? 'selected' : ''}>${icon}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Порт *</label>
-        <input id="${prefix}-port" type="number" min="1" max="65535" class="wide" value="${item.port || 80}" oninput="checkServiceForm('${prefix}', ${includeAuth})">
-      </div>
-    </div>
-
-    <div class="form-group">
-      <label class="form-label">Путь к метрикам</label>
-      <input id="${prefix}-metrics" class="wide mono" value="${escapeHtml(item.metrics || '/metrics')}">
-    </div>
-
-    <div class="box" id="${prefix}-protocol-box">
-      <div class="form-group">
-        <label class="form-label">Протокол сбора</label>
-        <select id="${prefix}-protocol" class="wide" onchange="updateTypeUi('${prefix}')">
-          <option value="http" ${(item.protocol || 'http') === 'http' ? 'selected' : ''}>HTTP</option>
-          <option value="https" ${item.protocol === 'https' ? 'selected' : ''}>HTTPS</option>
-        </select>
-        <div class="hint">Настройка доступна для типа ExporterScrape.</div>
-      </div>
-
-      <div id="${prefix}-tls-box">
-        <div class="form-group">
-          <label class="form-label">Клиентский сертификат как строка</label>
-          <textarea id="${prefix}-client-cert" class="wide mono" rows="6" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----">${escapeHtml(item.tls?.clientCert || '')}</textarea>
-          <div class="hint">Это текстовое поле показывается только для HTTPS. Для HTTP оно скрыто.</div>
-        </div>
-        <label>
-          <input id="${prefix}-skip-server-verify" class="checkbox" type="checkbox" ${item.tls?.skipServerVerify ? 'checked' : ''}>
-          Пропустить проверку серверного сертификата
-        </label>
-      </div>
-    </div>
-
-    ${includeAuth ? `
-      <div class="box">
-        <div class="form-group">
-          <label class="form-label">Авторизация</label>
-          <select id="${prefix}-auth-mode" class="wide" onchange="updateAuthUi('${prefix}')">
-            <option value="none">Без авторизации</option>
-            <option value="basic">Basic Auth</option>
-            <option value="bearer">Bearer Token</option>
-          </select>
-        </div>
-        <div class="row" id="${prefix}-basic-auth">
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input id="${prefix}-auth-username" class="wide" value="${escapeHtml(item.auth?.username || '')}">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input id="${prefix}-auth-password" type="password" class="wide" value="${escapeHtml(item.auth?.password || '')}">
-          </div>
-        </div>
-        <div class="form-group" id="${prefix}-bearer-auth">
-          <label class="form-label">Token</label>
-          <input id="${prefix}-auth-token" type="password" class="wide" value="${escapeHtml(item.auth?.token || '')}">
-        </div>
-      </div>
-    ` : ''}
-  `;
-}
-
-function fillAuthMode(prefix, item) {
-  const modeSelect = $(`${prefix}-auth-mode`);
-  if (!modeSelect) return;
-  modeSelect.value = normalizeAuth(item.auth).mode;
-  updateAuthUi(prefix);
-}
-
-function updateTypeUi(prefix) {
-  const type = $(`${prefix}-type`)?.value;
-  const protocolBox = $(`${prefix}-protocol-box`);
-  const tlsBox = $(`${prefix}-tls-box`);
-  const protocol = $(`${prefix}-protocol`)?.value || 'http';
-
-  if (protocolBox) protocolBox.style.display = type === 'ExporterScrape' ? 'block' : 'none';
-  if (tlsBox) tlsBox.style.display = type === 'ExporterScrape' && protocol === 'https' ? 'block' : 'none';
-}
-
-function updateAuthUi(prefix) {
-  const mode = $(`${prefix}-auth-mode`)?.value || 'none';
-  const basic = $(`${prefix}-basic-auth`);
-  const bearer = $(`${prefix}-bearer-auth`);
-  if (basic) basic.style.display = mode === 'basic' ? 'grid' : 'none';
-  if (bearer) bearer.style.display = mode === 'bearer' ? 'block' : 'none';
-}
-
-function collectServiceForm(prefix, includeAuth = true) {
-  const type = $(`${prefix}-type`).value;
-  const protocol = type === 'ExporterScrape' ? $(`${prefix}-protocol`).value : null;
-  const tls = type === 'ExporterScrape' && protocol === 'https'
-    ? {
-      clientCert: $(`${prefix}-client-cert`)?.value || '',
-      skipServerVerify: !!$(`${prefix}-skip-server-verify`)?.checked
-    }
-    : null;
-
-  let auth = { mode: 'none' };
-  if (includeAuth && $(`${prefix}-auth-mode`)) {
-    const mode = $(`${prefix}-auth-mode`).value;
-    if (mode === 'basic') {
-      auth = {
-        mode: 'basic',
-        username: $(`${prefix}-auth-username`).value,
-        password: $(`${prefix}-auth-password`).value
-      };
-    } else if (mode === 'bearer') {
-      auth = {
-        mode: 'bearer',
-        token: $(`${prefix}-auth-token`).value
-      };
-    }
-  }
-
-  return {
-    name: $(`${prefix}-name`).value.trim(),
-    groupId: $(`${prefix}-group`).value,
-    type,
-    icon: $(`${prefix}-icon`).value,
-    port: Number($(`${prefix}-port`).value),
-    metrics: $(`${prefix}-metrics`).value.trim() || '/metrics',
-    protocol,
-    tls,
-    ...(includeAuth ? { auth } : {})
-  };
-}
-
-function checkServiceForm(prefix, includeAuth = true, skipId = null, isTemplate = false) {
-  const name = $(`${prefix}-name`)?.value.trim() || '';
-  const groupId = $(`${prefix}-group`)?.value;
-  const port = Number($(`${prefix}-port`)?.value);
-  const nameHint = $(`${prefix}-name-hint`);
-  const saveButton = $(`${prefix}-save-button`);
-
-  const unique = isTemplate ? templateNameUnique(name, skipId) : serviceNameUnique(name, skipId);
-  const validName = !!name && unique;
-  const validPort = port >= 1 && port <= 65535;
-  const validGroup = !!groupId && canManageGroup(groupId);
-
-  if (nameHint) {
-    if (!name) {
-      nameHint.textContent = 'Название обязательно';
-      nameHint.className = 'hint text-danger';
-    } else if (!unique) {
-      nameHint.textContent = isTemplate ? 'Шаблон с таким именем уже существует' : 'Сервис с таким именем уже существует';
-      nameHint.className = 'hint text-danger';
-    } else {
-      nameHint.textContent = 'Название свободно';
-      nameHint.className = 'hint text-success';
-    }
-  }
-
-  if (saveButton) saveButton.disabled = !(validName && validPort && validGroup);
-}
-
-function openServiceForm(serviceId = null) {
-  const service = serviceId ? state.services.find(item => item.id === serviceId) : null;
-  if (service && !canManageService(service)) return showToast('Нет прав на сервис');
-
-  editingServiceId = serviceId;
-  const draft = service || {
-    name: '',
-    type: 'ExporterScrape',
-    icon: '🌐',
-    port: 80,
-    metrics: '/metrics',
-    groupId: currentUser().groups[0] || state.groups[0].id,
-    auth: { mode: 'none' },
-    protocol: 'http',
-    tls: null
-  };
-
-  openModal(
-    serviceId ? 'Редактирование сервиса' : 'Создание сервиса',
-    serviceId ? 'Измените параметры сервиса' : 'Настрой один раз — применяй везде',
-    serviceFormHtml('service', draft, true),
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="service-save-button" onclick="saveService()">${serviceId ? 'Сохранить' : 'Создать сервис'}</button></div>
-    `
-  );
-
-  fillAuthMode('service', draft);
-  updateTypeUi('service');
-  checkServiceForm('service', true, serviceId, false);
-}
-
-function saveService() {
-  const data = collectServiceForm('service', true);
-  if (!data.name || !canManageGroup(data.groupId)) return showToast('Нет прав на группу или пустое название');
-
-  if (editingServiceId) {
-    const service = state.services.find(item => item.id === editingServiceId);
-    if (!canManageService(service)) return showToast('Нет прав на сервис');
-    Object.assign(service, data);
-    showToast('Сервис обновлён');
-  } else {
-    state.services.push({
-      id: makeId('svc'),
-      ...data,
-      createdBy: state.currentUserId
-    });
-    showToast('Сервис создан');
-  }
-
-  saveState();
-  closeModal();
-  render();
-}
-
-function deleteService(serviceId) {
-  const service = state.services.find(item => item.id === serviceId);
-  if (!canManageService(service)) return showToast('Нет прав на сервис');
-
-  confirmAction('Удаление сервиса', `Удалить сервис <b>${escapeHtml(service.name)}</b>? Он будет удалён из коллекций и отсоединён от хостов.`, () => {
-    removeService(serviceId);
-    saveState();
-    render();
-    showToast('Сервис удалён');
+function getFilteredHosts() {
+  const search = (document.getElementById('host-search')?.value || '').toLowerCase();
+  const proxy = document.getElementById('host-proxy-filter')?.value || 'all';
+  const source = document.getElementById('host-source-filter')?.value || 'all';
+  return state.hosts.filter(h => {
+    const matchText = h.name.toLowerCase().includes(search) || h.address.toLowerCase().includes(search) || h.proxyGroup.toLowerCase().includes(search);
+    const matchProxy = proxy === 'all' || h.proxyGroup === proxy;
+    const matchSource = source === 'all' || h.sourceType === source;
+    return matchText && matchProxy && matchSource;
   });
 }
-
-function removeService(serviceId) {
-  state.services = state.services.filter(service => service.id !== serviceId);
-  state.collections.forEach(collection => {
-    collection.serviceIds = collection.serviceIds.filter(id => id !== serviceId);
-  });
-  state.hosts.forEach(host => {
-    host.attachments = host.attachments.filter(attachment => attachment.serviceId !== serviceId);
-  });
-  selectedServices.delete(serviceId);
-}
-
-function deleteSelectedServices() {
-  const ids = Array.from(selectedServices);
-  if (!ids.length) return;
-  const denied = ids.some(id => !canManageService(state.services.find(service => service.id === id)));
-  if (denied) return showToast('В выборе есть сервисы без прав удаления');
-
-  confirmAction('Массовое удаление сервисов', `Удалить выбранные сервисы: <b>${ids.length}</b>?`, () => {
-    ids.forEach(removeService);
-    saveState();
-    render();
-    showToast('Сервисы удалены');
-  });
-}
-
-function openCloneServiceModal(serviceId) {
-  const service = state.services.find(item => item.id === serviceId);
-  if (!canManageService(service)) return showToast('Нет прав на сервис');
-
-  openModal(
-    'Клонирование сервиса',
-    service.name,
-    `
-      <div class="form-group">
-        <label class="form-label">Имя нового сервиса *</label>
-        <input id="clone-service-name" class="wide" value="${escapeHtml(`Копия ${service.name}`)}" oninput="checkCloneName()">
-        <div id="clone-service-name-hint" class="hint"></div>
-      </div>
-      <div class="box">
-        <b>Исходный сервис</b>
-        ${serviceMeta(service, true)}
-        ${collectionsHtml(service.id)}
-      </div>
-    `,
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="clone-service-button" onclick="saveClonedService('${serviceId}')">Клонировать</button></div>
-    `,
-    true
-  );
-  checkCloneName();
-}
-
-function checkCloneName() {
-  const name = $('clone-service-name')?.value.trim() || '';
-  const hint = $('clone-service-name-hint');
-  const button = $('clone-service-button');
-  const unique = serviceNameUnique(name);
-  if (hint) {
-    hint.textContent = !name ? 'Имя обязательно' : (unique ? 'Имя свободно' : 'Сервис с таким именем уже существует');
-    hint.className = `hint ${name && unique ? 'text-success' : 'text-danger'}`;
-  }
-  if (button) button.disabled = !(name && unique);
-}
-
-function saveClonedService(serviceId) {
-  const service = state.services.find(item => item.id === serviceId);
-  const name = $('clone-service-name').value.trim();
-  if (!service || !name || !serviceNameUnique(name)) return;
-  if (!canManageService(service)) return showToast('Нет прав на сервис');
-
-  state.services.push({
-    ...JSON.parse(JSON.stringify(service)),
-    id: makeId('svc'),
-    name,
-    createdBy: state.currentUserId
-  });
-  saveState();
-  closeModal();
-  render();
-  showToast('Сервис склонирован');
-}
-
-function openTemplateFromServiceModal(serviceId) {
-  const service = state.services.find(item => item.id === serviceId);
-  if (!canManageService(service)) return showToast('Нет прав на сервис');
-
-  openModal(
-    'Создание шаблона сервиса',
-    service.name,
-    `
-      <div class="form-group">
-        <label class="form-label">Название шаблона *</label>
-        <input id="template-from-service-name" class="wide" value="${escapeHtml(`Шаблон "${service.name}"`)}" oninput="checkTemplateFromServiceName()">
-        <div id="template-from-service-name-hint" class="hint"></div>
-      </div>
-      <div class="box box-purple">
-        <b>Шаблон скопирует:</b>
-        <div class="hint">тип, порт, путь метрик, группу-владельца, HTTP/HTTPS и TLS-настройки. Авторизация в шаблон не переносится.</div>
-        ${serviceMeta(service, false)}
-      </div>
-    `,
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="template-from-service-button" class="btn-purple" onclick="saveTemplateFromService('${serviceId}')">🧩 Создать шаблон</button></div>
-    `,
-    true
-  );
-  checkTemplateFromServiceName();
-}
-
-function checkTemplateFromServiceName() {
-  const name = $('template-from-service-name')?.value.trim() || '';
-  const hint = $('template-from-service-name-hint');
-  const button = $('template-from-service-button');
-  const unique = templateNameUnique(name);
-  if (hint) {
-    hint.textContent = !name ? 'Название обязательно' : (unique ? 'Имя шаблона свободно' : 'Шаблон с таким именем уже существует');
-    hint.className = `hint ${name && unique ? 'text-success' : 'text-danger'}`;
-  }
-  if (button) button.disabled = !(name && unique);
-}
-
-function saveTemplateFromService(serviceId) {
-  const service = state.services.find(item => item.id === serviceId);
-  const name = $('template-from-service-name').value.trim();
-  if (!service || !name || !templateNameUnique(name)) return;
-  if (!canManageService(service)) return showToast('Нет прав на сервис');
-
-  state.serviceTemplates.push({
-    id: makeId('tpl'),
-    name,
-    type: service.type,
-    icon: service.icon,
-    port: service.port,
-    metrics: service.metrics,
-    groupId: service.groupId,
-    createdBy: state.currentUserId,
-    protocol: service.protocol,
-    tls: service.tls ? JSON.parse(JSON.stringify(service.tls)) : null
-  });
-
-  saveState();
-  closeModal();
-  render();
-  showToast('Шаблон создан');
-}
-
-/* TEMPLATES */
-
-function renderTemplates() {
-  const templates = state.serviceTemplates;
-  const content = `
-    <div class="panel">
-      <div class="panel-info"><b>Шаблоны сервисов.</b> Заготовки типа, порта, метрик и TLS-настроек. В шаблонах нет аутентификации.</div>
-      <div class="panel-toolbar">
-        <div>
-          <input class="checkbox" type="checkbox" onchange="toggleAllTemplates(this.checked)" ${templates.length && templates.every(t => selectedTemplates.has(t.id)) ? 'checked' : ''}>
-          <span class="muted">Выбрано: <b>${selectedTemplates.size}</b> из <b>${templates.length}</b></span>
-        </div>
-        <button class="btn-sm btn-danger" onclick="deleteSelectedTemplates()" ${selectedTemplates.size ? '' : 'disabled'}>🗑️ Удалить выбранные</button>
-      </div>
-      <div class="stats-grid three">
-        <div class="stat-card"><div class="stat-label">Шаблонов</div><div class="stat-value">${templates.length}</div></div>
-        <div class="stat-card"><div class="stat-label">HTTPS</div><div class="stat-value">${templates.filter(template => template.protocol === 'https').length}</div></div>
-        <div class="stat-card"><div class="stat-label">Групп</div><div class="stat-value">${new Set(templates.map(template => template.groupId)).size}</div></div>
-      </div>
-      <div class="panel-content">${templates.length ? templates.map(templateCardHtml).join('') : '<div class="empty">Нет шаблонов</div>'}</div>
-    </div>
-  `;
-
-  page('templates', '🧩 Шаблоны сервисов', 'Клик по шаблону создаёт сервис на его основе', '', content);
-}
-
-function templateCardHtml(template) {
-  const selected = selectedTemplates.has(template.id);
-  return `
-    <div class="card clickable ${selected ? 'selected' : ''}" onclick="openCreateServiceFromTemplateModal('${template.id}')">
-      <div class="card-main">
-        <input class="checkbox" type="checkbox" onclick="event.stopPropagation()" onchange="toggleTemplate('${template.id}')" ${selected ? 'checked' : ''}>
-        <span class="icon">${template.icon}</span>
-        <div>
-          <div class="card-title">${escapeHtml(template.name)} <span class="badge badge-purple">Шаблон</span></div>
-          ${serviceMeta(template, false)}
-          <div class="pills">
-            <span class="badge">Создал: ${escapeHtml(userName(template.createdBy))}</span>
-            <span class="badge badge-blue">Нажмите, чтобы создать сервис</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-actions" onclick="event.stopPropagation()">
-        <button class="btn-xs btn-outline" onclick="openTemplateForm('${template.id}')" ${canManageService(template) ? '' : 'disabled'}>✏️ Редактировать</button>
-        <button class="btn-xs btn-danger" onclick="deleteTemplate('${template.id}')" ${canManageService(template) ? '' : 'disabled'}>🗑️ Удалить</button>
-      </div>
-    </div>
-  `;
-}
-
-function toggleTemplate(id) {
-  selectedTemplates.has(id) ? selectedTemplates.delete(id) : selectedTemplates.add(id);
-  renderTemplates();
-}
-
-function toggleAllTemplates(checked) {
-  state.serviceTemplates.forEach(template => checked ? selectedTemplates.add(template.id) : selectedTemplates.delete(template.id));
-  renderTemplates();
-}
-
-function openTemplateForm(templateId) {
-  const template = state.serviceTemplates.find(item => item.id === templateId);
-  if (!canManageService(template)) return showToast('Нет прав на шаблон');
-
-  editingTemplateId = templateId;
-
-  openModal(
-    'Редактирование шаблона сервиса',
-    'В шаблоне нет параметров аутентификации',
-    serviceFormHtml('template', template, false),
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="template-save-button" onclick="saveTemplate()">Сохранить шаблон</button></div>
-    `
-  );
-
-  updateTypeUi('template');
-  checkServiceForm('template', false, templateId, true);
-}
-
-function saveTemplate() {
-  const data = collectServiceForm('template', false);
-  const template = state.serviceTemplates.find(item => item.id === editingTemplateId);
-  if (!template || !canManageService(template)) return showToast('Нет прав на шаблон');
-  if (!templateNameUnique(data.name, editingTemplateId)) return showToast('Шаблон с таким именем уже существует');
-
-  Object.assign(template, data);
-  saveState();
-  closeModal();
-  render();
-  showToast('Шаблон обновлён');
-}
-
-function deleteTemplate(templateId) {
-  const template = state.serviceTemplates.find(item => item.id === templateId);
-  if (!canManageService(template)) return showToast('Нет прав на шаблон');
-
-  confirmAction('Удаление шаблона', `Удалить шаблон <b>${escapeHtml(template.name)}</b>?`, () => {
-    state.serviceTemplates = state.serviceTemplates.filter(item => item.id !== templateId);
-    selectedTemplates.delete(templateId);
-    saveState();
-    render();
-    showToast('Шаблон удалён');
-  });
-}
-
-function deleteSelectedTemplates() {
-  const ids = Array.from(selectedTemplates);
-  if (!ids.length) return;
-  const denied = ids.some(id => !canManageService(state.serviceTemplates.find(template => template.id === id)));
-  if (denied) return showToast('В выборе есть шаблоны без прав удаления');
-
-  confirmAction('Массовое удаление шаблонов', `Удалить выбранные шаблоны: <b>${ids.length}</b>?`, () => {
-    state.serviceTemplates = state.serviceTemplates.filter(template => !selectedTemplates.has(template.id));
-    selectedTemplates.clear();
-    saveState();
-    render();
-    showToast('Шаблоны удалены');
-  });
-}
-
-function openCreateServiceFromTemplateModal(templateId) {
-  const template = state.serviceTemplates.find(item => item.id === templateId);
-  const defaultName = template.name.replace(/^Шаблон\s*/i, '').replace(/^"|"$/g, '');
-
-  openModal(
-    'Создание сервиса из шаблона',
-    template.name,
-    `
-      <div class="form-group">
-        <label class="form-label">Имя нового сервиса *</label>
-        <input id="service-from-template-name" class="wide" value="${escapeHtml(defaultName)}" oninput="checkServiceFromTemplateName()">
-        <div id="service-from-template-name-hint" class="hint"></div>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Группа-владелец *</label>
-        <select id="service-from-template-group" class="wide" onchange="checkServiceFromTemplateName()">
-          ${groupOptions(currentUser().groups[0] || template.groupId)}
-        </select>
-      </div>
-      <div class="box">
-        <b>Предпросмотр конфигурации</b>
-        ${serviceMeta(template, false)}
-        <div class="hint">Сервис будет создан без авторизации. Её можно настроить после создания в разделе «Сервисы».</div>
-      </div>
-    `,
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="service-from-template-button" onclick="saveServiceFromTemplate('${templateId}')">Создать сервис</button></div>
-    `,
-    true
-  );
-  checkServiceFromTemplateName();
-}
-
-function checkServiceFromTemplateName() {
-  const name = $('service-from-template-name')?.value.trim() || '';
-  const groupId = $('service-from-template-group')?.value;
-  const hint = $('service-from-template-name-hint');
-  const button = $('service-from-template-button');
-  const unique = serviceNameUnique(name);
-  const groupOk = canManageGroup(groupId);
-  if (hint) {
-    if (!name) {
-      hint.textContent = 'Имя обязательно';
-      hint.className = 'hint text-danger';
-    } else if (!unique) {
-      hint.textContent = 'Сервис с таким именем уже существует';
-      hint.className = 'hint text-danger';
-    } else if (!groupOk) {
-      hint.textContent = 'Нет прав на выбранную группу';
-      hint.className = 'hint text-danger';
-    } else {
-      hint.textContent = 'Имя свободно';
-      hint.className = 'hint text-success';
-    }
-  }
-  if (button) button.disabled = !(name && unique && groupOk);
-}
-
-function saveServiceFromTemplate(templateId) {
-  const template = state.serviceTemplates.find(item => item.id === templateId);
-  const name = $('service-from-template-name').value.trim();
-  const groupId = $('service-from-template-group').value;
-  if (!template || !name || !serviceNameUnique(name) || !canManageGroup(groupId)) return;
-
-  state.services.push({
-    id: makeId('svc'),
-    name,
-    type: template.type,
-    icon: template.icon,
-    port: template.port,
-    metrics: template.metrics,
-    groupId,
-    createdBy: state.currentUserId,
-    protocol: template.protocol,
-    tls: template.tls ? JSON.parse(JSON.stringify(template.tls)) : null,
-    auth: { mode: 'none' }
-  });
-
-  saveState();
-  closeModal();
-  render();
-  showToast('Сервис создан из шаблона');
-}
-
-/* COLLECTIONS */
-
-function renderCollections() {
-  const collections = state.collections;
-  const content = `
-    <div class="panel">
-      <div class="panel-info"><b>Коллекции.</b> Наборы сервисов для пакетного присоединения.</div>
-      <div class="stats-grid three">
-        <div class="stat-card"><div class="stat-label">Коллекций</div><div class="stat-value">${collections.length}</div></div>
-        <div class="stat-card"><div class="stat-label">Используется</div><div class="stat-value">${collections.reduce((sum, c) => sum + (c.usedBy || 0), 0)}</div></div>
-        <div class="stat-card"><div class="stat-label">Среднее сервисов</div><div class="stat-value">${collections.length ? (collections.reduce((sum, c) => sum + c.serviceIds.length, 0) / collections.length).toFixed(1) : 0}</div></div>
-      </div>
-      <div class="panel-content">${collections.length ? collections.map(collectionCardHtml).join('') : '<div class="empty">Нет коллекций</div>'}</div>
-    </div>
-  `;
-
-  page('collections', '📦 Библиотека коллекций', 'Группы сервисов для пакетного присоединения', `<button onclick="openCollectionForm()">➕ Создать коллекцию</button>`, content);
-}
-
-function collectionCardHtml(collection) {
-  const services = collection.serviceIds.map(id => state.services.find(service => service.id === id)).filter(Boolean);
-  return `
-    <div class="card">
-      <div class="card-main">
-        <span class="icon">📦</span>
-        <div>
-          <div class="card-title">${escapeHtml(collection.name)} <span class="badge badge-blue">${services.length} сервисов</span></div>
-          <div class="card-meta">${escapeHtml(collection.description || '')}</div>
-          <div class="collections-line">
-            <span class="collections-label">Сервисы:</span>
-            ${services.length ? services.map(service => `<span class="badge">${service.icon} ${escapeHtml(service.name)}</span>`).join('') : '<span class="badge">—</span>'}
-          </div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-xs btn-danger" onclick="deleteCollection('${collection.id}')">🗑️ Удалить</button>
-      </div>
-    </div>
-  `;
-}
-
-function openCollectionForm() {
-  collectionDraft = { name: '', description: '', serviceIds: [] };
-  renderCollectionForm();
-}
-
-function renderCollectionForm() {
-  openModal(
-    'Создание коллекции',
-    'Выберите сервисы из библиотеки',
-    `
-      <div class="form-group">
-        <label class="form-label">Название *</label>
-        <input id="collection-name" class="wide" value="${escapeHtml(collectionDraft.name)}" oninput="collectionDraft.name=this.value; checkCollectionForm()">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Описание</label>
-        <textarea id="collection-description" class="wide" rows="2" oninput="collectionDraft.description=this.value">${escapeHtml(collectionDraft.description)}</textarea>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Состав коллекции</label>
-        <div class="box" id="collection-picked-services"></div>
-        <button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button>
-      </div>
-    `,
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button id="collection-save-button" onclick="saveCollection()">Сохранить</button></div>
-    `
-  );
-  renderPickedServices();
-  checkCollectionForm();
-}
-
-function renderPickedServices() {
-  const container = $('collection-picked-services');
-  if (!container) return;
-
-  const services = collectionDraft.serviceIds.map(id => state.services.find(service => service.id === id)).filter(Boolean);
-  container.innerHTML = services.length
-    ? services.map(service => `
-      <div class="card">
+function renderHostCards(hosts) {
+  if (!hosts.length) return '<div class="empty">Хосты не найдены</div>';
+  return hosts.map(host => {
+    const selected = selectedHostIds.has(host.id);
+    const expanded = expandedHostId === host.id;
+    const lock = hostLockReason(host);
+    const createdBy = userById(host.createdBy);
+    const ownerGroups = [...new Set(host.attachments.map(a => groupById(a.ownerGroupId)?.name).filter(Boolean))];
+    const hid = jsArg(host.id);
+    return `<div class="card host-card ${selected ? 'selected' : ''}">
+      <div class="host-card-top">
         <div class="card-main">
-          <span class="icon">${service.icon}</span>
+          <input class="checkbox" type="checkbox" ${selected ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleHostSelection(${hid})">
+          <span class="icon">🖥️</span>
           <div>
-            <div class="card-title">${escapeHtml(service.name)}</div>
-            ${serviceMeta(service, true)}
-            ${collectionsHtml(service.id)}
+            <div class="card-title">${esc(host.name)}</div>
+            <div class="card-meta"><span class="mono">${addressBadge(host)}${esc(host.address)}</span> · Группа прокси: <strong>${esc(host.proxyGroup)}</strong></div>
+            <div class="pills">
+              ${sourceBadge(host)}
+              <span class="badge ${host.status === 'UP' ? 'badge-green' : 'badge-amber'}">${host.status === 'UP' ? '🟢 UP' : '🟡 WARN'}</span>
+              <span class="badge">${host.attachments.length} сервисов</span>
+              ${lock ? '<span class="badge badge-red">🔒 критичные поля заблокированы</span>' : '<span class="badge badge-green">🔓 можно редактировать</span>'}
+            </div>
+            <div class="card-meta">Создал: ${esc(createdBy?.name || '—')} · Группы attachment'ов: ${ownerGroups.length ? esc(ownerGroups.join(', ')) : '—'}</div>
           </div>
         </div>
-        <button class="btn-xs btn-danger" onclick="removeServiceFromCollectionDraft('${service.id}')">✕</button>
-      </div>
-    `).join('')
-    : '<div class="muted">Коллекция пуста</div>';
-}
-
-function openServicePickerForCollection() {
-  collectionDraft.name = $('collection-name')?.value || collectionDraft.name;
-  collectionDraft.description = $('collection-description')?.value || collectionDraft.description;
-
-  openModal(
-    'Выберите сервис',
-    'Добавление в коллекцию',
-    `
-      <div class="form-group">
-        <input id="service-picker-search" class="wide" placeholder="Поиск..." oninput="renderServicePickerList()">
-      </div>
-      <div id="service-picker-list"></div>
-    `,
-    `<button class="btn-outline" onclick="renderCollectionForm()">Назад</button>`
-  );
-
-  renderServicePickerList();
-}
-
-function renderServicePickerList() {
-  const search = ($('service-picker-search')?.value || '').toLowerCase();
-  const services = state.services.filter(service => service.name.toLowerCase().includes(search));
-  $('service-picker-list').innerHTML = services.map(service => {
-    const added = collectionDraft.serviceIds.includes(service.id);
-    return `
-      <div class="card clickable ${added ? 'selected' : ''}" onclick="${added ? '' : `addServiceToCollectionDraft('${service.id}')`}">
-        <div class="card-main">
-          <span class="icon">${service.icon}</span>
-          <div>
-            <div class="card-title">${escapeHtml(service.name)}</div>
-            ${serviceMeta(service, true)}
-            ${collectionsHtml(service.id)}
-          </div>
-        </div>
-        <span class="badge ${added ? 'badge-green' : 'badge-blue'}">${added ? '✓ Добавлен' : '➕ Добавить'}</span>
-      </div>
-    `;
-  }).join('') || '<div class="empty">Сервисы не найдены</div>';
-}
-
-function addServiceToCollectionDraft(serviceId) {
-  if (!collectionDraft.serviceIds.includes(serviceId)) collectionDraft.serviceIds.push(serviceId);
-  renderCollectionForm();
-}
-
-function removeServiceFromCollectionDraft(serviceId) {
-  collectionDraft.serviceIds = collectionDraft.serviceIds.filter(id => id !== serviceId);
-  renderPickedServices();
-  checkCollectionForm();
-}
-
-function checkCollectionForm() {
-  const name = $('collection-name')?.value.trim() || collectionDraft.name.trim();
-  const button = $('collection-save-button');
-  if (button) button.disabled = !(name && collectionDraft.serviceIds.length);
-}
-
-function saveCollection() {
-  const name = $('collection-name').value.trim();
-  const description = $('collection-description').value.trim();
-  if (!name || !collectionDraft.serviceIds.length) return showToast('Заполните название и добавьте сервисы');
-
-  state.collections.push({
-    id: makeId('col'),
-    name,
-    description,
-    serviceIds: [...collectionDraft.serviceIds],
-    createdBy: state.currentUserId,
-    usedBy: 0
-  });
-
-  saveState();
-  closeModal();
-  render();
-  showToast('Коллекция создана');
-}
-
-function deleteCollection(collectionId) {
-  const collection = state.collections.find(item => item.id === collectionId);
-  confirmAction('Удаление коллекции', `Удалить коллекцию <b>${escapeHtml(collection.name)}</b>?`, () => {
-    state.collections = state.collections.filter(item => item.id !== collectionId);
-    saveState();
-    render();
-    showToast('Коллекция удалена');
-  });
-}
-
-/* ATTACH */
-
-function openAttachWizard(type) {
-  if (!canMonitor()) return showToast('Нет разрешения на постановку на мониторинг');
-  if (selectedHosts.size !== 1) return showToast('Выберите один хост');
-
-  activeAttachment = {
-    type,
-    hostId: Array.from(selectedHosts)[0],
-    itemId: null
-  };
-
-  const host = state.hosts.find(item => item.id === activeAttachment.hostId);
-  const items = type === 'service' ? state.services : state.collections;
-
-  openModal(
-    type === 'service' ? 'Присоединение сервиса' : 'Присоединение коллекции',
-    `Хост: ${host.name} (${host.address})`,
-    items.length ? items.map(item => attachItemHtml(type, item)).join('') : '<div class="empty">Нет элементов</div>',
-    `<button class="btn-outline" onclick="closeModal()">Отмена</button>`
-  );
-}
-
-function attachItemHtml(type, item) {
-  if (type === 'service') {
-    return `
-      <div class="card clickable" onclick="selectAttachItem('${item.id}')">
-        <div class="card-main">
-          <span class="icon">${item.icon}</span>
-          <div>
-            <div class="card-title">${escapeHtml(item.name)}</div>
-            ${serviceMeta(item, true)}
-            ${collectionsHtml(item.id)}
-          </div>
+        <div class="card-actions">
+          ${host.sourceType === 'catalog' ? `<button class="btn-xs btn-outline" onclick="syncOneCatalogHost(${hid})">🔄 Sync</button>` : ''}
+          <button class="btn-xs btn-outline" onclick="openHostEditModal(${hid})" ${canEditHost(host) ? '' : 'disabled'}>✏️ Редактировать</button>
+          <button class="btn-xs btn-ghost" onclick="toggleHostExpand(${hid})">${expanded ? '▲ Свернуть' : '→ Детали'}</button>
+          <button class="btn-xs btn-danger" onclick="openDeleteHostModal(${hid})" ${canDeleteHost(host) ? '' : 'disabled'}>🗑️ Удалить</button>
         </div>
       </div>
-    `;
-  }
-
-  const services = item.serviceIds.map(id => state.services.find(service => service.id === id)).filter(Boolean);
-  return `
-    <div class="card clickable" onclick="selectAttachItem('${item.id}')">
-      <div class="card-main">
-        <span class="icon">📦</span>
-        <div>
-          <div class="card-title">${escapeHtml(item.name)}</div>
-          <div class="card-meta">${escapeHtml(item.description || '')}</div>
-          <div class="collections-line">
-            <span class="collections-label">Сервисы:</span>
-            ${services.map(service => `<span class="badge">${service.icon} ${escapeHtml(service.name)}</span>`).join('') || '<span class="badge">—</span>'}
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function selectAttachItem(itemId) {
-  activeAttachment.itemId = itemId;
-  openAttachPreview();
-}
-
-function selectedAttachServiceIds() {
-  if (activeAttachment.type === 'service') return [activeAttachment.itemId];
-  const collection = state.collections.find(item => item.id === activeAttachment.itemId);
-  return collection?.serviceIds || [];
-}
-
-function openAttachPreview() {
-  const host = state.hosts.find(item => item.id === activeAttachment.hostId);
-  const services = selectedAttachServiceIds().map(id => state.services.find(service => service.id === id)).filter(Boolean);
-
-  const authFields = services.filter(service => hasAuth(service.auth)).map(service => {
-    const auth = normalizeAuth(service.auth);
-    if (auth.mode === 'basic') {
-      return `
-        <div class="box">
-          <b>${service.icon} ${escapeHtml(service.name)} — Basic Auth</b>
-          <div class="row" style="margin-top:10px">
-            <input id="attach-auth-user-${service.id}" placeholder="${escapeHtml(auth.username || 'username')}">
-            <input id="attach-auth-pass-${service.id}" type="password" placeholder="••••••">
-          </div>
-        </div>
-      `;
-    }
-
-    if (auth.mode === 'bearer') {
-      return `
-        <div class="box">
-          <b>${service.icon} ${escapeHtml(service.name)} — Bearer Token</b>
-          <input id="attach-auth-token-${service.id}" class="wide" type="password" placeholder="Bearer token" style="margin-top:10px">
-        </div>
-      `;
-    }
-    return '';
+      <div class="details ${expanded ? 'open' : ''}">${expanded ? renderHostDetails(host) : ''}</div>
+    </div>`;
   }).join('');
-
-  openModal(
-    'Предпросмотр присоединения',
-    `Хост: ${host.name}`,
-    `
-      <div class="box box-blue">
-        Адрес: <b>${escapeHtml(host.address)}</b> · Группа прокси: <b>${escapeHtml(proxyGroupName(host.proxyGroup))}</b>
-      </div>
-      ${services.map(service => `
-        <div class="card">
-          <div class="card-main">
-            <span class="icon">${service.icon}</span>
-            <div>
-              <div class="card-title">${escapeHtml(service.name)}</div>
-              <div class="card-meta mono">Target: ${escapeHtml(host.address)}:${service.port}</div>
-              ${serviceMeta(service, true)}
-              ${collectionsHtml(service.id)}
-            </div>
-          </div>
+}
+function renderHostDetails(host) {
+  const lock = hostLockReason(host);
+  return `
+    ${lock ? `<div class="box box-amber">⚠️ ${esc(lock)}</div>` : ''}
+    ${sourceDetails(host)}
+    <h4 style="margin:14px 0 10px;">Присоединённые сервисы</h4>
+    ${host.attachments.length ? host.attachments.map((att, idx) => renderAttachment(host, att, idx)).join('') : '<div class="empty">Нет присоединённых сервисов</div>'}
+  `;
+}
+function renderAttachment(host, att, idx) {
+  const svc = state.services.find(s => s.id === att.serviceId);
+  if (!svc) return '';
+  const port = att.portOverride || svc.defaultPort;
+  const target = `${host.address}:${port}`;
+  const creator = userById(att.createdBy);
+  const group = groupById(att.ownerGroupId);
+  const canManage = canManageAttachment(att);
+  const hid = jsArg(host.id);
+  return `<div class="service-attachment">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="display:flex;gap:12px;align-items:flex-start;">
+        <span class="icon">${esc(svc.icon)}</span>
+        <div>
+          <div class="card-title">${esc(svc.name)}</div>
+          <div class="card-meta">Target: <span class="mono">${esc(target)}</span> · ${esc(svc.type)} · ${authBadge(svc)}</div>
+          <div class="card-meta">Attachment создал: ${esc(creator?.name || '—')} · Владелец: ${esc(group?.name || '—')}</div>
         </div>
-      `).join('')}
-      ${authFields || '<div class="box box-blue">Дополнительные параметры авторизации не требуются.</div>'}
-    `,
-    `
-      <button class="btn-outline" onclick="openAttachWizard('${activeAttachment.type}')">Назад</button>
-      <div class="modal-footer-right"><button onclick="confirmAttach()">Применить</button></div>
-    `
-  );
+      </div>
+      <button class="btn-xs btn-ghost" style="color:var(--danger)" onclick="detachService(${hid}, ${idx})" ${canManage ? '' : 'disabled'}>🔌 Отсоединить</button>
+    </div>
+    <div class="port-row">
+      <span class="muted">Порт:</span>
+      <input type="number" min="1" max="65535" id="port-${host.id}-${idx}" value="${esc(port)}" ${canManage ? '' : 'disabled'}>
+      <button class="btn-xs btn-success" onclick="applyPortOverride(${hid}, ${idx})" ${canManage ? '' : 'disabled'}>✓ Применить</button>
+      <button class="btn-xs btn-outline" onclick="resetPortOverride(${hid}, ${idx})" ${canManage ? '' : 'disabled'}>↺ Сбросить</button>
+      <span class="hint">${att.portOverride ? 'переопределён' : 'по умолчанию'}: ${esc(port)}</span>
+    </div>
+  </div>`;
 }
+function toggleHostSelection(id) { selectedHostIds.has(id) ? selectedHostIds.delete(id) : selectedHostIds.add(id); renderHostsSection(); }
+function toggleSelectAllHosts(checked) { const hosts = getFilteredHosts(); if (checked) hosts.forEach(h => selectedHostIds.add(h.id)); else hosts.forEach(h => selectedHostIds.delete(h.id)); renderHostsSection(); }
+function toggleHostExpand(id) { expandedHostId = expandedHostId === id ? null : id; renderHostsSection(); }
 
-function confirmAttach() {
-  const host = state.hosts.find(item => item.id === activeAttachment.hostId);
-  const services = selectedAttachServiceIds().map(id => state.services.find(service => service.id === id)).filter(Boolean);
-
-  services.forEach(service => {
-    const baseAuth = normalizeAuth(service.auth);
-    let authOverride = null;
-
-    if (baseAuth.mode === 'basic') {
-      authOverride = {
-        mode: 'basic',
-        username: $(`attach-auth-user-${service.id}`)?.value || baseAuth.username,
-        password: $(`attach-auth-pass-${service.id}`)?.value || baseAuth.password
-      };
-    } else if (baseAuth.mode === 'bearer') {
-      authOverride = {
-        mode: 'bearer',
-        token: $(`attach-auth-token-${service.id}`)?.value || baseAuth.token
-      };
-    }
-
-    const existing = host.attachments.find(attachment => attachment.serviceId === service.id);
-    if (existing) {
-      existing.auth = authOverride || existing.auth;
-    } else {
-      host.attachments.push({
-        id: makeId('att'),
-        serviceId: service.id,
-        portOverride: null,
-        auth: authOverride,
-        attachedBy: state.currentUserId
-      });
-    }
-  });
-
-  if (activeAttachment.type === 'collection') {
-    const collection = state.collections.find(item => item.id === activeAttachment.itemId);
-    if (collection) collection.usedBy = (collection.usedBy || 0) + 1;
-  }
-
-  saveState();
-  closeModal();
-  render();
-  showToast('Сервис(ы) присоединены');
+function openHostCreateModal() {
+  if (!canMonitor()) return showToast('Нет права на постановку на мониторинг');
+  hostDraft = { mode:'manual', catalogExternalId:null, editingHostId:null };
+  renderHostModal();
 }
-
-/* ACCESS */
-
-function renderAccess() {
-  const user = currentUser();
-  const content = `
-    <div class="panel">
-      <div class="panel-info">
-        <b>Правила доступа.</b>
-        Сервисом управляет участник группы-владельца. Хосты видны всем. Удалить хост может создатель или MARS admin.
-        Присоединять сервисы может пользователь с разрешением на постановку на мониторинг.
-      </div>
-      <div class="stats-grid three">
-        <div class="stat-card"><div class="stat-label">Текущий пользователь</div><div class="stat-value" style="font-size:18px">${escapeHtml(user.name)}</div></div>
-        <div class="stat-card"><div class="stat-label">Постановка на мониторинг</div><div class="stat-value" style="font-size:18px">${canMonitor() ? 'Да' : 'Нет'}</div></div>
-        <div class="stat-card"><div class="stat-label">MARS admin</div><div class="stat-value" style="font-size:18px">${isAdmin() ? 'Да' : 'Нет'}</div></div>
-      </div>
-      <div class="panel-content">
-        <h3>Пользователи</h3>
-        ${state.users.map(u => `
-          <div class="card">
-            <div class="card-main">
-              <span class="icon">👤</span>
-              <div>
-                <div class="card-title">${escapeHtml(u.name)} ${u.id === state.currentUserId ? '<span class="badge badge-blue">текущий</span>' : ''} ${u.isAdmin ? '<span class="badge badge-red">MARS admin</span>' : ''}</div>
-                <div class="card-meta">Группы: ${u.groups.map(groupName).map(escapeHtml).join(', ') || '—'}</div>
-                <div class="pills"><span class="badge ${u.canMonitor ? 'badge-green' : 'badge-red'}">Мониторинг: ${u.canMonitor ? 'разрешён' : 'нет'}</span></div>
-              </div>
-            </div>
-            <button class="btn-xs btn-outline" onclick="switchUser('${u.id}')">Переключиться</button>
-          </div>
-        `).join('')}
-        <h3>Группы</h3>
-        ${state.groups.map(group => `
-          <div class="card">
-            <div class="card-main">
-              <span class="icon">👥</span>
-              <div>
-                <div class="card-title">${escapeHtml(group.name)}</div>
-                <div class="card-meta">${escapeHtml(group.description || '')}</div>
-                <div class="card-meta">Участники: ${state.users.filter(u => u.groups.includes(group.id)).map(u => escapeHtml(u.name)).join(', ') || '—'}</div>
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
+function openHostEditModal(id) {
+  const host = state.hosts.find(h => h.id === id);
+  if (!host) return;
+  if (!canEditHost(host)) return showToast(hostLockReason(host) || 'Недостаточно прав');
+  hostDraft = { mode:'edit', catalogExternalId:host.catalogBinding?.externalId || null, editingHostId:id };
+  renderHostModal(host);
+}
+function renderHostModal(host=null) {
+  const isEdit = !!host;
+  const catalog = findCatalogByExternalId(hostDraft.catalogExternalId);
+  const title = isEdit ? 'Редактировать хост' : 'Создать хост';
+  const subtitle = isEdit ? 'Чувствительные поля можно менять только при соблюдении правил доступа' : 'Выберите источник данных для чувствительных полей хоста';
+  const body = isEdit ? hostEditForm(host) : hostCreateForm(catalog);
+  const footer = `<button class="btn-ghost" onclick="closeModal()">Отмена</button><div class="modal-footer-right"><button onclick="saveHostFromModal()">${isEdit ? 'Сохранить изменения' : 'Создать хост'}</button></div>`;
+  openModal(title, subtitle, body, footer);
+}
+function hostCreateForm(catalog) {
+  const mode = hostDraft.mode;
+  const selected = catalog || null;
+  const prefill = selected ? selected : { name:'', addressType:'ip', address:'', proxyGroup:'prod-dmz' };
+  const readonlyCatalog = mode === 'catalog';
+  const catalogBlock = (mode === 'catalog' || mode === 'manual-prefill') ? catalogPickerBlock() : '';
+  return `
+    <div class="box box-blue"><strong>Источник владения полями:</strong> manual — поля ведутся в MARS; catalog — поля ведёт справочник и обновляет синхронизация.</div>
+    <div class="form-group">
+      <label class="form-label">Как создать хост?</label>
+      <select id="host-create-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogExternalId=null;renderHostModal()">
+        ${selectOption('manual','Ввести вручную', mode)}
+        ${selectOption('manual-prefill','Заполнить из справочника, но создать ручной хост', mode)}
+        ${selectOption('catalog','Создать справочный хост с автообновлением', mode)}
+      </select>
+    </div>
+    ${catalogBlock}
+    ${mode === 'catalog' && !selected ? '<div class="box box-amber">Выберите запись справочника, чтобы создать справочный хост.</div>' : ''}
+    ${mode === 'manual-prefill' && selected ? '<div class="box box-amber">Поля скопированы из справочника разово. После создания этот хост останется ручным и не будет обновляться синхронизацией.</div>' : ''}
+    <div class="row">
+      <div class="form-group"><label class="form-label">Имя хоста *</label><input id="host-name-input" class="wide" value="${esc(prefill.name)}" ${readonlyCatalog ? 'disabled' : ''} oninput="validateHostForm()"><div class="hint">Используется как label в метриках.</div></div>
+      <div class="form-group"><label class="form-label">Группа прокси *</label><select id="host-proxy-input" class="wide" ${readonlyCatalog ? 'disabled' : ''} onchange="validateHostForm()">${proxyGroupOptions(prefill.proxyGroup, false)}</select><div class="hint">Определяет route сбора через proxy/collector.</div></div>
+    </div>
+    <div class="row">
+      <div class="form-group"><label class="form-label">Тип адреса *</label><select id="host-address-type-input" class="wide" ${readonlyCatalog ? 'disabled' : ''} onchange="validateHostForm()">${selectOption('ip','IP-адрес', prefill.addressType)}${selectOption('fqdn','FQDN', prefill.addressType)}</select></div>
+      <div class="form-group"><label class="form-label">IP/FQDN *</label><input id="host-address-input" class="wide mono" value="${esc(prefill.address)}" ${readonlyCatalog ? 'disabled' : ''} oninput="validateHostForm()"><div id="host-form-validation" class="hint"></div></div>
     </div>
   `;
-
-  page('access', '👥 Пользователи и группы', 'Демо-модель доступа MARS', '', content);
 }
-
-/* MODAL / TOAST */
-
-function openModal(title, subtitle, body, footer, small = false) {
-  $('modal-title').innerHTML = title;
-  $('modal-subtitle').innerHTML = subtitle || '';
-  $('modal-body').innerHTML = body || '';
-  $('modal-footer').innerHTML = footer || '<button onclick="closeModal()">Закрыть</button>';
-  $('modal').className = `modal ${small ? 'small' : ''}`;
-  $('modal-overlay').classList.add('show');
+function hostEditForm(host) {
+  const readOnly = !canEditHost(host);
+  return `
+    ${sourceDetails(host)}
+    ${host.sourceType === 'catalog' ? '<div class="box box-amber">Справочные хосты не редактируются вручную. Измените данные во внешней CMDB и выполните синхронизацию.</div>' : ''}
+    ${hostHasAttachments(host) && !isAdmin() ? '<div class="box box-red">Хост используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы для обычного пользователя.</div>' : ''}
+    <div class="row">
+      <div class="form-group"><label class="form-label">Имя хоста *</label><input id="host-name-input" class="wide" value="${esc(host.name)}" ${readOnly ? 'disabled' : ''} oninput="validateHostForm()"></div>
+      <div class="form-group"><label class="form-label">Группа прокси *</label><select id="host-proxy-input" class="wide" ${readOnly ? 'disabled' : ''} onchange="validateHostForm()">${proxyGroupOptions(host.proxyGroup, false)}</select></div>
+    </div>
+    <div class="row">
+      <div class="form-group"><label class="form-label">Тип адреса *</label><select id="host-address-type-input" class="wide" ${readOnly ? 'disabled' : ''} onchange="validateHostForm()">${selectOption('ip','IP-адрес', host.addressType)}${selectOption('fqdn','FQDN', host.addressType)}</select></div>
+      <div class="form-group"><label class="form-label">IP/FQDN *</label><input id="host-address-input" class="wide mono" value="${esc(host.address)}" ${readOnly ? 'disabled' : ''} oninput="validateHostForm()"><div id="host-form-validation" class="hint"></div></div>
+    </div>
+  `;
 }
-
-function closeModal() {
-  $('modal-overlay').classList.remove('show');
+function catalogPickerBlock() {
+  const search = document.getElementById('catalog-search-input')?.value?.toLowerCase() || '';
+  const items = state.catalogHosts.filter(h => !search || h.name.toLowerCase().includes(search) || h.address.toLowerCase().includes(search) || h.externalId.toLowerCase().includes(search));
+  return `<div class="box">
+    <div class="form-group"><label class="form-label">Справочник хостов</label><input id="catalog-search-input" class="wide" placeholder="Поиск по имени, адресу или external ID..." value="${esc(search)}" oninput="renderHostModal()"></div>
+    <div style="max-height:220px;overflow:auto;">
+      ${items.map(h => `<div class="card clickable ${hostDraft.catalogExternalId === h.externalId ? 'selected' : ''}" onclick="hostDraft.catalogExternalId='${esc(h.externalId)}';renderHostModal()">
+        <div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(h.name)}</div><div class="card-meta"><span class="mono">${esc(h.address)}</span> · ${esc(h.proxyGroup)} · ${esc(h.os)} · <span class="mono">${esc(h.externalId)}</span></div></div></div>
+        ${hostDraft.catalogExternalId === h.externalId ? '<span class="badge badge-green">✓ выбрано</span>' : ''}
+      </div>`).join('')}
+    </div>
+  </div>`;
 }
-
-function confirmAction(title, message, onConfirm) {
-  window.__marsConfirm = onConfirm;
-  openModal(
-    title,
-    'Подтверждение',
-    `<div class="box box-amber">${message}</div>`,
-    `
-      <button class="btn-outline" onclick="closeModal()">Отмена</button>
-      <div class="modal-footer-right"><button class="btn-danger" onclick="window.__marsConfirm(); closeModal()">Удалить</button></div>
-    `,
-    true
-  );
+function validateHostForm() {
+  const val = document.getElementById('host-form-validation');
+  if (!val) return true;
+  const name = document.getElementById('host-name-input')?.value.trim() || '';
+  const address = document.getElementById('host-address-input')?.value.trim() || '';
+  const type = document.getElementById('host-address-type-input')?.value || 'ip';
+  let ok = true;
+  const editingId = hostDraft.editingHostId;
+  if (!name) { val.textContent = 'Имя хоста обязательно'; val.className='hint text-danger'; return false; }
+  if (state.hosts.some(h => h.id !== editingId && h.name.toLowerCase() === name.toLowerCase())) { val.textContent = 'Хост с таким именем уже существует'; val.className='hint text-danger'; return false; }
+  if (type === 'ip' && !isValidIp(address)) ok = false;
+  if (type === 'fqdn' && !isValidFqdn(address)) ok = false;
+  val.textContent = ok ? 'Адрес корректен' : 'Проверьте формат IP/FQDN';
+  val.className = ok ? 'hint text-success' : 'hint text-danger';
+  return ok;
 }
-
-function showToast(message) {
-  const toast = $('toast');
-  toast.textContent = message;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2600);
+function saveHostFromModal() {
+  if (hostDraft.editingHostId) {
+    const host = state.hosts.find(h => h.id === hostDraft.editingHostId);
+    if (!host || !canEditHost(host)) return showToast('Редактирование недоступно');
+    if (!validateHostForm()) return;
+    host.name = document.getElementById('host-name-input').value.trim();
+    host.addressType = document.getElementById('host-address-type-input').value;
+    host.address = document.getElementById('host-address-input').value.trim();
+    host.proxyGroup = document.getElementById('host-proxy-input').value;
+    saveState(); closeModal(); renderAll(); showToast('Хост обновлён'); return;
+  }
+  const mode = hostDraft.mode;
+  const catalog = findCatalogByExternalId(hostDraft.catalogExternalId);
+  if ((mode === 'catalog' || mode === 'manual-prefill') && !catalog) return showToast('Выберите запись справочника');
+  let newHost;
+  if (mode === 'catalog') {
+    if (state.hosts.some(h => h.sourceType === 'catalog' && h.catalogBinding?.externalId === catalog.externalId && h.catalogBinding?.sourceId === catalog.sourceId)) return showToast('Этот справочный хост уже заведён');
+    newHost = { id: Date.now(), name:catalog.name, addressType:catalog.addressType, address:catalog.address, proxyGroup:catalog.proxyGroup, status:'UP', sourceType:'catalog', createdBy:currentUser().id, createdAt:nowText(), prefilledFromCatalog:null, catalogBinding:{ sourceId:catalog.sourceId, externalId:catalog.externalId, lastSyncAt:nowText(), syncStatus:'synced' }, attachments:[] };
+  } else {
+    if (!validateHostForm()) return;
+    newHost = { id: Date.now(), name:document.getElementById('host-name-input').value.trim(), addressType:document.getElementById('host-address-type-input').value, address:document.getElementById('host-address-input').value.trim(), proxyGroup:document.getElementById('host-proxy-input').value, status:'UP', sourceType:'manual', createdBy:currentUser().id, createdAt:nowText(), prefilledFromCatalog: mode === 'manual-prefill' && catalog ? { sourceId:catalog.sourceId, externalId:catalog.externalId, copiedAt:nowText() } : null, catalogBinding:null, attachments:[] };
+  }
+  if (state.hosts.some(h => h.name.toLowerCase() === newHost.name.toLowerCase())) return showToast('Хост с таким именем уже существует');
+  state.hosts.push(newHost); saveState(); closeModal(); renderAll(); showToast('Хост создан');
 }
+function openDeleteHostModal(id) {
+  const host = state.hosts.find(h => h.id === id);
+  if (!host) return;
+  if (!canDeleteHost(host)) return showToast('Удаление недоступно');
+  const body = `<div class="box ${host.attachments.length ? 'box-red' : 'box-amber'}">
+    <strong>${esc(host.name)}</strong> · ${esc(host.address)}<br>
+    Присоединённых сервисов: ${host.attachments.length}<br>
+    ${host.attachments.length ? '⚠️ Удаление хоста удалит все attachment\'ы. В прототипе это действие доступно только администратору MARS.' : 'Хост не используется в мониторинге.'}
+  </div>`;
+  const footer = `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="deleteHost(${jsArg(id)})">Удалить</button>`;
+  openModal('Удаление хоста', 'Подтвердите действие', body, footer, true);
+}
+function deleteHost(id) { state.hosts = state.hosts.filter(h => h.id !== id); selectedHostIds.delete(id); if (expandedHostId === id) expandedHostId = null; saveState(); closeModal(); renderAll(); showToast('Хост удалён'); }
+function findCatalogByExternalId(externalId) { return state.catalogHosts.find(h => h.externalId === externalId); }
+function findCatalogHost(sourceId, externalId) { return state.catalogHosts.find(h => h.sourceId === sourceId && h.externalId === externalId); }
+function syncCatalogHosts() { let count = 0; state.hosts.filter(h => h.sourceType === 'catalog').forEach(h => { if (applyCatalogSync(h)) count++; }); saveState(); renderAll(); showToast(`Синхронизировано хостов: ${count}`); }
+function syncOneCatalogHost(id) { const host = state.hosts.find(h => h.id === id); if (!host) return; if (applyCatalogSync(host)) { saveState(); renderAll(); showToast('Хост синхронизирован'); } else showToast('Запись справочника не найдена'); }
+function applyCatalogSync(host) { const c = findCatalogHost(host.catalogBinding?.sourceId, host.catalogBinding?.externalId); if (!c) { host.catalogBinding.syncStatus = 'missing'; return false; } host.name = c.name; host.addressType = c.addressType; host.address = c.address; host.proxyGroup = c.proxyGroup; host.catalogBinding.lastSyncAt = nowText(); host.catalogBinding.syncStatus = 'synced'; return true; }
 
-function resetDemo() {
-  confirmAction('Сброс демо-данных', 'Вернуть исходные демо-данные? Локальные изменения будут удалены.', () => {
-    state = demoState();
-    selectedHosts.clear();
-    selectedServices.clear();
-    selectedTemplates.clear();
-    expandedHostId = null;
-    saveState();
-    render();
-    showToast('Демо-данные сброшены');
+function isValidIp(value) { const parts = value.split('.'); return parts.length === 4 && parts.every(p => /^\d+$/.test(p) && Number(p) >= 0 && Number(p) <= 255); }
+function isValidFqdn(value) { return /^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/.test(value); }
+function proxyGroupOptions(selected, includeAll) {
+  const opts = [ ['prod-dmz','Production DMZ'], ['analytics','Analytics'], ['k8s','K8s Cluster'] ];
+  return (includeAll ? selectOption('all','Все группы прокси', selected) : '') + opts.map(([v,l]) => selectOption(v,l,selected)).join('');
+}
+function selectOption(value, label, selected) { return `<option value="${esc(value)}" ${value === selected ? 'selected' : ''}>${esc(label)}</option>`; }
+
+function serviceCollections(serviceId) { return state.collections.filter(c => c.serviceIds.includes(serviceId)); }
+function authBadge(svc) { if (svc.authMode === 'basic') return '<span class="badge badge-amber">🔐 Basic Auth</span>'; if (svc.authMode === 'bearer') return '<span class="badge badge-purple">🔐 Bearer Token</span>'; return '<span class="badge">🔓 Без авторизации</span>'; }
+function protocolLine(svc) { if (svc.type !== 'ExporterScrape') return ''; return ` · ${String(svc.protocol || 'http').toUpperCase()}${svc.protocol === 'https' ? (svc.clientCertificate ? ' · client cert' : '') + (svc.skipServerCertCheck ? ' · skip TLS verify' : '') : ''}`; }
+function ownerGroupOptions(selected) {
+  const userGroups = isAdmin() ? state.groups : state.groups.filter(g => currentUserGroupIds().has(g.id));
+  return userGroups.map(g => selectOption(g.id, g.name, selected || userGroups[0]?.id)).join('');
+}
+function typeOptions(selected) { return ['ExporterScrape','SQL','BlackBox'].map(t => selectOption(t, t === 'ExporterScrape' ? 'ExporterScrape' : t, selected)).join(''); }
+function iconOptions(selected) { return ['🌐','🐘','🔴','📊','🐰','🔌'].map(i => selectOption(i, i, selected)).join(''); }
+
+function renderServicesSection() {
+  const sec = document.getElementById('section-services');
+  const filtered = state.services;
+  sec.innerHTML = `
+    <div class="page-header"><div><h1 class="page-title">🔌 Сервисы</h1><div class="page-subtitle">Сервис принадлежит группе. Управлять им может участник группы или администратор MARS.</div></div><button onclick="openServiceModal()" ${canMonitor() ? '' : 'disabled'}>➕ Создать сервис</button></div>
+    <div class="panel">
+      <div class="panel-info"><strong>Auth доступна для любого типа сервиса:</strong> без авторизации, Basic Auth или Bearer Token. Для ExporterScrape можно выбрать HTTP/HTTPS; при HTTPS доступна вставка клиентского сертификата строкой.</div>
+      <div class="panel-toolbar"><div style="display:flex;gap:12px;align-items:center;"><input class="checkbox" type="checkbox" ${filtered.length && filtered.every(s => selectedServiceIds.has(s.id)) ? 'checked' : ''} onchange="toggleSelectAllServices(this.checked)"><span class="muted">Выбрано: <strong>${selectedServiceIds.size}</strong> из <strong>${filtered.length}</strong></span></div><button class="btn-sm btn-danger" onclick="openBulkDeleteServicesModal()" ${selectedServiceIds.size ? '' : 'disabled'}>🗑️ Удалить выбранные</button></div>
+      <div class="stats-grid"><div class="stat-card"><div class="stat-label">Сервисов</div><div class="stat-value">${state.services.length}</div></div><div class="stat-card"><div class="stat-label">С Basic Auth</div><div class="stat-value">${state.services.filter(s => s.authMode === 'basic').length}</div></div><div class="stat-card"><div class="stat-label">С Bearer Token</div><div class="stat-value">${state.services.filter(s => s.authMode === 'bearer').length}</div></div><div class="stat-card"><div class="stat-label">HTTPS Exporter</div><div class="stat-value">${state.services.filter(s => s.type === 'ExporterScrape' && s.protocol === 'https').length}</div></div></div>
+      <div class="panel-content">${filtered.length ? filtered.map(renderServiceCard).join('') : '<div class="empty">Нет сервисов</div>'}</div>
+    </div>`;
+}
+function renderServiceCard(svc) {
+  const group = groupById(svc.ownerGroupId);
+  const collections = serviceCollections(svc.id);
+  const canManage = canManageService(svc);
+  return `<div class="card ${selectedServiceIds.has(svc.id) ? 'selected' : ''}">
+    <div class="card-main">
+      <input class="checkbox" type="checkbox" ${selectedServiceIds.has(svc.id) ? 'checked' : ''} onchange="toggleServiceSelection('${svc.id}')">
+      <span class="icon">${esc(svc.icon)}</span>
+      <div>
+        <div class="card-title">${esc(svc.name)}</div>
+        <div class="card-meta">Тип: ${esc(svc.type)} · Порт: <span class="mono">${svc.defaultPort}</span> · Метрики: <span class="mono">${esc(svc.metrics)}</span>${protocolLine(svc)}</div>
+        <div class="pills"><span class="badge badge-blue">👥 ${esc(group?.name || '—')}</span>${authBadge(svc)}<span class="badge">${hostUsageCount(svc.id)} хостов</span></div>
+        <div class="collections-line"><span class="collections-label">Коллекции:</span>${collections.length ? collections.map(c => `<span class="badge badge-green">📦 ${esc(c.name)}</span>`).join('') : '<span class="muted">—</span>'}</div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn-xs btn-outline" onclick="openCloneServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>⧉ Клонировать</button>
+      <button class="btn-xs btn-purple" onclick="openCreateTemplateFromServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>🧩 Создать шаблон</button>
+      <button class="btn-xs btn-outline" onclick="openServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>✏️ Редактировать</button>
+      <button class="btn-xs btn-danger" onclick="openDeleteServiceModal('${svc.id}')" ${canManage ? '' : 'disabled'}>🗑️</button>
+    </div>
+  </div>`;
+}
+function hostUsageCount(serviceId) { return state.hosts.reduce((sum,h) => sum + h.attachments.filter(a => a.serviceId === serviceId).length, 0); }
+function toggleServiceSelection(id) { selectedServiceIds.has(id) ? selectedServiceIds.delete(id) : selectedServiceIds.add(id); renderServicesSection(); }
+function toggleSelectAllServices(checked) { if (checked) state.services.forEach(s => selectedServiceIds.add(s.id)); else selectedServiceIds.clear(); renderServicesSection(); }
+
+function openServiceModal(id=null, fromTemplate=null) {
+  const svc = id ? state.services.find(s => s.id === id) : null;
+  if (svc && !canManageService(svc)) return showToast('Недостаточно прав');
+  const formSvc = svc || fromTemplate || { name:'', type:'ExporterScrape', icon:'🌐', defaultPort:80, metrics:'/metrics', ownerGroupId:(isAdmin()?state.groups[0]?.id:currentUser().groups[0]) || 'g-infra', authMode:'none', basicUsername:'', basicPassword:'', bearerToken:'', protocol:'http', clientCertificate:'', skipServerCertCheck:false };
+  const title = svc ? 'Редактировать сервис' : (fromTemplate ? 'Создать сервис из шаблона' : 'Создать сервис');
+  const subtitle = svc ? 'Изменение доступно участникам группы-владельца' : 'Настрой один раз — применяй везде';
+  const body = serviceForm(formSvc, !!fromTemplate);
+  const footer = `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveService('${svc ? svc.id : ''}')">${svc ? 'Сохранить изменения' : 'Создать сервис'}</button>`;
+  openModal(title, subtitle, body, footer);
+  renderServiceDynamicFields();
+}
+function serviceForm(svc, fromTemplate) {
+  return `<div class="row"><div class="form-group"><label class="form-label">Название *</label><input id="svc-name" class="wide" value="${esc(svc.name)}"></div><div class="form-group"><label class="form-label">Группа-владелец *</label><select id="svc-owner-group" class="wide">${ownerGroupOptions(svc.ownerGroupId)}</select></div></div>
+    <div class="row3"><div class="form-group"><label class="form-label">Тип *</label><select id="svc-type" class="wide" onchange="renderServiceDynamicFields()">${typeOptions(svc.type)}</select></div><div class="form-group"><label class="form-label">Иконка</label><select id="svc-icon" class="wide">${iconOptions(svc.icon)}</select></div><div class="form-group"><label class="form-label">Порт по умолчанию *</label><input id="svc-port" type="number" min="1" max="65535" class="wide" value="${esc(svc.defaultPort)}"></div></div>
+    <div class="form-group"><label class="form-label">Путь к метрикам</label><input id="svc-metrics" class="wide mono" value="${esc(svc.metrics)}"></div>
+    <div id="svc-exporter-fields" data-protocol="${esc(svc.protocol || 'http')}" data-cert="${esc(svc.clientCertificate || '')}" data-skip="${svc.skipServerCertCheck ? '1' : '0'}"></div>
+    <div class="form-group"><label class="form-label">Авторизация</label><select id="svc-auth-mode" class="wide" onchange="renderServiceDynamicFields()">${selectOption('none','Без авторизации', svc.authMode || 'none')}${selectOption('basic','Basic Auth', svc.authMode || 'none')}${selectOption('bearer','Bearer Token', svc.authMode || 'none')}</select></div>
+    <div id="svc-auth-fields" data-user="${esc(svc.basicUsername || '')}" data-pass="${esc(svc.basicPassword || '')}" data-token="${esc(svc.bearerToken || '')}"></div>
+    ${fromTemplate ? '<div class="box box-blue">Сервис создаётся из шаблона без auth. При необходимости настройте авторизацию после создания сервиса.</div>' : ''}`;
+}
+function renderServiceDynamicFields() {
+  const type = document.getElementById('svc-type')?.value || 'ExporterScrape';
+  const exp = document.getElementById('svc-exporter-fields');
+  if (exp) {
+    const prevProtocol = document.getElementById('svc-protocol')?.value || exp.dataset.protocol || 'http';
+    const prevCert = document.getElementById('svc-client-cert')?.value || exp.dataset.cert || '';
+    const prevSkip = document.getElementById('svc-skip-server-cert')?.checked || exp.dataset.skip === '1';
+    exp.dataset.protocol = prevProtocol; exp.dataset.cert = prevCert; exp.dataset.skip = prevSkip ? '1' : '0';
+    exp.innerHTML = type === 'ExporterScrape' ? `<div class="box"><div class="form-group"><label class="form-label">Протокол сбора</label><select id="svc-protocol" class="wide" onchange="renderServiceDynamicFields()">${selectOption('http','HTTP',prevProtocol)}${selectOption('https','HTTPS',prevProtocol)}</select></div>${prevProtocol === 'https' ? `<div class="form-group"><label class="form-label">Клиентский сертификат</label><textarea id="svc-client-cert" rows="5" class="wide mono" placeholder="-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----">${esc(prevCert)}</textarea><div class="hint">Сертификат вставляется строкой. При HTTP это поле не отображается.</div></div><label style="display:flex;gap:8px;align-items:center;"><input id="svc-skip-server-cert" type="checkbox" ${prevSkip ? 'checked' : ''}> Пропустить проверку серверного сертификата</label>` : ''}</div>` : '';
+  }
+  const auth = document.getElementById('svc-auth-fields');
+  if (auth) {
+    const mode = document.getElementById('svc-auth-mode')?.value || 'none';
+    const u = document.getElementById('svc-basic-user')?.value || auth.dataset.user || '';
+    const p = document.getElementById('svc-basic-pass')?.value || auth.dataset.pass || '';
+    const token = document.getElementById('svc-bearer-token')?.value || auth.dataset.token || '';
+    auth.dataset.user = u; auth.dataset.pass = p; auth.dataset.token = token;
+    if (mode === 'basic') auth.innerHTML = `<div class="box"><div class="row"><div class="form-group"><label class="form-label">Username</label><input id="svc-basic-user" class="wide" value="${esc(u)}"></div><div class="form-group"><label class="form-label">Password</label><input id="svc-basic-pass" type="password" class="wide" value="${esc(p)}"></div></div></div>`;
+    else if (mode === 'bearer') auth.innerHTML = `<div class="box"><div class="form-group"><label class="form-label">Bearer Token</label><textarea id="svc-bearer-token" rows="3" class="wide mono">${esc(token)}</textarea></div></div>`;
+    else auth.innerHTML = '';
+  }
+}
+function serviceFromForm(id='') {
+  const type = document.getElementById('svc-type').value;
+  const protocol = type === 'ExporterScrape' ? document.getElementById('svc-protocol')?.value || 'http' : 'http';
+  const ownerGroupId = document.getElementById('svc-owner-group').value;
+  return { id: id || uid('svc'), name:document.getElementById('svc-name').value.trim(), type, icon:document.getElementById('svc-icon').value, defaultPort:num(document.getElementById('svc-port').value,0), metrics:document.getElementById('svc-metrics').value.trim() || '/metrics', ownerGroupId, authMode:document.getElementById('svc-auth-mode').value, basicUsername:document.getElementById('svc-basic-user')?.value || '', basicPassword:document.getElementById('svc-basic-pass')?.value || '', bearerToken:document.getElementById('svc-bearer-token')?.value || '', protocol, clientCertificate: protocol === 'https' ? (document.getElementById('svc-client-cert')?.value || '') : '', skipServerCertCheck: protocol === 'https' ? !!document.getElementById('svc-skip-server-cert')?.checked : false, usedBy: state.services.find(s => s.id === id)?.usedBy || 0 };
+}
+function saveService(id='') {
+  const svc = serviceFromForm(id);
+  if (!svc.name || svc.defaultPort < 1 || svc.defaultPort > 65535) return showToast('Заполните обязательные поля');
+  if (!canManageGroup(svc.ownerGroupId)) return showToast('Недостаточно прав на группу');
+  if (state.services.some(s => s.id !== id && s.name.toLowerCase() === svc.name.toLowerCase())) return showToast('Сервис с таким именем уже существует');
+  if (id) { const idx = state.services.findIndex(s => s.id === id); if (idx !== -1) state.services[idx] = svc; }
+  else state.services.push(svc);
+  saveState(); closeModal(); renderAll(); showToast(id ? 'Сервис обновлён' : 'Сервис создан');
+}
+function openDeleteServiceModal(id) { const svc = state.services.find(s => s.id === id); if (!svc || !canManageService(svc)) return showToast('Удаление недоступно'); openModal('Удаление сервиса', 'Сервис будет удалён из хостов и коллекций', `<div class="box box-red">Удалить сервис <strong>${esc(svc.name)}</strong>?<br>Attachment'ов: ${hostUsageCount(id)}<br>Коллекций: ${serviceCollections(id).length}</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="deleteService('${id}')">Удалить</button>`, true); }
+function deleteService(id) { state.hosts.forEach(h => h.attachments = h.attachments.filter(a => a.serviceId !== id)); state.collections.forEach(c => c.serviceIds = c.serviceIds.filter(sid => sid !== id)); state.services = state.services.filter(s => s.id !== id); selectedServiceIds.delete(id); saveState(); closeModal(); renderAll(); showToast('Сервис удалён'); }
+function openBulkDeleteServicesModal() { const ids = [...selectedServiceIds].filter(id => canManageService(state.services.find(s => s.id === id))); if (!ids.length) return showToast('Нет выбранных сервисов, доступных для удаления'); openModal('Массовое удаление сервисов', 'Будут очищены связанные attachment и коллекции', `<div class="box box-red">Удалить сервисов: ${ids.length}</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="bulkDeleteServices()">Удалить</button>`, true); }
+function bulkDeleteServices() { [...selectedServiceIds].forEach(id => { const svc = state.services.find(s => s.id === id); if (svc && canManageService(svc)) { state.hosts.forEach(h => h.attachments = h.attachments.filter(a => a.serviceId !== id)); state.collections.forEach(c => c.serviceIds = c.serviceIds.filter(sid => sid !== id)); state.services = state.services.filter(s => s.id !== id); } }); selectedServiceIds.clear(); saveState(); closeModal(); renderAll(); showToast('Сервисы удалены'); }
+function openCloneServiceModal(id) { const svc = state.services.find(s => s.id === id); if (!svc || !canManageService(svc)) return; const body = `<div class="form-group"><label class="form-label">Имя нового сервиса</label><input id="clone-service-name" class="wide" value="${esc(svc.name + ' copy')}"></div>`; openModal('Клонировать сервис', svc.name, body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="cloneService('${id}')">Создать копию</button>`, true); }
+function cloneService(id) { const svc = state.services.find(s => s.id === id); const name = document.getElementById('clone-service-name').value.trim(); if (!name) return showToast('Введите имя'); if (state.services.some(s => s.name.toLowerCase() === name.toLowerCase())) return showToast('Сервис с таким именем уже существует'); const copy = { ...svc, id:uid('svc'), name, usedBy:0 }; state.services.push(copy); saveState(); closeModal(); renderAll(); showToast('Сервис склонирован'); }
+
+function renderTemplatesSection() {
+  const sec = document.getElementById('section-templates');
+  sec.innerHTML = `<div class="page-header"><div><h1 class="page-title">🧩 Шаблоны сервисов</h1><div class="page-subtitle">Шаблоны не содержат аутентификацию и используются как основа для создания сервисов.</div></div></div>
+    <div class="panel"><div class="panel-info"><strong>Правило:</strong> имя шаблона уникально. В UI шаблонов не отображаются и не хранятся настройки авторизации.</div><div class="panel-toolbar"><div style="display:flex;gap:12px;align-items:center;"><input class="checkbox" type="checkbox" ${state.serviceTemplates.length && state.serviceTemplates.every(t => selectedTemplateIds.has(t.id)) ? 'checked' : ''} onchange="toggleSelectAllTemplates(this.checked)"><span class="muted">Выбрано: <strong>${selectedTemplateIds.size}</strong> из <strong>${state.serviceTemplates.length}</strong></span></div><button class="btn-sm btn-danger" onclick="openBulkDeleteTemplatesModal()" ${selectedTemplateIds.size ? '' : 'disabled'}>🗑️ Удалить выбранные</button></div><div class="panel-content">${state.serviceTemplates.length ? state.serviceTemplates.map(renderTemplateCard).join('') : '<div class="empty">Нет шаблонов</div>'}</div></div>`;
+}
+function renderTemplateCard(tpl) { const group = groupById(tpl.ownerGroupId); return `<div class="card clickable ${selectedTemplateIds.has(tpl.id) ? 'selected' : ''}" onclick="openCreateServiceFromTemplateModal('${tpl.id}')"><div class="card-main"><input class="checkbox" type="checkbox" ${selectedTemplateIds.has(tpl.id) ? 'checked' : ''} onclick="event.stopPropagation()" onchange="toggleTemplateSelection('${tpl.id}')"><span class="icon">${esc(tpl.icon)}</span><div><div class="card-title">${esc(tpl.name)}</div><div class="card-meta">Тип: ${esc(tpl.type)} · Порт: <span class="mono">${tpl.defaultPort}</span> · Метрики: <span class="mono">${esc(tpl.metrics)}</span>${tpl.type === 'ExporterScrape' ? ' · ' + String(tpl.protocol || 'http').toUpperCase() : ''}</div><div class="pills"><span class="badge badge-blue">👥 ${esc(group?.name || '—')}</span><span class="badge">без auth</span></div></div></div><div class="card-actions"><button class="btn-xs btn-outline" onclick="event.stopPropagation();openEditTemplateModal('${tpl.id}')">✏️ Редактировать</button><button class="btn-xs btn-danger" onclick="event.stopPropagation();openDeleteTemplateModal('${tpl.id}')">🗑️</button></div></div>`; }
+function toggleTemplateSelection(id) { selectedTemplateIds.has(id) ? selectedTemplateIds.delete(id) : selectedTemplateIds.add(id); renderTemplatesSection(); }
+function toggleSelectAllTemplates(checked) { if (checked) state.serviceTemplates.forEach(t => selectedTemplateIds.add(t.id)); else selectedTemplateIds.clear(); renderTemplatesSection(); }
+function openCreateTemplateFromServiceModal(serviceId) { const svc = state.services.find(s => s.id === serviceId); if (!svc) return; const defaultName = `Шаблон "${svc.name}"`; const body = `<div class="box box-blue">Шаблон будет создан без аутентификации. Имя шаблона должно быть уникальным.</div><div class="form-group"><label class="form-label">Название шаблона</label><input id="template-name-input" class="wide" value="${esc(defaultName)}" oninput="validateTemplateName()"><div id="template-name-validation" class="hint"></div></div><div class="box"><strong>Основа:</strong> ${esc(svc.name)}<br>Тип: ${esc(svc.type)} · Порт: ${svc.defaultPort} · Метрики: <span class="mono">${esc(svc.metrics)}</span></div>`; openModal('Создать шаблон сервиса', 'Из карточки сервиса', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="createTemplateFromService('${serviceId}')">Создать шаблон</button>`, true); validateTemplateName(); }
+function validateTemplateName(editingId='') { const el = document.getElementById('template-name-input'); const msg = document.getElementById('template-name-validation'); if (!el || !msg) return false; const name = el.value.trim(); const exists = state.serviceTemplates.some(t => t.id !== editingId && t.name.toLowerCase() === name.toLowerCase()); msg.textContent = !name ? 'Введите название' : exists ? 'Шаблон с таким именем уже существует' : 'Имя свободно'; msg.className = !name || exists ? 'hint text-danger' : 'hint text-success'; return !!name && !exists; }
+function createTemplateFromService(serviceId) { const svc = state.services.find(s => s.id === serviceId); if (!svc || !validateTemplateName()) return; const tpl = { id:uid('tpl'), name:document.getElementById('template-name-input').value.trim(), type:svc.type, icon:svc.icon, defaultPort:svc.defaultPort, metrics:svc.metrics, protocol:svc.protocol || 'http', skipServerCertCheck:!!svc.skipServerCertCheck, ownerGroupId:svc.ownerGroupId, createdBy:currentUser().id, usedBy:0 }; state.serviceTemplates.push(tpl); saveState(); closeModal(); renderAll(); showToast('Шаблон создан'); }
+function openCreateServiceFromTemplateModal(id) { const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; const service = { name:tpl.name.replace(/^Шаблон\s+"(.+)"$/,'$1'), type:tpl.type, icon:tpl.icon, defaultPort:tpl.defaultPort, metrics:tpl.metrics, ownerGroupId: canManageGroup(tpl.ownerGroupId) ? tpl.ownerGroupId : ((isAdmin()?state.groups[0]?.id:currentUser().groups[0]) || 'g-infra'), authMode:'none', basicUsername:'', basicPassword:'', bearerToken:'', protocol:tpl.protocol || 'http', clientCertificate:'', skipServerCertCheck:!!tpl.skipServerCertCheck };
+  openServiceModal(null, service);
+  document.getElementById('modal-subtitle').textContent = `На основе: ${tpl.name}`;
+}
+function openEditTemplateModal(id) { const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; const body = `<div class="box box-blue">Шаблон не содержит авторизацию. Изменяются только базовые параметры.</div><div class="form-group"><label class="form-label">Название *</label><input id="template-name-input" class="wide" value="${esc(tpl.name)}" oninput="validateTemplateName('${id}')"><div id="template-name-validation" class="hint"></div></div><div class="row3"><div class="form-group"><label class="form-label">Тип</label><select id="tpl-type" class="wide">${typeOptions(tpl.type)}</select></div><div class="form-group"><label class="form-label">Иконка</label><select id="tpl-icon" class="wide">${iconOptions(tpl.icon)}</select></div><div class="form-group"><label class="form-label">Порт</label><input id="tpl-port" type="number" min="1" max="65535" class="wide" value="${tpl.defaultPort}"></div></div><div class="form-group"><label class="form-label">Метрики</label><input id="tpl-metrics" class="wide mono" value="${esc(tpl.metrics)}"></div><div class="form-group"><label class="form-label">Протокол для ExporterScrape</label><select id="tpl-protocol" class="wide">${selectOption('http','HTTP',tpl.protocol || 'http')}${selectOption('https','HTTPS',tpl.protocol || 'http')}</select></div>`; openModal('Редактировать шаблон сервиса', 'Без настроек auth', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveTemplate('${id}')">Сохранить</button>`); validateTemplateName(id); }
+function saveTemplate(id) { if (!validateTemplateName(id)) return; const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; tpl.name = document.getElementById('template-name-input').value.trim(); tpl.type = document.getElementById('tpl-type').value; tpl.icon = document.getElementById('tpl-icon').value; tpl.defaultPort = num(document.getElementById('tpl-port').value,80); tpl.metrics = document.getElementById('tpl-metrics').value.trim() || '/metrics'; tpl.protocol = document.getElementById('tpl-protocol').value; saveState(); closeModal(); renderAll(); showToast('Шаблон обновлён'); }
+function openDeleteTemplateModal(id) { const tpl = state.serviceTemplates.find(t => t.id === id); if (!tpl) return; openModal('Удаление шаблона', 'Подтвердите действие', `<div class="box box-red">Удалить шаблон <strong>${esc(tpl.name)}</strong>?</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="deleteTemplate('${id}')">Удалить</button>`, true); }
+function deleteTemplate(id) { state.serviceTemplates = state.serviceTemplates.filter(t => t.id !== id); selectedTemplateIds.delete(id); saveState(); closeModal(); renderAll(); showToast('Шаблон удалён'); }
+function openBulkDeleteTemplatesModal() { openModal('Массовое удаление шаблонов', 'Подтвердите действие', `<div class="box box-red">Удалить шаблонов: ${selectedTemplateIds.size}</div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button class="btn-danger" onclick="bulkDeleteTemplates()">Удалить</button>`, true); }
+function bulkDeleteTemplates() { state.serviceTemplates = state.serviceTemplates.filter(t => !selectedTemplateIds.has(t.id)); selectedTemplateIds.clear(); saveState(); closeModal(); renderAll(); showToast('Шаблоны удалены'); }
+
+function renderCollectionsSection() {
+  const sec = document.getElementById('section-collections');
+  const avg = state.collections.length ? (state.collections.reduce((s,c)=>s+c.serviceIds.length,0)/state.collections.length).toFixed(1) : '0';
+  sec.innerHTML = `<div class="page-header"><div><h1 class="page-title">📦 Коллекции</h1><div class="page-subtitle">Группы сервисов для пакетного присоединения к хостам.</div></div><button onclick="openCollectionModal()">➕ Создать коллекцию</button></div><div class="panel"><div class="panel-info"><strong>Коллекция</strong> хранит ссылки на сервисы. В карточках сервисов видно, в каких коллекциях они используются.</div><div class="stats-grid three"><div class="stat-card"><div class="stat-label">Коллекций</div><div class="stat-value">${state.collections.length}</div></div><div class="stat-card"><div class="stat-label">Используется на хостах</div><div class="stat-value">${state.collections.reduce((s,c)=>s+c.usedBy,0)}</div></div><div class="stat-card"><div class="stat-label">Среднее сервисов</div><div class="stat-value">${avg}</div></div></div><div class="panel-content">${state.collections.length ? state.collections.map(renderCollectionCard).join('') : '<div class="empty">Нет коллекций</div>'}</div></div>`;
+}
+function renderCollectionCard(col) { const svcs = col.serviceIds.map(id => state.services.find(s => s.id === id)).filter(Boolean); return `<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(col.name)} <span class="badge badge-blue">${svcs.length} сервисов</span></div><div class="card-meta">${esc(col.description || '')}</div><div class="collections-line"><span class="collections-label">Сервисы:</span>${svcs.length ? svcs.map(s => `<span class="badge">${esc(s.icon)} ${esc(s.name)}</span>`).join('') : '<span class="muted">—</span>'}</div></div></div><div class="card-actions"><button class="btn-xs btn-danger" onclick="deleteCollection('${col.id}')">🗑️ Удалить</button></div></div>`; }
+function openCollectionModal() { collectionDraftServiceIds = []; collectionDraftName = ''; collectionDraftDesc = ''; const body = `<div class="form-group"><label class="form-label">Название *</label><input id="col-name" class="wide"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-desc" rows="2" class="wide"></textarea></div><div class="box"><strong>Сервисы коллекции</strong><div id="collection-services-box" style="margin-top:10px;"></div><button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button></div>`; openModal('Создать коллекцию', 'Выберите сервисы из библиотеки', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`); renderCollectionDraft(); }
+function renderCollectionDraft() { const box = document.getElementById('collection-services-box'); if (!box) return; box.innerHTML = collectionDraftServiceIds.length ? collectionDraftServiceIds.map(id => { const s = state.services.find(x=>x.id===id); return s ? `<span class="badge" style="margin:3px;">${esc(s.icon)} ${esc(s.name)} <button class="btn-xs btn-ghost" onclick="removeFromCollectionDraft('${id}')">✕</button></span>` : ''; }).join('') : '<div class="muted">Коллекция пуста</div>'; }
+function openServicePickerForCollection() { collectionDraftName = document.getElementById('col-name')?.value || collectionDraftName; collectionDraftDesc = document.getElementById('col-desc')?.value || collectionDraftDesc; const items = state.services.filter(s => !collectionDraftServiceIds.includes(s.id)); const body = items.length ? items.map(s => `<div class="card clickable" onclick="addToCollectionDraft('${s.id}')"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="card-meta">${esc(s.type)} · ${s.defaultPort}</div></div></div></div>`).join('') : '<div class="empty">Все сервисы уже добавлены</div>'; openModal('Добавить сервис в коллекцию', 'Выберите сервис', body, `<button class="btn-ghost" onclick="openCollectionModalRestore()">Назад</button>`, true); }
+function openCollectionModalRestore() { openModal('Создать коллекцию', 'Выберите сервисы из библиотеки', `<div class="form-group"><label class="form-label">Название *</label><input id="col-name" class="wide" value="${esc(collectionDraftName)}"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-desc" rows="2" class="wide">${esc(collectionDraftDesc)}</textarea></div><div class="box"><strong>Сервисы коллекции</strong><div id="collection-services-box" style="margin-top:10px;"></div><button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button></div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`); renderCollectionDraft(); }
+function addToCollectionDraft(id) { collectionDraftServiceIds.push(id); const name = collectionDraftName; const desc = collectionDraftDesc; openModal('Создать коллекцию', 'Выберите сервисы из библиотеки', `<div class="form-group"><label class="form-label">Название *</label><input id="col-name" class="wide" value="${esc(name)}"></div><div class="form-group"><label class="form-label">Описание</label><textarea id="col-desc" rows="2" class="wide">${esc(desc)}</textarea></div><div class="box"><strong>Сервисы коллекции</strong><div id="collection-services-box" style="margin-top:10px;"></div><button class="btn-outline" onclick="openServicePickerForCollection()">➕ Добавить сервис</button></div>`, `<button class="btn-ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`); renderCollectionDraft(); }
+function removeFromCollectionDraft(id) { collectionDraftServiceIds = collectionDraftServiceIds.filter(x => x !== id); renderCollectionDraft(); }
+function saveCollection() { const name = document.getElementById('col-name').value.trim(); if (!name || !collectionDraftServiceIds.length) return showToast('Введите название и добавьте сервисы'); state.collections.push({ id:uid('col'), name, description:document.getElementById('col-desc').value.trim(), serviceIds:[...collectionDraftServiceIds], usedBy:0 }); saveState(); closeModal(); renderAll(); showToast('Коллекция создана'); }
+function deleteCollection(id) { state.collections = state.collections.filter(c => c.id !== id); saveState(); renderAll(); showToast('Коллекция удалена'); }
+
+function openAttachModal(type) {
+  if (selectedHostIds.size !== 1) return showToast('Выберите один хост');
+  if (!canMonitor()) return showToast('Нет права на постановку на мониторинг');
+  const host = state.hosts.find(h => h.id === [...selectedHostIds][0]);
+  const items = type === 'service' ? state.services : state.collections;
+  const body = `<div class="box box-blue">Хост: <strong>${esc(host.name)}</strong> · ${esc(host.address)}</div>${items.length ? items.map(item => `<div class="card clickable" onclick="attachItemToHost('${type}', '${item.id}')"><div class="card-main"><span class="icon">${type === 'service' ? esc(item.icon) : '📦'}</span><div><div class="card-title">${esc(item.name)}</div><div class="card-meta">${type === 'service' ? esc(item.type) + ' · ' + item.defaultPort : (item.serviceIds.length + ' сервисов')}</div></div></div></div>`).join('') : '<div class="empty">Нет доступных элементов</div>'}`;
+  openModal(type === 'service' ? 'Присоединить сервис' : 'Присоединить коллекцию', 'Attachment получит владельца по группе сервиса', body, `<button class="btn-ghost" onclick="closeModal()">Отмена</button>`);
+}
+function attachItemToHost(type, itemId) {
+  const host = state.hosts.find(h => h.id === [...selectedHostIds][0]);
+  const serviceIds = type === 'service' ? [itemId] : (state.collections.find(c => c.id === itemId)?.serviceIds || []);
+  let added = 0;
+  serviceIds.forEach(id => {
+    const svc = state.services.find(s => s.id === id);
+    if (!svc || host.attachments.some(a => a.serviceId === id)) return;
+    host.attachments.push({ serviceId:id, createdBy:currentUser().id, ownerGroupId:svc.ownerGroupId, portOverride:null });
+    added++;
   });
+  if (type === 'collection') { const col = state.collections.find(c => c.id === itemId); if (col) col.usedBy++; }
+  else { const svc = state.services.find(s => s.id === itemId); if (svc) svc.usedBy++; }
+  saveState(); closeModal(); expandedHostId = host.id; renderAll(); showToast(`Присоединено сервисов: ${added}`);
 }
+function detachService(hostId, idx) { const host = state.hosts.find(h => h.id === hostId); const att = host?.attachments[idx]; if (!host || !att) return; if (!canManageAttachment(att)) return showToast('Недостаточно прав'); host.attachments.splice(idx,1); saveState(); renderAll(); showToast('Сервис отсоединён'); }
+function applyPortOverride(hostId, idx) { const host = state.hosts.find(h => h.id === hostId); const att = host?.attachments[idx]; if (!att || !canManageAttachment(att)) return showToast('Недостаточно прав'); const val = document.getElementById(`port-${hostId}-${idx}`).value.trim(); if (!val) att.portOverride = null; else { const p = num(val,0); if (p < 1 || p > 65535) return showToast('Некорректный порт'); att.portOverride = p; } saveState(); renderAll(); showToast('Порт обновлён'); }
+function resetPortOverride(hostId, idx) { const host = state.hosts.find(h => h.id === hostId); const att = host?.attachments[idx]; if (!att || !canManageAttachment(att)) return showToast('Недостаточно прав'); att.portOverride = null; saveState(); renderAll(); showToast('Порт сброшен'); }
+
+function renderAccessSection() {
+  const sec = document.getElementById('section-access');
+  sec.innerHTML = `<div class="page-header"><div><h1 class="page-title">👥 Доступ</h1><div class="page-subtitle">Демо-модель пользователей, групп и прав для проверки сценариев.</div></div></div><div class="panel"><div class="panel-info"><strong>Ключевая идея:</strong> хосты видны всем, attachment'ы видны всем, но управление service/attachment зависит от группы. Чувствительные поля хоста защищены жизненным циклом и источником данных.</div><div class="panel-content"><h3>Пользователи</h3>${state.users.map(renderUserCard).join('')}<h3 style="margin-top:22px;">Группы</h3>${state.groups.map(g => `<div class="card"><div class="card-main"><span class="icon">👥</span><div><div class="card-title">${esc(g.name)}</div><div class="card-meta">Участники: ${state.users.filter(u => u.groups.includes(g.id)).map(u => esc(u.name)).join(', ') || '—'}</div></div></div></div>`).join('')}<h3 style="margin-top:22px;">Правила по хостам</h3><div class="box"><table style="width:100%;border-collapse:collapse;"><tbody>${policyRow('Создать хост','Пользователь с правом “Постановка на мониторинг”')} ${policyRow('Редактировать manual host без attachment','Создатель или MARS admin')} ${policyRow('Редактировать manual host с attachment','Только MARS admin')} ${policyRow('Редактировать catalog host','Нельзя вручную: поля обновляются из справочника')} ${policyRow('Удалить хост без attachment','Создатель или MARS admin')} ${policyRow('Удалить хост с attachment','Только MARS admin в прототипе')} ${policyRow('Присоединить сервис','Любой пользователь с правом “Постановка на мониторинг”')} ${policyRow('Отсоединить attachment','Автор attachment, участник группы-владельца или MARS admin')}</tbody></table></div></div></div>`;
+}
+function renderUserCard(u) { return `<div class="card"><div class="card-main"><span class="avatar" style="background:${u.isAdmin ? 'var(--purple-600)' : 'var(--primary)'};width:42px;height:42px;">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)}</div><div class="card-meta">${u.isAdmin ? 'MARS admin' : 'Пользователь'} · Постановка на мониторинг: ${u.canMonitor ? 'да' : 'нет'}</div><div class="pills">${u.groups.map(id => `<span class="badge badge-blue">${esc(groupById(id)?.name || id)}</span>`).join('')}</div></div></div></div>`; }
+function policyRow(a,b) { return `<tr><td style="padding:8px;border-bottom:1px solid var(--slate-200);font-weight:700;">${a}</td><td style="padding:8px;border-bottom:1px solid var(--slate-200);">${b}</td></tr>`; }
 
 loadState();
-render();
+renderAll();
 </script>
 </body>
 </html>
