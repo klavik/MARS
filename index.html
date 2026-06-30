@@ -1,809 +1,149 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MARS — Система мониторинга</title>
-  <style>
-    :root{
-      --primary:#3B82F6;--primary-hover:#2563EB;--success:#10B981;--danger:#EF4444;--warning:#F59E0B;
-      --slate-50:#F8FAFC;--slate-100:#F1F5F9;--slate-200:#E2E8F0;--slate-300:#CBD5E1;--slate-400:#94A3B8;
-      --slate-500:#64748B;--slate-600:#475569;--slate-700:#334155;--slate-800:#1E293B;--slate-900:#0F172A;
-      --blue-50:#EFF6FF;--blue-100:#DBEAFE;--blue-200:#BFDBFE;--blue-700:#1D4ED8;--blue-800:#1E40AF;
-      --green-50:#F0FDF4;--green-100:#DCFCE7;--green-700:#15803D;--amber-50:#FFFBEB;--amber-100:#FEF3C7;
-      --amber-200:#FDE68A;--amber-700:#B45309;--amber-800:#92400E;--purple-50:#FAF5FF;--purple-100:#EDE9FE;
-      --purple-700:#6D28D9;--red-50:#FEF2F2;--red-100:#FEE2E2;--red-200:#FECACA;--red-700:#B91C1C
-    }
-    *{box-sizing:border-box}
-    body{margin:0;background:var(--slate-100);color:var(--slate-800);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-    nav{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--slate-200)}
-    .nav{max-width:1280px;margin:auto;min-height:64px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-    .nav-left{display:flex;align-items:center;gap:22px;flex-wrap:wrap}
-    .brand{font-weight:850;font-size:20px;color:var(--slate-900);white-space:nowrap}
-    .tabs{display:flex;gap:4px;flex-wrap:wrap}.tab{padding:12px 14px;cursor:pointer;color:var(--slate-600);border-bottom:2px solid transparent;font-size:14px}
-    .tab:hover{color:var(--primary)}.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:800}
-    .user{display:flex;align-items:center;gap:10px}.avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800}
-    main{max-width:1280px;margin:auto;padding:24px}.section{display:none}.section.active{display:block}
-    .page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}.title{font-size:24px;font-weight:850;color:var(--slate-900);margin:0}.sub{color:var(--slate-500);font-size:14px;margin-top:4px}
-    .panel{background:#fff;border:1px solid var(--slate-200);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow:hidden;margin-bottom:18px}
-    .info{padding:14px 20px;background:var(--blue-50);border-bottom:1px solid var(--blue-200);color:var(--blue-800);font-size:14px;line-height:1.45}
-    .toolbar,.filters{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--slate-50);border-bottom:1px solid var(--slate-200)}
-    .filters{justify-content:flex-start;background:#fff}.content{padding:16px 20px;max-height:760px;overflow:auto}.footer{padding:14px 20px;background:var(--green-50);color:var(--green-700);border-top:1px solid var(--green-100);font-size:14px}
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:14px 20px;background:var(--slate-50);border-bottom:1px solid var(--slate-200)}.stats.three{grid-template-columns:repeat(3,1fr)}
-    .stat{background:#fff;border:1px solid var(--slate-200);border-radius:12px;padding:14px}.stat-label{color:var(--slate-500);font-size:13px}.stat-value{font-size:24px;font-weight:850;color:var(--slate-900);margin-top:4px}
-    button{border:0;border-radius:9px;padding:8px 14px;background:var(--primary);color:#fff;font-weight:750;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
-    button:hover{background:var(--primary-hover)}button:disabled{opacity:.45;cursor:not-allowed}.outline{background:#fff;color:var(--slate-700);border:1px solid var(--slate-300)}.outline:hover{background:var(--slate-50)}
-    .ghost{background:transparent;color:var(--slate-700)}.ghost:hover{background:var(--slate-100)}.danger{background:var(--danger)}.success{background:var(--success)}.purple{background:#7C3AED}
-    .sm{padding:5px 10px;font-size:12px}.xs{padding:4px 8px;font-size:11px}
-    input,select,textarea{padding:9px 11px;border:1px solid var(--slate-300);border-radius:9px;font-size:14px;outline:none;background:#fff}textarea{resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(59,130,246,.12)}input:disabled,select:disabled,textarea:disabled{background:var(--slate-100);color:var(--slate-500)}
-    .input{width:260px}.wide{width:100%}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.muted{color:var(--slate-500)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}.field{margin-bottom:16px}.field label{display:block;font-weight:750;font-size:14px;color:var(--slate-700);margin-bottom:7px}.hint{font-size:12px;color:var(--slate-500);margin-top:5px;line-height:1.45}
-    .box{border:1px solid var(--slate-200);background:var(--slate-50);border-radius:12px;padding:14px;margin:12px 0;line-height:1.45}.blue-box{background:var(--blue-50);border-color:var(--blue-200);color:var(--blue-800)}.amber-box{background:var(--amber-50);border-color:var(--amber-200);color:var(--amber-800)}.red-box{background:var(--red-50);border-color:var(--red-200);color:var(--red-700)}.purple-box{background:var(--purple-50);border-color:var(--purple-100)}
-    .card{background:#fff;border:1px solid var(--slate-200);border-radius:12px;padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:14px;transition:.2s}.card:hover{border-color:var(--primary);box-shadow:0 2px 8px rgba(59,130,246,.12)}.card.selected{background:var(--blue-50);border-color:var(--primary)}.clickable{cursor:pointer}.card-main{display:flex;align-items:flex-start;gap:13px;flex:1;min-width:0}.host-card{display:block}.host-top{display:flex;justify-content:space-between;align-items:center;gap:14px}.icon{font-size:28px;line-height:1}.card-title{font-weight:850;font-size:16px;color:var(--slate-900)}.meta{color:var(--slate-500);font-size:13px;margin-top:5px;line-height:1.55}.actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
-    .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:7px;font-size:12px;font-weight:750;background:var(--slate-100);color:var(--slate-700)}.b-blue{background:var(--blue-100);color:var(--blue-700)}.b-green{background:var(--green-100);color:var(--green-700)}.b-amber{background:var(--amber-100);color:var(--amber-700)}.b-purple{background:var(--purple-100);color:var(--purple-700)}.b-red{background:var(--red-100);color:var(--red-700)}
-    .pills,.line{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}.line-label{color:var(--slate-500);font-weight:800;font-size:12px}.checkbox{width:18px;height:18px;accent-color:var(--primary);flex:0 0 auto}.details{display:none;border-top:1px solid var(--slate-200);margin-top:12px;padding-top:12px}.details.open{display:block}.attach-card{border:1px solid var(--slate-200);border-radius:12px;padding:14px;margin-bottom:10px;background:#fff}.port-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px dashed var(--slate-200)}.port-row input{width:90px;text-align:center}.addr{font-size:10px;border-radius:5px;padding:2px 6px;font-weight:850;margin-right:6px}.ip{background:var(--blue-100);color:var(--blue-700)}.fqdn{background:var(--green-100);color:var(--green-700)}.empty{text-align:center;color:var(--slate-500);padding:34px}
-    .modal-wrap{display:none;position:fixed;inset:0;background:rgba(15,23,42,.62);backdrop-filter:blur(4px);z-index:60;align-items:center;justify-content:center;padding:18px}.modal-wrap.show{display:flex}.modal{width:100%;max-width:880px;max-height:92vh;background:#fff;border-radius:14px;box-shadow:0 25px 60px rgba(0,0,0,.28);overflow:hidden;display:flex;flex-direction:column}.modal.small{max-width:560px}.modal-head,.modal-foot{padding:16px 20px;background:var(--slate-50);border-bottom:1px solid var(--slate-200);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-foot{border-top:1px solid var(--slate-200);border-bottom:0}.modal-title{font-size:18px;font-weight:850}.modal-sub{color:var(--slate-500);font-size:13px;margin-top:3px}.modal-body{padding:20px;overflow:auto}.toast{position:fixed;right:20px;bottom:20px;z-index:90;background:var(--slate-800);color:#fff;padding:14px 18px;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.25);opacity:0;transform:translateY(70px);transition:.25s}.toast.show{opacity:1;transform:none}
-    .table-wrap{overflow:auto;max-height:680px;border-top:1px solid var(--slate-200);border-bottom:1px solid var(--slate-200);background:#fff}.data-table{width:100%;min-width:1440px;border-collapse:separate;border-spacing:0;font-size:13px}.data-table th{position:sticky;top:0;z-index:2;background:var(--slate-50);color:var(--slate-600);text-align:left;white-space:nowrap;font-size:12px;font-weight:850;border-bottom:1px solid var(--slate-200);padding:11px 12px}.data-table th.sortable{cursor:pointer;user-select:none}.data-table th.sortable:hover{background:var(--blue-50);color:var(--blue-700)}.data-table td{padding:11px 12px;border-bottom:1px solid var(--slate-100);vertical-align:middle;max-width:320px}.data-table tbody tr{transition:.12s}.data-table tbody tr:hover{background:var(--blue-50)}.data-table tbody tr.selected{background:var(--blue-50)}.data-table tbody tr.row-clickable{cursor:pointer}.table-select{width:42px;text-align:center}.table-actions{width:230px}.cell-primary{font-weight:850;color:var(--slate-900);white-space:nowrap}.cell-sub{margin-top:3px;color:var(--slate-500);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px}.cell-wrap{white-space:normal;line-height:1.35}.table-actions-cell{white-space:nowrap}.pagination{padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--slate-50)}.pagination .pager{display:flex;align-items:center;gap:7px}.filter-chips{padding:10px 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border-bottom:1px solid var(--slate-200)}.filter-chip{display:inline-flex;align-items:center;gap:6px;background:var(--blue-50);color:var(--blue-800);border:1px solid var(--blue-200);border-radius:999px;padding:5px 9px;font-size:12px;font-weight:700}.filter-chip button{padding:0 2px;background:transparent;color:inherit;font-size:13px;line-height:1}.filter-chip button:hover{background:transparent;color:var(--danger)}.column-config-row,.filter-rule{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--slate-100)}.filter-rule{grid-template-columns:minmax(150px,1.2fr) minmax(150px,1fr) minmax(180px,1.4fr) auto}.column-order{display:flex;gap:5px}.tiny-note{font-size:12px;color:var(--slate-500);line-height:1.45}.sort-indicator{font-size:11px;color:var(--primary);margin-left:4px}.table-empty{padding:34px;text-align:center;color:var(--slate-500)}
-
-    @media(max-width:900px){main{padding:14px}.row,.row3,.stats,.stats.three{grid-template-columns:1fr}.card,.host-top{align-items:stretch;flex-direction:column}.actions{justify-content:flex-start}.input{width:100%}}
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MARS — мониторинг</title>
+<style>
+:root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}.nav{max-width:1440px;margin:auto;padding:0 24px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:900;font-size:20px;white-space:nowrap}.tabs{display:flex;gap:2px;flex-wrap:wrap}.tab{padding:21px 13px 18px;cursor:pointer;font-size:14px;color:var(--muted);border-bottom:3px solid transparent}.tab.active{color:var(--blue);border-color:var(--blue);font-weight:800}.user{display:flex;align-items:center;gap:10px}.avatar{width:33px;height:33px;background:var(--blue);color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:800}
+main{max-width:1440px;margin:auto;padding:24px}.section{display:none}.section.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px}.title{margin:0;font-size:25px;font-weight:900}.sub{color:var(--muted);font-size:14px;margin-top:5px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.05);margin-bottom:16px}.info{padding:13px 18px;background:var(--blue50);border-bottom:1px solid #bfdbfe;color:#1e40af;font-size:14px;line-height:1.45}.toolbar{padding:12px 18px;background:var(--slatebg);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.content{padding:16px 18px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--slatebg)}.stat{background:#fff;border:1px solid var(--line);padding:12px;border-radius:11px}.stat label{display:block;color:var(--muted);font-size:12px}.stat b{display:block;font-size:22px;margin-top:4px}
+button{border:0;border-radius:9px;padding:8px 12px;background:var(--blue);color:#fff;font-weight:750;cursor:pointer;font-size:14px}button:hover{background:var(--blue2)}button:disabled{opacity:.45;cursor:not-allowed}.outline{background:#fff;color:var(--slate);border:1px solid #cbd5e1}.outline:hover{background:#f8fafc}.ghost{background:transparent;color:var(--slate)}.ghost:hover{background:#f1f5f9}.danger{background:#dc2626}.danger:hover{background:#b91c1c}.success{background:#16a34a}.xs{font-size:12px;padding:5px 8px}.sm{font-size:13px;padding:7px 10px}
+input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10px;font-size:14px;background:#fff;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}textarea{resize:vertical}.wide{width:100%}.input{width:300px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.muted{color:var(--muted)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.field{margin-bottom:14px}.field label{display:block;font-weight:800;font-size:13px;color:var(--slate);margin-bottom:6px}.hint{color:var(--muted);font-size:12px;margin-top:5px;line-height:1.4}
+.badge{display:inline-flex;gap:4px;align-items:center;padding:4px 7px;border-radius:7px;background:#f1f5f9;color:#334155;font-size:12px;font-weight:750;white-space:nowrap}.b-blue{background:#dbeafe;color:#1d4ed8}.b-green{background:var(--greenbg);color:var(--green)}.b-amber{background:var(--amberbg);color:var(--amber)}.b-red{background:var(--redbg);color:var(--red)}.b-violet{background:var(--violetbg);color:var(--violet)}.pill-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.box{padding:13px;border-radius:10px;border:1px solid var(--line);background:#f8fafc;margin:10px 0;line-height:1.45}.blue-box{background:var(--blue50);border-color:#bfdbfe;color:#1e40af}.amber-box{background:#fffbeb;border-color:#fde68a;color:#92400e}.red-box{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.violet-box{background:#faf5ff;border-color:#e9d5ff;color:#6b21a8}
+.host-switch{display:flex;gap:6px;padding:12px 18px 0;background:#fff}.host-switch button{border-radius:9px 9px 0 0;background:transparent;color:var(--muted);border:1px solid transparent;border-bottom:0}.host-switch button.active{background:var(--blue50);border-color:#bfdbfe;color:#1d4ed8;font-weight:850}.table-wrap{overflow:auto;max-height:620px;border-top:1px solid var(--line)}table{border-collapse:collapse;width:100%;min-width:1000px;font-size:13px}th{position:sticky;top:0;background:#f8fafc;border-bottom:1px solid var(--line);text-align:left;padding:10px 12px;color:#475569;font-weight:850;white-space:nowrap;z-index:1}th.sort{cursor:pointer}th.sort:hover{color:var(--blue)}td{padding:10px 12px;border-bottom:1px solid #eef2f7;vertical-align:top}tr.data-row{cursor:pointer}tr.data-row:hover{background:#f8fbff}.cell-title{font-weight:850;color:#0f172a}.cell-sub{font-size:12px;color:var(--muted);margin-top:3px}.empty{padding:36px;text-align:center;color:var(--muted)}.table-footer{padding:11px 18px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;background:#f8fafc}.pagination{display:flex;align-items:center;gap:6px}.filter-summary{padding:8px 18px;color:#475569;font-size:13px;border-bottom:1px solid var(--line);background:#fff}.filters-list{display:flex;gap:6px;flex-wrap:wrap}.filter-chip{padding:4px 7px;border-radius:6px;background:#dbeafe;color:#1d4ed8;font-size:12px;font-weight:750}
+.card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px;margin-bottom:10px;display:flex;gap:12px;justify-content:space-between;align-items:flex-start}.card:hover{border-color:#93c5fd}.card-main{display:flex;gap:12px;align-items:flex-start;min-width:0}.icon{font-size:25px;line-height:1}.card-title{font-size:15px;font-weight:900}.meta{margin-top:4px;color:var(--muted);font-size:13px;line-height:1.45}.modal-wrap{position:fixed;inset:0;background:rgba(15,23,42,.62);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;backdrop-filter:blur(3px)}.modal-wrap.show{display:flex}.modal{width:100%;max-width:940px;max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.32)}.modal.small{max-width:600px}.modal-head,.modal-foot{background:#f8fafc;padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-foot{border-top:1px solid var(--line);border-bottom:0}.modal-title{font-size:18px;font-weight:900}.modal-sub{font-size:13px;color:var(--muted);margin-top:3px}.modal-body{padding:18px;overflow:auto}.toast{position:fixed;right:18px;bottom:18px;background:#0f172a;color:#fff;padding:12px 16px;border-radius:10px;z-index:90;opacity:0;transform:translateY(50px);transition:.22s}.toast.show{opacity:1;transform:none}.checkbox{width:17px;height:17px;accent-color:var(--blue)}.service-picker{max-height:300px;overflow:auto}.separator{height:1px;background:var(--line);margin:14px 0}
+@media(max-width:900px){main{padding:14px}.row,.row3,.stats{grid-template-columns:1fr}.input{width:100%}.nav{padding:0 14px}.tab{padding:10px}.page-head{gap:10px}}
+</style>
 </head>
 <body>
-<nav><div class="nav"><div class="nav-left"><div class="brand">🖥️ MARS</div><div class="tabs">
-  <div class="tab active" id="nav-hosts" onclick="switchSection('hosts')">Хосты</div>
-  <div class="tab" id="nav-services" onclick="switchSection('services')">🔌 Сервисы</div>
-  <div class="tab" id="nav-templates" onclick="switchSection('templates')">🧩 Шаблоны сервисов</div>
-  <div class="tab" id="nav-collections" onclick="switchSection('collections')">📦 Коллекции</div>
-  <div class="tab" id="nav-access" onclick="switchSection('access')">👥 Доступ</div>
-</div></div><div class="user"><select id="current-user" onchange="switchUser(this.value)"></select><div class="avatar" id="avatar">A</div></div></div></nav>
-<main>
-  <section id="section-hosts" class="section active"></section>
-  <section id="section-services" class="section"></section>
-  <section id="section-templates" class="section"></section>
-  <section id="section-collections" class="section"></section>
-  <section id="section-access" class="section"></section>
-</main>
-<div class="modal-wrap" id="modal-wrap"><div class="modal" id="modal"><div class="modal-head"><div><div class="modal-title" id="modal-title"></div><div class="modal-sub" id="modal-sub"></div></div><button class="ghost" onclick="closeModal()">✕</button></div><div class="modal-body" id="modal-body"></div><div class="modal-foot" id="modal-foot"></div></div></div>
-<div class="toast" id="toast"></div>
+<nav><div class="nav"><div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap"><div class="brand">🖥️ MARS</div><div class="tabs"><div id="nav-hosts" class="tab active" onclick="switchSection('hosts')">Хосты</div><div id="nav-services" class="tab" onclick="switchSection('services')">🔌 Сервисы</div><div id="nav-templates" class="tab" onclick="switchSection('templates')">🧩 Шаблоны</div><div id="nav-collections" class="tab" onclick="switchSection('collections')">📦 Коллекции</div><div id="nav-access" class="tab" onclick="switchSection('access')">👥 Доступ</div></div></div><div class="user"><select id="current-user" onchange="switchUser(this.value)"></select><div id="avatar" class="avatar">AI</div></div></div></nav>
+<main><section id="section-hosts" class="section active"></section><section id="section-services" class="section"></section><section id="section-templates" class="section"></section><section id="section-collections" class="section"></section><section id="section-access" class="section"></section></main>
+<div id="modal-wrap" class="modal-wrap"><div id="modal" class="modal"><div class="modal-head"><div><div id="modal-title" class="modal-title"></div><div id="modal-sub" class="modal-sub"></div></div><button class="ghost" onclick="closeModal()">✕</button></div><div id="modal-body" class="modal-body"></div><div id="modal-foot" class="modal-foot"></div></div></div></div><div id="toast" class="toast"></div>
 <script>
-const STORE_KEY='mars-ui-state-v16';
-const LEGACY_KEYS=['mars-ui-state-v15','mars-ui-state-v14','mars-ui-state-v13','mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9','mars-ui-state-v8','mars-ui-state-v7','mars-ui-state'];
-let state=demoState(),activeSection='hosts';
-let selectedHostIds=new Set(),selectedServiceIds=new Set(),selectedTemplateIds=new Set();
-let expandedHostId=null,hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null};
-let collectionDraftIds=[],collectionDraftName='',collectionDraftDesc='';
-const HOST_TABLE_VIEW_KEY='mars-ui-host-table-view-v1';
-const HOST_TABLE_COLUMN_IDS=['visibleName','ownerGroup','targetKey','source','cmdbBinding','addressType','address','proxyGroup','status','services','createdBy','createdAt','internalId'];
-const DEFAULT_HOST_TABLE_COLUMN_IDS=['visibleName','ownerGroup','targetKey','source','address','proxyGroup','status','services','createdBy','createdAt'];
-let hostTableView={columns:[...DEFAULT_HOST_TABLE_COLUMN_IDS],hidden:[],sortKey:'visibleName',sortDirection:'asc',page:1,pageSize:50};
-let hostFilterState={query:'',rules:[]};
-let hostFilterDraft=[];
-
+const STORE_KEY='mars-ui-nonunique-hosts-v1';
+const LEGACY_KEYS=[];
+let state=demoState();
+let activeSection='hosts',hostView='connected';
+let hostTable={columns:['id','name','address','source','cmdb','proxy','status','services','createdAt'],hidden:[],sortKey:'name',sortDirection:'asc',page:1,pageSize:25};
+let hostFilter={query:'',rules:[]},hostFilterDraft=[];
+let hostDraft={mode:'manual',catalogId:'',selectedServiceIds:[],editingId:null};
+let selectedServiceIds=new Set(),selectedTemplateIds=new Set();
+let collectionDraft=[];
 const $=id=>document.getElementById(id);
-function uid(p){return p+'-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4)}
-function hostKey(id){return String(id)}
-function esc(v){return String(v??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function q(v){return "'"+String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'"}
-function num(v,f=0){const n=parseInt(v,10);return Number.isFinite(n)?n:f}
-function nowText(){return new Date().toLocaleString('ru-RU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}
-function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600)}
-function openModal(t,s,b,f,small=false){$('modal-title').textContent=t;$('modal-sub').textContent=s||'';$('modal-body').innerHTML=b;$('modal-foot').innerHTML=f||'<button onclick="closeModal()">Закрыть</button>';$('modal').classList.toggle('small',!!small);$('modal-wrap').classList.add('show')}
+const uid=p=>p+'-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);
+const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const q=v=>"'"+String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";
+const now=()=>new Date().toLocaleString('ru-RU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2600)}
+function openModal(title,sub,body,foot,small=false){$('modal-title').textContent=title;$('modal-sub').textContent=sub||'';$('modal-body').innerHTML=body;$('modal-foot').innerHTML=foot||'<button onclick="closeModal()">Закрыть</button>';$('modal').classList.toggle('small',small);$('modal-wrap').classList.add('show')}
 function closeModal(){$('modal-wrap').classList.remove('show');$('modal').classList.remove('small')}
-function confirmModal(t,msg,fnName,args=''){openModal(t,'Подтвердите действие',`<div class="box red-box">${msg}</div>`,`<button class="outline" onclick="closeModal()">Отмена</button><button class="danger" onclick="${fnName}(${args});closeModal()">Удалить</button>`,true)}
-
-function demoState(){return{
-  currentUserId:'u-alice',
-  users:[
-    {id:'u-admin',name:'MARS Admin',initials:'MA',isAdmin:true,canMonitor:true,groups:['g-infra','g-db','g-app'],groupPermissions:{'g-infra':['monitoring.manage'],'g-db':['monitoring.manage'],'g-app':['monitoring.manage']}},
-    {id:'u-alice',name:'Alice Infra',initials:'AI',isAdmin:false,canMonitor:true,groups:['g-infra'],groupPermissions:{'g-infra':['monitoring.manage']}},
-    {id:'u-dmitry',name:'Dmitry Infra',initials:'DI',isAdmin:false,canMonitor:true,groups:['g-infra'],groupPermissions:{'g-infra':['monitoring.manage']}},
-    {id:'u-bob',name:'Bob DB',initials:'BD',isAdmin:false,canMonitor:true,groups:['g-db'],groupPermissions:{'g-db':['monitoring.manage']}},
-    {id:'u-eve',name:'Eve ReadOnly',initials:'ER',isAdmin:false,canMonitor:false,groups:['g-app'],groupPermissions:{}}
-  ],
-  groups:[
-    {id:'g-infra',name:'Администраторы Linux',key:'linux-admins'},
-    {id:'g-db',name:'Администраторы PostgreSQL',key:'postgres-admins'},
-    {id:'g-app',name:'Администраторы приложений',key:'app-admins'}
-  ],
-  proxyGroups:[{id:'prod-dmz',name:'Production DMZ'},{id:'analytics',name:'Analytics'},{id:'k8s',name:'K8s Cluster'}],
-  catalogSources:[{id:'cmdb-main',name:'CMDB Main'}],
-  catalogHosts:[
-    {sourceId:'cmdb-main',externalId:'srv-1001',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',environment:'prod',os:'Ubuntu 22.04',updatedAt:'2026-04-30 09:15'},
-    {sourceId:'cmdb-main',externalId:'srv-1002',name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',environment:'prod',os:'PostgreSQL Appliance',updatedAt:'2026-04-30 09:15'},
-    {sourceId:'cmdb-main',externalId:'srv-1003',name:'cache-01',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',environment:'stage',os:'Debian 12',updatedAt:'2026-04-30 09:15'},
-    {sourceId:'cmdb-main',externalId:'srv-1004',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',environment:'prod',os:'Talos Linux',updatedAt:'2026-04-30 09:15'}
-  ],
-  hosts:[
-    {id:'host-1',ownerGroupId:'g-db',visibleName:'prod-db-01',targetKey:'postgres-admins:prod-db-01',name:'prod-db-01',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',status:'UP',sourceType:'catalog',createdBy:'u-bob',createdAt:'2026-04-30 09:30',prefilledFromCatalog:null,catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1002',lastSyncAt:'2026-04-30 09:30',syncStatus:'synced'},attachments:[
-      {serviceId:'svc-1',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:null}
-    ]},
-    {id:'host-2',ownerGroupId:'g-infra',visibleName:'prod-db-01',targetKey:'linux-admins:prod-db-01',name:'prod-db-01',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'prod-dmz',status:'UP',sourceType:'catalog',createdBy:'u-alice',createdAt:'2026-04-30 09:45',prefilledFromCatalog:null,catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1002',lastSyncAt:'2026-04-30 09:45',syncStatus:'synced'},attachments:[
-      {serviceId:'svc-2',createdBy:'u-dmitry',ownerGroupId:'g-infra',portOverride:null}
-    ]},
-    {id:'host-3',ownerGroupId:'g-infra',visibleName:'manual-api-01',targetKey:'linux-admins:manual-api-01',name:'manual-api-01',addressType:'fqdn',address:'api-01.manual.internal.example.com',proxyGroup:'prod-dmz',status:'WARN',sourceType:'manual',createdBy:'u-alice',createdAt:'2026-04-30 10:00',prefilledFromCatalog:null,catalogBinding:null,attachments:[]},
-    {id:'host-4',ownerGroupId:'g-db',visibleName:'cache-01-copy',targetKey:'postgres-admins:cache-01-copy',name:'cache-01-copy',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',status:'UP',sourceType:'manual',createdBy:'u-bob',createdAt:'2026-04-30 10:10',prefilledFromCatalog:{sourceId:'cmdb-main',externalId:'srv-1003',copiedAt:'2026-04-30 10:10'},catalogBinding:null,attachments:[
-      {serviceId:'svc-3',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:6380}
-    ]}
-  ],
-  services:[
-    {id:'svc-1',name:'PostgreSQL',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',ownerGroupId:'g-db',authMode:'basic',basicUsername:'monitor',basicPassword:'',bearerToken:'',protocol:'http',clientCertificate:'',skipServerCertCheck:false,usedBy:12,createdBy:'u-bob'},
-    {id:'svc-2',name:'Nginx HTTPS',type:'ExporterScrape',icon:'🌐',defaultPort:443,metrics:'/nginx_metrics',ownerGroupId:'g-infra',authMode:'none',basicUsername:'',basicPassword:'',bearerToken:'',protocol:'https',clientCertificate:'-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----',skipServerCertCheck:true,usedBy:24,createdBy:'u-alice'},
-    {id:'svc-3',name:'Redis Cache',type:'ExporterScrape',icon:'🔴',defaultPort:6379,metrics:'/metrics',ownerGroupId:'g-db',authMode:'bearer',basicUsername:'',basicPassword:'',bearerToken:'',protocol:'http',clientCertificate:'',skipServerCertCheck:false,usedBy:8,createdBy:'u-bob'}
-  ],
-  serviceTemplates:[
-    {id:'tpl-1',name:'Шаблон "Nginx Standard"',type:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',protocol:'http',skipServerCertCheck:false,ownerGroupId:'g-infra',createdBy:'u-alice',usedBy:347},
-    {id:'tpl-2',name:'Шаблон "PostgreSQL Advanced"',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',protocol:'http',skipServerCertCheck:false,ownerGroupId:'g-db',createdBy:'u-bob',usedBy:134}
-  ],
-  collections:[
-    {id:'col-1',name:'Web Stack',description:'Nginx + PostgreSQL',serviceIds:['svc-1','svc-2'],usedBy:12},
-    {id:'col-2',name:'Cache Stack',description:'Redis + Nginx',serviceIds:['svc-2','svc-3'],usedBy:8}
-  ]
+function confirmModal(title,msg,action,args=''){openModal(title,'Подтвердите действие',`<div class="box red-box">${msg}</div>`,`<button class="outline" onclick="closeModal()">Отмена</button><button class="danger" onclick="${action}(${args});closeModal()">Удалить</button>`,true)}
+function demoState(){return {
+ currentUserId:'u-alice',
+ users:[
+  {id:'u-admin',name:'MARS Admin',initials:'MA',isAdmin:true,groups:['g-linux','g-postgres','g-app'],permissions:{'g-linux':['monitoring.manage'],'g-postgres':['monitoring.manage'],'g-app':['monitoring.manage']}},
+  {id:'u-alice',name:'Alice Infra',initials:'AI',isAdmin:false,groups:['g-linux'],permissions:{'g-linux':['monitoring.manage']}},
+  {id:'u-dmitry',name:'Dmitry Infra',initials:'DI',isAdmin:false,groups:['g-linux'],permissions:{'g-linux':['monitoring.manage']}},
+  {id:'u-bob',name:'Bob DB',initials:'BD',isAdmin:false,groups:['g-postgres'],permissions:{'g-postgres':['monitoring.manage']}},
+  {id:'u-eve',name:'Eve ReadOnly',initials:'ER',isAdmin:false,groups:['g-app'],permissions:{}}
+ ],
+ groups:[{id:'g-linux',name:'Администраторы Linux'},{id:'g-postgres',name:'Администраторы PostgreSQL'},{id:'g-app',name:'Администраторы приложений'}],
+ proxyGroups:[{id:'prod-dmz',name:'Production DMZ'},{id:'analytics',name:'Analytics'},{id:'k8s',name:'K8s Cluster'}],
+ catalogSources:[{id:'cmdb-main',name:'CMDB Main'}],
+ catalogHosts:[
+  {sourceId:'cmdb-main',externalId:'srv-1001',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',environment:'prod',os:'Ubuntu 22.04'},
+  {sourceId:'cmdb-main',externalId:'srv-1002',name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',environment:'prod',os:'PostgreSQL Appliance'},
+  {sourceId:'cmdb-main',externalId:'srv-1003',name:'cache-01',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',environment:'stage',os:'Debian 12'},
+  {sourceId:'cmdb-main',externalId:'srv-1004',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',environment:'prod',os:'Talos Linux'}
+ ],
+ hosts:[
+  {id:'H-01JQ7K8P4F',name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',status:'UP',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1002',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,attachments:[{id:'att-1',serviceId:'svc-pg',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'30.06.2026, 10:20',portOverride:null}]},
+  {id:'H-01JQ7K8P5A',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1001',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,attachments:[{id:'att-2',serviceId:'svc-nginx',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 10:22',portOverride:null}]},
+  {id:'H-01JQ7K8P6B',name:'cache-01',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',status:'UP',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1003',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,attachments:[]},
+  {id:'H-01JQ7K8P7C',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',status:'WARN',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1004',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,attachments:[]},
+  {id:'H-01JQ7K8P8D',name:'prod-db-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'manual',createdBy:'u-bob',createdAt:'30.06.2026, 11:05',catalogBinding:null,prefilledFromCatalog:null,attachments:[{id:'att-3',serviceId:'svc-pg',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'30.06.2026, 11:05',portOverride:5433}]},
+  {id:'H-01JQ7K8P9E',name:'prod-db-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'manual',createdBy:'u-alice',createdAt:'30.06.2026, 11:15',catalogBinding:null,prefilledFromCatalog:null,attachments:[{id:'att-4',serviceId:'svc-node',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 11:15',portOverride:null}]},
+  {id:'H-01JQ7K8Q0F',name:'legacy-api',addressType:'fqdn',address:'api-01.manual.internal.example.com',proxyGroup:'prod-dmz',status:'WARN',sourceType:'manual-prefill',createdBy:'u-alice',createdAt:'30.06.2026, 11:25',catalogBinding:null,prefilledFromCatalog:{sourceId:'cmdb-main',externalId:'srv-1001',copiedAt:'30.06.2026, 11:25'},attachments:[{id:'att-5',serviceId:'svc-nginx',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 11:25',portOverride:8443}]}
+ ],
+ services:[
+  {id:'svc-pg',name:'PostgreSQL',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',ownerGroupId:'g-postgres',authMode:'basic',protocol:'http',createdBy:'u-bob'},
+  {id:'svc-nginx',name:'Nginx HTTPS',type:'ExporterScrape',icon:'🌐',defaultPort:443,metrics:'/nginx_metrics',ownerGroupId:'g-linux',authMode:'none',protocol:'https',skipServerCertCheck:true,clientCertificate:'-----BEGIN CERTIFICATE-----\\n...\\n-----END CERTIFICATE-----',createdBy:'u-alice'},
+  {id:'svc-node',name:'Node Exporter',type:'ExporterScrape',icon:'🖥️',defaultPort:9100,metrics:'/metrics',ownerGroupId:'g-linux',authMode:'none',protocol:'http',createdBy:'u-alice'},
+  {id:'svc-redis',name:'Redis Cache',type:'ExporterScrape',icon:'🔴',defaultPort:6379,metrics:'/metrics',ownerGroupId:'g-postgres',authMode:'bearer',protocol:'http',createdBy:'u-bob'}
+ ],
+ templates:[
+  {id:'tpl-nginx',name:'Шаблон «Nginx Standard»',type:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',protocol:'http',ownerGroupId:'g-linux',createdBy:'u-alice'},
+  {id:'tpl-pg',name:'Шаблон «PostgreSQL Advanced»',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',protocol:'http',ownerGroupId:'g-postgres',createdBy:'u-bob'}
+ ],
+ collections:[
+  {id:'col-web',name:'Web Stack',description:'Nginx + Node Exporter',serviceIds:['svc-nginx','svc-node']},
+  {id:'col-data',name:'Data Stack',description:'PostgreSQL + Redis',serviceIds:['svc-pg','svc-redis']}
+ ]
 }}
-
-function loadState(){
-  let raw=localStorage.getItem(STORE_KEY);
-  if(!raw){for(const k of LEGACY_KEYS){raw=localStorage.getItem(k);if(raw)break}}
-  if(raw){try{state=normalizeState(JSON.parse(raw))}catch(e){state=demoState()}}else state=demoState();
-  state=normalizeState(state);saveState()
-}
-function normalizeState(s){
-  const d=demoState(),ns={...d,...s};
-  ns.groups=(Array.isArray(ns.groups)&&ns.groups.length?ns.groups:d.groups).map(g=>({
-    id:g.id||uid('g'),
-    name:g.name||'Группа',
-    key:g.key||g.slug||String(g.id||'group').replace(/^g-/,'')
-  }));
-  ns.users=(Array.isArray(ns.users)&&ns.users.length?ns.users:d.users).map(u=>{
-    const groups=Array.isArray(u.groups)?u.groups.filter(gid=>ns.groups.some(g=>g.id===gid)):[];
-    const oldCanMonitor=!!u.canMonitor;
-    const gp=u.groupPermissions&&typeof u.groupPermissions==='object'?u.groupPermissions:{};
-    const groupPermissions={};
-    groups.forEach(gid=>{
-      const raw=gp[gid];
-      const perms=Array.isArray(raw)?raw:(raw===true?['monitoring.manage']:[]);
-      groupPermissions[gid]=perms.length?perms:(oldCanMonitor?['monitoring.manage']:[]);
-    });
-    return {...u,id:u.id||uid('u'),name:u.name||'Пользователь',initials:u.initials||(u.name||'П').slice(0,2).toUpperCase(),isAdmin:!!u.isAdmin,canMonitor:oldCanMonitor,groups,groupPermissions};
-  });
-  ns.proxyGroups=Array.isArray(ns.proxyGroups)&&ns.proxyGroups.length?ns.proxyGroups:d.proxyGroups;
-  ns.catalogSources=Array.isArray(ns.catalogSources)&&ns.catalogSources.length?ns.catalogSources:d.catalogSources;
-  ns.catalogHosts=(Array.isArray(ns.catalogHosts)?ns.catalogHosts:d.catalogHosts).map(h=>({
-    sourceId:h.sourceId||'cmdb-main',
-    externalId:h.externalId||uid('ext'),
-    name:h.name||'catalog-host',
-    addressType:h.addressType||'ip',
-    address:h.address||'127.0.0.1',
-    proxyGroup:h.proxyGroup||h.segment||'prod-dmz',
-    environment:h.environment||'prod',
-    os:h.os||'Linux',
-    updatedAt:h.updatedAt||nowText()
-  }));
-  ns.currentUserId=ns.users.some(u=>u.id===ns.currentUserId)?ns.currentUserId:ns.users[0].id;
-
-  let rawServices=Array.isArray(ns.services)?ns.services:[];
-  const migratedTemplates=rawServices.filter(s=>s.isTemplate).map(s=>normalizeTemplate(s,ns.currentUserId));
-  ns.services=rawServices.filter(s=>!s.isTemplate).map(normalizeService);
-  ns.serviceTemplates=[...(Array.isArray(ns.serviceTemplates)?ns.serviceTemplates:[]),...migratedTemplates].map(t=>normalizeTemplate(t,ns.currentUserId));
-  ns.serviceTemplates=uniqueTemplates(ns.serviceTemplates);
-
-  ns.hosts=(Array.isArray(ns.hosts)?ns.hosts:d.hosts).map(h=>{
-    const host={...h};
-    host.id=hostKey(host.id||uid('host'));
-    host.ownerGroupId=host.ownerGroupId||host.groupId||host.monitoringGroupId||
-      (host.attachments&&host.attachments[0]&&host.attachments[0].ownerGroupId)||
-      (ns.users.find(u=>u.id===host.createdBy)?.groups||[])[0]||'g-infra';
-    if(!ns.groups.some(g=>g.id===host.ownerGroupId)) host.ownerGroupId=ns.groups[0]?.id||'g-infra';
-    host.visibleName=host.visibleName||host.name||'host';
-    host.name=host.visibleName; // compatibility with pre-v16 state
-    host.targetKey=`${(ns.groups.find(g=>g.id===host.ownerGroupId)?.key||String(host.ownerGroupId).replace(/^g-/,'group'))}:${normalizeTargetPart(host.visibleName)}`;
-    host.addressType=host.addressType||'ip';
-    host.address=host.address||'127.0.0.1';
-    host.proxyGroup=host.proxyGroup||host.segment||'prod-dmz';
-    delete host.segment;
-    host.status=host.status||'UP';
-    host.sourceType=host.sourceType||'manual';
-    host.createdBy=host.createdBy||ns.currentUserId;
-    host.createdAt=host.createdAt||nowText();
-    host.prefilledFromCatalog=host.prefilledFromCatalog||null;
-    host.catalogBinding=host.sourceType==='catalog'
-      ?(host.catalogBinding||{sourceId:'cmdb-main',externalId:null,lastSyncAt:null,syncStatus:'unknown'})
-      :null;
-    host.attachments=(Array.isArray(host.attachments)?host.attachments:[]).map(a=>({
-      serviceId:a.serviceId,
-      createdBy:a.createdBy||a.attachedBy||host.createdBy||ns.currentUserId,
-      ownerGroupId:host.ownerGroupId,
-      portOverride:a.portOverride===undefined?null:a.portOverride
-    })).filter(a=>ns.services.some(s=>s.id===a.serviceId));
-    return host;
-  });
-  ns.collections=(Array.isArray(ns.collections)?ns.collections:d.collections).map(c=>({
-    id:c.id||uid('col'),
-    name:c.name||'Коллекция',
-    description:c.description||'',
-    serviceIds:(Array.isArray(c.serviceIds)?c.serviceIds:[]).filter(id=>ns.services.some(s=>s.id===id)),
-    usedBy:num(c.usedBy,0)
-  }));
-  return ns;
-}
-
-function normalizeService(s){const oldAuth=s.auth||null;let authMode=s.authMode||'none';if(oldAuth&&!s.authMode)authMode=oldAuth.mode||'basic';const protocol=s.protocol||'http';return{id:s.id||uid('svc'),name:s.name||'Сервис',type:s.type||s.agent||'ExporterScrape',icon:s.icon||'🔌',defaultPort:num(s.defaultPort,80),metrics:s.metrics||'/metrics',ownerGroupId:s.ownerGroupId||s.groupId||'g-infra',authMode,basicUsername:s.basicUsername||(oldAuth?oldAuth.username||'':''),basicPassword:s.basicPassword||(oldAuth?oldAuth.password||'':''),bearerToken:s.bearerToken||(oldAuth?oldAuth.token||'':''),protocol,clientCertificate:protocol==='https'?(s.clientCertificate||''):'',skipServerCertCheck:protocol==='https'?!!(s.skipServerCertCheck||s.skipServerCertificateValidation):false,usedBy:num(s.usedBy,0),createdBy:s.createdBy||state.currentUserId||'u-admin'}}
-function normalizeTemplate(t,u='u-admin'){return{id:t.id||uid('tpl'),name:t.name||'Шаблон сервиса',type:t.type||t.agent||'ExporterScrape',icon:t.icon||'🔌',defaultPort:num(t.defaultPort,80),metrics:t.metrics||'/metrics',protocol:t.protocol||'http',skipServerCertCheck:!!(t.skipServerCertCheck||t.skipServerCertificateValidation),ownerGroupId:t.ownerGroupId||t.groupId||'g-infra',createdBy:t.createdBy||u,usedBy:num(t.usedBy,0)}}
-function uniqueTemplates(items){const seen=new Set();return items.filter(t=>{const k=t.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true})}
+function normalizeState(s){const d=demoState(),n={...d,...s};n.users=Array.isArray(n.users)&&n.users.length?n.users:d.users;n.groups=Array.isArray(n.groups)&&n.groups.length?n.groups:d.groups;n.proxyGroups=Array.isArray(n.proxyGroups)&&n.proxyGroups.length?n.proxyGroups:d.proxyGroups;n.catalogHosts=Array.isArray(n.catalogHosts)&&n.catalogHosts.length?n.catalogHosts:d.catalogHosts;n.catalogSources=Array.isArray(n.catalogSources)&&n.catalogSources.length?n.catalogSources:d.catalogSources;n.services=Array.isArray(n.services)&&n.services.length?n.services:d.services;n.templates=Array.isArray(n.templates)&&n.templates.length?n.templates:d.templates;n.collections=Array.isArray(n.collections)&&n.collections.length?n.collections:d.collections;n.hosts=(Array.isArray(n.hosts)&&n.hosts.length?n.hosts:d.hosts).map(h=>({id:h.id||uid('H'),name:h.name||h.visibleName||'Без имени',addressType:h.addressType||'ip',address:h.address||'127.0.0.1',proxyGroup:h.proxyGroup||'prod-dmz',status:h.status||'UP',sourceType:h.sourceType==='catalog'?'catalog':(h.sourceType||'manual'),createdBy:h.createdBy||n.currentUserId,createdAt:h.createdAt||now(),catalogBinding:h.sourceType==='catalog'?(h.catalogBinding||null):null,prefilledFromCatalog:h.prefilledFromCatalog||null,attachments:(h.attachments||[]).map(a=>({id:a.id||uid('att'),serviceId:a.serviceId,attachedByGroupId:a.attachedByGroupId||a.ownerGroupId||(n.services.find(s=>s.id===a.serviceId)||{}).ownerGroupId||'',attachedByUserId:a.attachedByUserId||a.createdBy||n.currentUserId,attachedAt:a.attachedAt||now(),portOverride:a.portOverride??null}))}));if(!n.users.some(u=>u.id===n.currentUserId))n.currentUserId=n.users[0].id;return n}
+function loadState(){try{const raw=localStorage.getItem(STORE_KEY);state=raw?normalizeState(JSON.parse(raw)):demoState()}catch(e){state=demoState()}saveState()}
 function saveState(){localStorage.setItem(STORE_KEY,JSON.stringify(state))}
-function resetDemo(){localStorage.removeItem(STORE_KEY);state=normalizeState(demoState());selectedHostIds.clear();selectedServiceIds.clear();selectedTemplateIds.clear();expandedHostId=null;saveState();renderAll();toast('Демо-данные сброшены')}
-
-function currentUser(){return state.users.find(u=>u.id===state.currentUserId)||state.users[0]}
-function userById(id){return state.users.find(u=>u.id===id)}
-function groupById(id){return state.groups.find(g=>g.id===id)}
-function groupKey(id){return groupById(id)?.key||String(id||'group').replace(/^g-/,'')}
-function normalizeTargetPart(value){return String(value||'host').trim().replace(/\s+/g,'-')}
-function makeTargetKey(ownerGroupId,visibleName){return `${groupKey(ownerGroupId)}:${normalizeTargetPart(visibleName)}`}
-function isAdmin(){return !!currentUser().isAdmin}
-function userGroupIds(){return new Set(currentUser().groups||[])}
-function hasMonitoringPermission(gid){
-  if(isAdmin()) return true;
-  const perms=currentUser().groupPermissions?.[gid]||[];
-  return Array.isArray(perms)&&perms.includes('monitoring.manage');
-}
-function monitoringGroups(){return isAdmin()?state.groups:state.groups.filter(g=>hasMonitoringPermission(g.id))}
-function canMonitor(){return monitoringGroups().length>0}
-function canManageGroup(gid){return isAdmin()||userGroupIds().has(gid)}
-function canManageService(svc){return svc&&(isAdmin()||userGroupIds().has(svc.ownerGroupId))}
-function canManageMonitoringHost(host){return !!host&&(isAdmin()||hasMonitoringPermission(host.ownerGroupId))}
-function canManageAttachment(a,host){return canManageMonitoringHost(host)}
-function hasAttachments(host){return (host.attachments||[]).length>0}
-function canEditHost(host){return canManageMonitoringHost(host)}
-function canDeleteHost(host){return canManageMonitoringHost(host)}
-function hostLockReason(host){
-  if(!canManageMonitoringHost(host)) return 'Нет permission «Постановка на мониторинг» в группе-владельце этого хоста.';
-  if(host.sourceType==='catalog') return 'IP/FQDN управляются справочником и обновляются синхронизацией. Видимое имя и группа прокси остаются настройками группы.';
-  return '';
-}
-
-function switchUser(id){state.currentUserId=id;selectedHostIds.clear();selectedServiceIds.clear();selectedTemplateIds.clear();saveState();renderAll()}
-function switchSection(sec){activeSection=sec;document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}
+function resetDemo(){localStorage.removeItem(STORE_KEY);state=demoState();hostFilter={query:'',rules:[]};hostTable={columns:['id','name','address','source','cmdb','proxy','status','services','createdAt'],hidden:[],sortKey:'name',sortDirection:'asc',page:1,pageSize:25};saveState();renderAll();toast('Демо-данные сброшены')}
+function currentUser(){return state.users.find(u=>u.id===state.currentUserId)||state.users[0]}function userById(id){return state.users.find(u=>u.id===id)}function groupById(id){return state.groups.find(g=>g.id===id)}function serviceById(id){return state.services.find(s=>s.id===id)}function isAdmin(){return !!currentUser().isAdmin}function userGroupIds(){return new Set(currentUser().groups||[])}function hasMonitoringPermission(gid){return !!currentUser().permissions?.[gid]?.includes('monitoring.manage')}function canManageService(s){return !!s&&(isAdmin()||hasMonitoringPermission(s.ownerGroupId))}function canAttachService(s){return canManageService(s)}function canDetach(a){return hasMonitoringPermission(a.attachedByGroupId)}function canEditHost(h){return isAdmin()||(!h.attachments.length&&h.sourceType!=='catalog'&&h.createdBy===currentUser().id)}function canDeleteHost(){return isAdmin()}
+function sourceLabel(h){return h.sourceType==='catalog'?'Справочник':h.sourceType==='manual-prefill'?'Ручной · prefill':'Ручной'}function sourceBadge(h){return h.sourceType==='catalog'?'<span class="badge b-violet">📚 Справочник</span>':h.sourceType==='manual-prefill'?'<span class="badge b-amber">📋 Ручной · prefill</span>':'<span class="badge b-blue">✍️ Ручной</span>'}function addressBadge(h){return h.addressType==='fqdn'?'<span class="badge b-green">FQDN</span>':'<span class="badge b-blue">IP</span>'}function proxyName(id){return state.proxyGroups.find(x=>x.id===id)?.name||id}
+function endpointKey(h){return `${h.addressType}:${String(h.address||'').trim().toLowerCase().replace(/\.$/,'')}`}function ownAttachments(h){return h.attachments.filter(a=>isAdmin()||userGroupIds().has(a.attachedByGroupId))}function connectedHosts(){return isAdmin()?state.hosts.filter(h=>h.attachments.length):state.hosts.filter(h=>h.attachments.some(a=>userGroupIds().has(a.attachedByGroupId)))}function catalogHosts(){return state.hosts.filter(h=>h.sourceType==='catalog')}
+function switchSection(sec){activeSection=sec;document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.tab').forEach(s=>s.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}
+function switchUser(id){state.currentUserId=id;hostTable.page=1;saveState();renderAll()}
 function renderAll(){renderUserSwitcher();renderHosts();renderServices();renderTemplates();renderCollections();renderAccess()}
-function renderUserSwitcher(){const sel=$('current-user');sel.innerHTML=state.users.map(u=>`<option value="${u.id}" ${u.id===state.currentUserId?'selected':''}>${esc(u.name)}${u.isAdmin?' · admin':''}</option>`).join('');$('avatar').textContent=currentUser().initials||currentUser().name[0]}
-
-function page(id,title,sub,actions,body){$('section-'+id).innerHTML=`<div class="page-head"><div><h1 class="title">${title}</h1><div class="sub">${sub||''}</div></div><div class="actions">${actions||''}</div></div>${body}`}
-function selectOption(v,l,s){return`<option value="${esc(v)}" ${v===s?'selected':''}>${esc(l)}</option>`}
-function proxyOptions(selected,all=false){return(all?selectOption('all','Все группы прокси',selected):'')+state.proxyGroups.map(g=>selectOption(g.id,g.name,selected)).join('')}
-function typeOptions(s){return['ExporterScrape','SQL','BlackBox'].map(t=>selectOption(t,t,s)).join('')}
-function iconOptions(s){return['🌐','🐘','🔴','📊','🐰','🔌','🔒'].map(i=>selectOption(i,i,s)).join('')}
-function groupOptions(s){const gs=isAdmin()?state.groups:state.groups.filter(g=>userGroupIds().has(g.id));return gs.map(g=>selectOption(g.id,g.name,s||gs[0]?.id)).join('')}
-function monitoringGroupOptions(s,disabled=false){
-  const gs=monitoringGroups();
-  return gs.map(g=>selectOption(g.id,`${g.name} (${g.key})`,s||gs[0]?.id)).join('');
-}
-
-function isValidIp(v){const p=v.split('.');return p.length===4&&p.every(x=>/^\d+$/.test(x)&&+x>=0&&+x<=255)}
-function isValidFqdn(v){return/^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/.test(v)}
-function addressBadge(h){return h.addressType==='fqdn'?'<span class="addr fqdn">FQDN</span>':'<span class="addr ip">IP</span>'}
-function sourceBadge(h){if(h.sourceType==='catalog')return'<span class="badge b-purple">📚 Справочник</span>';if(h.prefilledFromCatalog)return'<span class="badge b-amber">📋 Ручной · заполнен из справочника</span>';return'<span class="badge b-blue">✍️ Ручной</span>'}
-function catalogByExternal(externalId){return state.catalogHosts.find(h=>h.externalId===externalId)}
-function catalogHost(sourceId,externalId){return state.catalogHosts.find(h=>h.sourceId===sourceId&&h.externalId===externalId)}
-
-function hostDisplayName(h){return h.visibleName||h.name||'—'}
-function groupName(id){return groupById(id)?.name||id||'—'}
-function selectedHost(){return selectedHostIds.size===1?state.hosts.find(h=>hostKey(h.id)===[...selectedHostIds][0]):null}
-
-function hostSourceLabel(h){
-  if(h.sourceType==='catalog')return 'Справочник';
-  if(h.prefilledFromCatalog)return 'Ручной · заполнен из справочника';
-  return 'Ручной';
-}
-function hostServices(h){return (h.attachments||[]).map(a=>state.services.find(s=>s.id===a.serviceId)).filter(Boolean)}
-function hostServicesText(h){return hostServices(h).map(s=>s.name).join(', ')}
-function hostCmdbText(h){
-  if(h.sourceType==='catalog'){
-    const src=state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId);
-    return `${src?.name||h.catalogBinding?.sourceId||'CMDB'} ${h.catalogBinding?.externalId||''}`.trim()
-  }
-  if(h.prefilledFromCatalog){
-    const src=state.catalogSources.find(s=>s.id===h.prefilledFromCatalog?.sourceId);
-    return `${src?.name||h.prefilledFromCatalog?.sourceId||'CMDB'} ${h.prefilledFromCatalog?.externalId||''}`.trim()
-  }
-  return ''
-}
-const HOST_TABLE_COLUMNS={
-  visibleName:{label:'Видимое имя',value:h=>hostDisplayName(h),render:h=>`<div class="cell-primary">${esc(hostDisplayName(h))}</div><div class="cell-sub">${esc(h.status==='UP'?'Доступен':'Требует внимания')}</div>`},
-  ownerGroup:{label:'Группа-владелец',value:h=>groupName(h.ownerGroupId),render:h=>`<span class="badge b-blue">👥 ${esc(groupName(h.ownerGroupId))}</span>`},
-  targetKey:{label:'Техническое имя',value:h=>h.targetKey||makeTargetKey(h.ownerGroupId,hostDisplayName(h)),render:h=>`<span class="mono">${esc(h.targetKey||makeTargetKey(h.ownerGroupId,hostDisplayName(h)))}</span>`},
-  source:{label:'Источник',value:h=>hostSourceLabel(h),render:h=>sourceBadge(h)},
-  cmdbBinding:{label:'CMDB / External ID',value:h=>hostCmdbText(h),render:h=>{
-    const text=hostCmdbText(h);return text?`<div class="cell-wrap"><span class="mono">${esc(text)}</span></div>`:'<span class="muted">—</span>'
-  }},
-  addressType:{label:'Тип адреса',value:h=>h.addressType==='fqdn'?'FQDN':'IP',render:h=>addressBadge(h)},
-  address:{label:'IP / FQDN',value:h=>h.address,render:h=>`<span class="mono">${addressBadge(h)}${esc(h.address)}</span>`},
-  proxyGroup:{label:'Группа прокси',value:h=>proxyName(h.proxyGroup),render:h=>esc(proxyName(h.proxyGroup))},
-  status:{label:'Статус',value:h=>h.status||'',render:h=>`<span class="badge ${h.status==='UP'?'b-green':'b-amber'}">${h.status==='UP'?'🟢 UP':'🟡 WARN'}</span>`},
-  services:{label:'Сервисы',value:h=>`${h.attachments.length} ${hostServicesText(h)}`,render:h=>{
-    const names=hostServices(h).map(s=>`${s.icon} ${s.name}`);return `<div class="cell-primary">${h.attachments.length}</div><div class="cell-sub" title="${esc(names.join(', '))}">${names.length?esc(names.join(', ')):'—'}</div>`
-  }},
-  createdBy:{label:'Создал',value:h=>userById(h.createdBy)?.name||'',render:h=>esc(userById(h.createdBy)?.name||'—')},
-  createdAt:{label:'Создан',value:h=>h.createdAt||'',render:h=>`<span class="mono">${esc(h.createdAt||'—')}</span>`},
-  internalId:{label:'Внутренний ID',value:h=>hostKey(h.id),render:h=>`<span class="mono">${esc(hostKey(h.id))}</span>`}
-};
-function normalizeHostTableView(raw){
-  const candidate=raw&&typeof raw==='object'?raw:{};
-  const hasStoredColumns=Array.isArray(candidate.columns)&&candidate.columns.length>0;
-  const known=(hasStoredColumns?candidate.columns:DEFAULT_HOST_TABLE_COLUMN_IDS).filter(id=>HOST_TABLE_COLUMN_IDS.includes(id));
-  const columns=[...known,...HOST_TABLE_COLUMN_IDS.filter(id=>!known.includes(id))];
-  const hidden=hasStoredColumns
-    ?(Array.isArray(candidate.hidden)?candidate.hidden:[]).filter(id=>HOST_TABLE_COLUMN_IDS.includes(id))
-    :HOST_TABLE_COLUMN_IDS.filter(id=>!DEFAULT_HOST_TABLE_COLUMN_IDS.includes(id));
-  const sortKey=HOST_TABLE_COLUMN_IDS.includes(candidate.sortKey)?candidate.sortKey:'visibleName';
-  const sortDirection=candidate.sortDirection==='desc'?'desc':'asc';
-  const pageSize=[25,50,100,200].includes(Number(candidate.pageSize))?Number(candidate.pageSize):50;
-  return {columns,hidden,sortKey,sortDirection,page:Math.max(1,Number(candidate.page)||1),pageSize}
-}
-function loadHostTableView(){
-  try{hostTableView=normalizeHostTableView(JSON.parse(localStorage.getItem(HOST_TABLE_VIEW_KEY)||'null'))}
-  catch(e){hostTableView=normalizeHostTableView(null)}
-}
-function saveHostTableView(){localStorage.setItem(HOST_TABLE_VIEW_KEY,JSON.stringify(hostTableView))}
-function visibleHostColumns(){return hostTableView.columns.filter(id=>!hostTableView.hidden.includes(id)&&HOST_TABLE_COLUMNS[id])}
-function hostFilterOptions(selected){
-  return Object.entries(HOST_TABLE_COLUMNS).map(([id,c])=>selectOption(id,c.label,selected)).join('')
-}
-function filterText(value){return String(value??'').trim().toLocaleLowerCase('ru-RU')}
-function sourceFilterKey(h){return h.sourceType==='catalog'?'catalog':(h.prefilledFromCatalog?'manual-prefill':'manual')}
-function hostBinding(h){return h.catalogBinding||h.prefilledFromCatalog||null}
-function cmdbBindingFilterKey(h){const b=hostBinding(h);return b?.sourceId&&b?.externalId?`${b.sourceId}|${b.externalId}`:'__none__'}
-function sortFilterOptions(items){return [...items].sort((a,b)=>String(a.label).localeCompare(String(b.label),'ru',{numeric:true,sensitivity:'base'}))}
-function uniqueFilterOptions(items){
-  const seen=new Set();
-  return items.filter(item=>{const key=String(item.value);if(seen.has(key))return false;seen.add(key);return true})
-}
-function hostFilterDictionary(field){
-  switch(field){
-    case 'ownerGroup': return sortFilterOptions(state.groups.map(g=>({value:g.id,label:`${g.name} (${g.key})`})));
-    case 'source': return [
-      {value:'manual',label:'Ручной'},
-      {value:'manual-prefill',label:'Ручной · заполнен из справочника'},
-      {value:'catalog',label:'Справочник'}
-    ];
-    case 'cmdbBinding': return [
-      {value:'__none__',label:'Без связи с CMDB'},
-      ...sortFilterOptions(uniqueFilterOptions(state.catalogHosts.map(h=>{
-        const source=state.catalogSources.find(s=>s.id===h.sourceId);
-        return {value:`${h.sourceId}|${h.externalId}`,label:`${source?.name||h.sourceId} · ${h.externalId} · ${h.name}`}
-      })))
-    ];
-    case 'addressType': return [{value:'ip',label:'IP-адрес'},{value:'fqdn',label:'FQDN'}];
-    case 'proxyGroup': return sortFilterOptions(state.proxyGroups.map(g=>({value:g.id,label:g.name})));
-    case 'status': return [...new Set(['UP','WARN',...state.hosts.map(h=>h.status).filter(Boolean)])].map(v=>({value:v,label:v==='UP'?'🟢 UP':v==='WARN'?'🟡 WARN':v}));
-    case 'services': return [
-      {value:'__none__',label:'Без присоединённых сервисов'},
-      ...sortFilterOptions(state.services.map(s=>({value:s.id,label:`${s.icon} ${s.name}`})))
-    ];
-    case 'createdBy': return sortFilterOptions(state.users.map(u=>({value:u.id,label:u.name})));
-    default: return null;
-  }
-}
-function hostFilterUsesDictionary(field){return Array.isArray(hostFilterDictionary(field))}
-function hostFilterDictionaryOptions(field,selected){
-  const items=hostFilterDictionary(field)||[];
-  const selectedText=String(selected??'');
-  const hasSelected=selectedText&&items.some(item=>String(item.value)===selectedText);
-  const safeItems=hasSelected||!selectedText?items:[{value:selectedText,label:`${selectedText} (значение недоступно в справочнике)`},...items];
-  return selectOption('','Выберите значение',selectedText)+safeItems.map(item=>selectOption(String(item.value),item.label,selectedText)).join('')
-}
-function hostFilterValueLabel(field,value){
-  const selectedText=String(value??'');
-  const match=(hostFilterDictionary(field)||[]).find(item=>String(item.value)===selectedText);
-  return match?match.label:selectedText;
-}
-function hostFilterOperatorItems(field){
-  if(field==='services')return [['contains','содержит'],['not_contains','не содержит']];
-  if(['ownerGroup','source','cmdbBinding','addressType','proxyGroup','status','createdBy'].includes(field))return [['equals','равно'],['not_equals','не равно']];
-  return [['contains','содержит'],['not_contains','не содержит'],['equals','равно'],['not_equals','не равно'],['starts_with','начинается с'],['ends_with','заканчивается на']];
-}
-function hostOperatorOptions(field,selected){
-  const items=hostFilterOperatorItems(field);
-  const actual=items.some(([value])=>value===selected)?selected:items[0][0];
-  return items.map(([value,label])=>selectOption(value,label,actual)).join('')
-}
-function hostColumnValue(h,columnId){
-  const col=HOST_TABLE_COLUMNS[columnId];return filterText(col?col.value(h):'')
-}
-function hostFilterValue(h,columnId){
-  switch(columnId){
-    case 'ownerGroup': return filterText(h.ownerGroupId);
-    case 'source': return filterText(sourceFilterKey(h));
-    case 'cmdbBinding': return filterText(cmdbBindingFilterKey(h));
-    case 'addressType': return filterText(h.addressType);
-    case 'proxyGroup': return filterText(h.proxyGroup);
-    case 'status': return filterText(h.status);
-    case 'services': return filterText((h.attachments||[]).map(a=>a.serviceId).join(' '));
-    case 'createdBy': return filterText(h.createdBy);
-    default: return hostColumnValue(h,columnId);
-  }
-}
-function hostSearchText(h){return HOST_TABLE_COLUMN_IDS.map(id=>hostColumnValue(h,id)).join(' ')}
-function hostMatchesRule(h,rule){
-  const field=rule.field||'visibleName';
-  const needle=filterText(rule.value);
-  if(!needle)return true;
-  if(field==='services'){
-    const serviceIds=(h.attachments||[]).map(a=>String(a.serviceId));
-    const present=needle==='__none__'?serviceIds.length===0:serviceIds.some(id=>filterText(id)===needle);
-    return rule.operator==='not_contains'?!present:present;
-  }
-  const value=hostFilterValue(h,field);
-  switch(rule.operator){
-    case 'equals': return value===needle;
-    case 'not_equals': return value!==needle;
-    case 'not_contains': return !value.includes(needle);
-    case 'starts_with': return value.startsWith(needle);
-    case 'ends_with': return value.endsWith(needle);
-    default: return value.includes(needle)
-  }
-}
-function filteredHosts(){
-  const query=String(hostFilterState.query||'').trim().toLocaleLowerCase('ru-RU');
-  const rules=(hostFilterState.rules||[]).filter(r=>String(r.value||'').trim());
-  return state.hosts.filter(h=>{
-    if(query&&!hostSearchText(h).includes(query))return false;
-    return rules.every(rule=>hostMatchesRule(h,rule))
-  })
-}
-function sortedHosts(items){
-  const column=HOST_TABLE_COLUMNS[hostTableView.sortKey]||HOST_TABLE_COLUMNS.visibleName;
-  const multiplier=hostTableView.sortDirection==='desc'?-1:1;
-  return [...items].sort((a,b)=>String(column.value(a)).localeCompare(String(column.value(b)),'ru',{numeric:true,sensitivity:'base'})*multiplier)
-}
-function hostTableData(){
-  const filtered=sortedHosts(filteredHosts());
-  const pageCount=Math.max(1,Math.ceil(filtered.length/hostTableView.pageSize));
-  if(hostTableView.page>pageCount)hostTableView.page=pageCount;
-  const start=(hostTableView.page-1)*hostTableView.pageSize;
-  return {filtered,pageCount,start,items:filtered.slice(start,start+hostTableView.pageSize)}
-}
-function activeHostFilterChips(){
-  const chips=[];
-  if(String(hostFilterState.query||'').trim())chips.push({kind:'query',text:`По всем полям: ${hostFilterState.query}`});
-  (hostFilterState.rules||[]).filter(r=>String(r.value||'').trim()).forEach((r,index)=>{
-    const operatorLabel=Object.fromEntries(hostFilterOperatorItems(r.field||'visibleName'))[r.operator]||'содержит';
-    chips.push({kind:'rule',index,text:`${HOST_TABLE_COLUMNS[r.field]?.label||r.field} · ${operatorLabel} · ${hostFilterValueLabel(r.field||'visibleName',r.value)}`})
-  });
-  return chips
-}
-function renderHostFilterChips(){
-  const chips=activeHostFilterChips();
-  if(!chips.length)return '';
-  return `<div class="filter-chips"><span class="muted">Активные фильтры:</span>${chips.map(c=>`<span class="filter-chip">${esc(c.text)}<button title="Убрать" onclick="${c.kind==='query'?'clearHostGlobalQuery()':`removeHostFilter(${c.index})`}">×</button></span>`).join('')}<button class="xs ghost" onclick="clearHostFilters()">Сбросить всё</button></div>`
-}
-function renderHosts(){
-  const data=hostTableData(),selected=selectedHost();
-  const canAttach=!!selected&&canManageMonitoringHost(selected);
-  const pageAllSelected=data.items.length&&data.items.every(h=>selectedHostIds.has(hostKey(h.id)));
-  const cols=visibleHostColumns();
-  const allVisibleSelected=data.filtered.length&&data.filtered.every(h=>selectedHostIds.has(hostKey(h.id)));
-  const from=data.filtered.length?data.start+1:0,to=Math.min(data.start+data.items.length,data.filtered.length);
-  const body=`<div class="panel">
-    <div class="info"><b>Групповые объекты мониторинга:</b> табличный вид рассчитан на тысячи строк. Настройка столбцов сохраняется в браузере; поиск по всем полям и дополнительные правила работают по всей выборке.</div>
-    <div class="toolbar">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><input class="checkbox" type="checkbox" ${allVisibleSelected?'checked':''} onchange="toggleAllFilteredHosts(this.checked)"><span class="muted">Выбрано: <b>${selectedHostIds.size}</b> из <b>${data.filtered.length}</b> найденных</span></div>
-      <div class="actions"><button class="sm outline" ${canAttach?'':'disabled'} onclick="openAttachModal('service')">⚡ Присоединить сервис</button><button class="sm outline" ${canAttach?'':'disabled'} onclick="openAttachModal('collection')">📦 Присоединить коллекцию</button></div>
-    </div>
-    <div class="filters">
-      🔍 <input id="host-search" class="input" value="${esc(hostFilterState.query||'')}" placeholder="Поиск по всем столбцам..." oninput="setHostGlobalQuery(this.value)">
-      <button class="sm outline" onclick="openHostFiltersModal()">⚙️ Фильтры${activeHostFilterChips().length?` (${activeHostFilterChips().length})`:''}</button>
-      <button class="sm outline" onclick="openHostColumnsModal()">▦ Столбцы (${cols.length}/${HOST_TABLE_COLUMN_IDS.length})</button>
-      ${activeHostFilterChips().length?'<button class="sm ghost" onclick="clearHostFilters()">Сбросить фильтры</button>':''}
-    </div>
-    ${renderHostFilterChips()}
-    <div class="stats">
-      <div class="stat"><div class="stat-label">Найдено объектов</div><div class="stat-value">${data.filtered.length}</div></div>
-      <div class="stat"><div class="stat-label">Справочные</div><div class="stat-value">${data.filtered.filter(h=>h.sourceType==='catalog').length}</div></div>
-      <div class="stat"><div class="stat-label">Групп-владельцев</div><div class="stat-value">${new Set(data.filtered.map(h=>h.ownerGroupId)).size}</div></div>
-      <div class="stat"><div class="stat-label">Attachment'ов</div><div class="stat-value">${data.filtered.reduce((s,h)=>s+h.attachments.length,0)}</div></div>
-    </div>
-    <div class="table-wrap">${data.items.length?`<table class="data-table"><thead><tr><th class="table-select"><input class="checkbox" type="checkbox" ${pageAllSelected?'checked':''} onchange="toggleCurrentHostPage(this.checked)" title="Выбрать строки этой страницы"></th>${cols.map(hostTableHeader).join('')}<th class="table-actions">Действия</th></tr></thead><tbody>${data.items.map(h=>hostTableRow(h,cols)).join('')}</tbody></table>`:'<div class="table-empty">Хосты не найдены</div>'}</div>
-    <div class="pagination"><div class="muted">Показано <b>${from}–${to}</b> из <b>${data.filtered.length}</b></div><div class="pager"><span class="muted">Строк:</span><select onchange="setHostPageSize(this.value)">${[25,50,100,200].map(n=>selectOption(String(n),String(n),String(hostTableView.pageSize))).join('')}</select><button class="sm outline" onclick="setHostPage(1)" ${hostTableView.page<=1?'disabled':''}>«</button><button class="sm outline" onclick="setHostPage(${hostTableView.page-1})" ${hostTableView.page<=1?'disabled':''}>‹</button><span class="muted">Стр. <b>${hostTableView.page}</b> / ${data.pageCount}</span><button class="sm outline" onclick="setHostPage(${hostTableView.page+1})" ${hostTableView.page>=data.pageCount?'disabled':''}>›</button><button class="sm outline" onclick="setHostPage(${data.pageCount})" ${hostTableView.page>=data.pageCount?'disabled':''}>»</button></div></div>
-    <div class="footer"><b>Manual</b> — IP/FQDN ведутся в MARS. <b>Catalog</b> — IP/FQDN обновляются из CMDB. <b>Prefill</b> — справочник заполнил форму разово. Для реального объёма данных поиск, сортировку и пагинацию следует выполнять серверно.</div>
-  </div>`;
-  page('hosts','Управление хостами','Каждая строка — объект постановки на мониторинг конкретной группы. Нажмите на строку, чтобы открыть карточку с attachment’ами.',`<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать справочник</button><button class="outline" onclick="resetDemo()">↺ Сбросить демо</button><button ${canMonitor()?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`,body)
-}
-function hostTableHeader(id){
-  const c=HOST_TABLE_COLUMNS[id],isSort=hostTableView.sortKey===id;
-  return `<th class="sortable" onclick="sortHostsBy(${q(id)})">${esc(c.label)}${isSort?`<span class="sort-indicator">${hostTableView.sortDirection==='asc'?'▲':'▼'}</span>`:''}</th>`
-}
-function hostTableRow(h,cols){
-  const key=hostKey(h.id),sel=selectedHostIds.has(key),hid=q(key),can=canManageMonitoringHost(h);
-  return `<tr class="row-clickable ${sel?'selected':''}" onclick="openHostDetailsModal(${hid})"><td class="table-select"><input class="checkbox" type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation()" onchange="toggleHost(${hid})"></td>${cols.map(id=>`<td>${HOST_TABLE_COLUMNS[id].render(h)}</td>`).join('')}<td class="table-actions-cell" onclick="event.stopPropagation()">${h.sourceType==='catalog'?`<button class="xs outline" onclick="syncOneCatalogHost(${hid})">↻</button>`:''}<button class="xs outline" onclick="openHostEditModal(${hid})" ${can?'':'disabled'}>✏️</button><button class="xs ghost" onclick="openHostDetailsModal(${hid})">👁</button><button class="xs danger" onclick="openDeleteHostModal(${hid})" ${can?'':'disabled'}>🗑️</button></td></tr>`
-}
-function setHostGlobalQuery(value){hostFilterState.query=value;hostTableView.page=1;renderHosts()}
-function clearHostGlobalQuery(){hostFilterState.query='';hostTableView.page=1;renderHosts()}
-function setHostPage(page){hostTableView.page=Math.max(1,Number(page)||1);saveHostTableView();renderHosts()}
-function setHostPageSize(size){hostTableView.pageSize=Number(size)||50;hostTableView.page=1;saveHostTableView();renderHosts()}
-function sortHostsBy(columnId){
-  if(hostTableView.sortKey===columnId)hostTableView.sortDirection=hostTableView.sortDirection==='asc'?'desc':'asc';
-  else{hostTableView.sortKey=columnId;hostTableView.sortDirection='asc'}
-  hostTableView.page=1;saveHostTableView();renderHosts()
-}
-function toggleCurrentHostPage(checked){hostTableData().items.forEach(h=>checked?selectedHostIds.add(hostKey(h.id)):selectedHostIds.delete(hostKey(h.id)));renderHosts()}
-function toggleAllFilteredHosts(checked){filteredHosts().forEach(h=>checked?selectedHostIds.add(hostKey(h.id)):selectedHostIds.delete(hostKey(h.id)));renderHosts()}
-function toggleHost(id){const key=hostKey(id);selectedHostIds.has(key)?selectedHostIds.delete(key):selectedHostIds.add(key);renderHosts()}
-function toggleAllHosts(checked){toggleAllFilteredHosts(checked)}
-function toggleHostDetails(id){openHostDetailsModal(id)}
-function openHostDetailsModal(id){
-  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;
-  const can=canManageMonitoringHost(h),hid=q(hostKey(h.id));
-  const footer=`<button class="ghost" onclick="closeModal()">Закрыть</button>${h.sourceType==='catalog'?`<button class="outline" onclick="syncOneCatalogHost(${hid})">🔄 Синхронизировать</button>`:''}<button class="outline" onclick="closeModal();openHostEditModal(${hid})" ${can?'':'disabled'}>✏️ Редактировать</button><button class="danger" onclick="closeModal();openDeleteHostModal(${hid})" ${can?'':'disabled'}>🗑️ Удалить</button>`;
-  openModal(hostDisplayName(h),`${groupName(h.ownerGroupId)} · ${h.targetKey||makeTargetKey(h.ownerGroupId,hostDisplayName(h))}`,hostDetails(h),footer)
-}
-function openHostFiltersModal(){hostFilterDraft=JSON.parse(JSON.stringify(hostFilterState.rules||[]));renderHostFiltersModal()}
-function hostFilterValueControl(rule,index){
-  const field=rule.field||'visibleName';
-  if(hostFilterUsesDictionary(field))return `<select onchange="updateHostFilterDraft(${index},'value',this.value)">${hostFilterDictionaryOptions(field,rule.value||'')}</select>`;
-  return `<input value="${esc(rule.value||'')}" placeholder="Значение" oninput="updateHostFilterDraft(${index},'value',this.value)">`;
-}
-function renderHostFiltersModal(){
-  const content=`<div class="box blue-box"><b>Как работает фильтрация:</b> правила объединяются через «И». Поиск по всем полям задаётся на основном экране. Для полей со справочниками доступны готовые значения вместо свободного ввода.</div><div id="host-filter-rules">${hostFilterDraft.length?hostFilterDraft.map((r,i)=>{const field=r.field||'visibleName';return `<div class="filter-rule"><select onchange="changeHostFilterDraftField(${i},this.value)">${hostFilterOptions(field)}</select><select onchange="updateHostFilterDraft(${i},'operator',this.value)">${hostOperatorOptions(field,r.operator||'contains')}</select>${hostFilterValueControl(r,i)}<button class="xs danger" onclick="removeHostFilterDraft(${i})">✕</button></div>`}).join(''):'<div class="empty">Нет дополнительных правил</div>'}</div><button class="sm outline" onclick="addHostFilterDraft()">＋ Добавить правило</button>`;
-  openModal('Фильтры хостов','Выберите любой столбец и условие поиска',content,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="outline" onclick="hostFilterDraft=[];renderHostFiltersModal()">Очистить</button><button onclick="applyHostFilters()">Применить</button>`)
-}
-function addHostFilterDraft(){hostFilterDraft.push({field:'visibleName',operator:'contains',value:''});renderHostFiltersModal()}
-function changeHostFilterDraftField(index,field){
-  const rule=hostFilterDraft[index];if(!rule)return;
-  rule.field=field;rule.value='';rule.operator=hostFilterOperatorItems(field)[0][0];renderHostFiltersModal()
-}
-function updateHostFilterDraft(index,key,value){if(hostFilterDraft[index])hostFilterDraft[index][key]=value}
-function removeHostFilterDraft(index){hostFilterDraft.splice(index,1);renderHostFiltersModal()}
-function applyHostFilters(){hostFilterState.rules=hostFilterDraft.filter(r=>String(r.value||'').trim());hostTableView.page=1;closeModal();renderHosts()}
-function removeHostFilter(index){hostFilterState.rules.splice(index,1);hostTableView.page=1;renderHosts()}
-function clearHostFilters(){hostFilterState={query:'',rules:[]};hostTableView.page=1;renderHosts()}
-function openHostColumnsModal(){renderHostColumnsModal()}
-function renderHostColumnsModal(){
-  const content=`<div class="box blue-box"><b>Настройка вида таблицы.</b> Скрытые столбцы не удаляются; порядок и выбор сохраняются только в этом браузере.</div>${hostTableView.columns.map((id,i)=>{const c=HOST_TABLE_COLUMNS[id],shown=!hostTableView.hidden.includes(id);return `<div class="column-config-row"><label style="display:flex;align-items:center;gap:9px;min-width:0"><input class="checkbox" type="checkbox" ${shown?'checked':''} onchange="toggleHostTableColumn(${q(id)},this.checked)"><span>${esc(c.label)}</span></label><span class="muted">${shown?'Показан':'Скрыт'}</span><div class="column-order"><button class="xs outline" ${i===0?'disabled':''} onclick="moveHostTableColumn(${q(id)},-1)">↑</button><button class="xs outline" ${i===hostTableView.columns.length-1?'disabled':''} onclick="moveHostTableColumn(${q(id)},1)">↓</button></div></div>`}).join('')}<div class="tiny-note">Столбцы «Действия» и выбор строк остаются фиксированными по краям таблицы.</div>`;
-  openModal('Столбцы таблицы','Скрывайте и меняйте порядок полей',content,`<button class="outline" onclick="resetHostTableColumns()">Восстановить по умолчанию</button><button onclick="closeModal()">Готово</button>`)
-}
-function toggleHostTableColumn(id,shown){
-  const visible=visibleHostColumns();
-  if(!shown&&visible.length<=1){toast('В таблице должен остаться хотя бы один столбец');return}
-  if(shown)hostTableView.hidden=hostTableView.hidden.filter(x=>x!==id);
-  else if(!hostTableView.hidden.includes(id))hostTableView.hidden.push(id);
-  saveHostTableView();renderHostColumnsModal();renderHosts()
-}
-function moveHostTableColumn(id,direction){
-  const idx=hostTableView.columns.indexOf(id),next=idx+direction;if(idx<0||next<0||next>=hostTableView.columns.length)return;
-  [hostTableView.columns[idx],hostTableView.columns[next]]=[hostTableView.columns[next],hostTableView.columns[idx]];
-  saveHostTableView();renderHostColumnsModal();renderHosts()
-}
-function resetHostTableColumns(){hostTableView={...hostTableView,columns:[...DEFAULT_HOST_TABLE_COLUMN_IDS,...HOST_TABLE_COLUMN_IDS.filter(id=>!DEFAULT_HOST_TABLE_COLUMN_IDS.includes(id))],hidden:HOST_TABLE_COLUMN_IDS.filter(id=>!DEFAULT_HOST_TABLE_COLUMN_IDS.includes(id))};saveHostTableView();renderHostColumnsModal();renderHosts()}
-function proxyName(id){return state.proxyGroups.find(g=>g.id===id)?.name||id}
-function hostDetails(h){
-  const noPermission=!canManageMonitoringHost(h);
-  return`${noPermission?`<div class="box red-box">⚠️ Нет permission «Постановка на мониторинг» в группе «${esc(groupName(h.ownerGroupId))}». Объект доступен только для просмотра.</div>`:''}${sourceDetails(h)}<h4>Присоединённые сервисы</h4>${h.attachments.length?h.attachments.map((a,i)=>attachmentCard(h,a,i)).join(''):'<div class="empty">Нет присоединённых сервисов</div>'}`
-}
-function sourceDetails(h){
-  if(h.sourceType==='catalog'){
-    const src=state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId),cat=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);
-    return`<div class="box purple-box"><b>Источник адреса:</b> ${esc(src?.name||'CMDB')}<br><span class="muted">External ID:</span> <span class="mono">${esc(h.catalogBinding?.externalId||'—')}</span><br><span class="muted">Каноническое имя в CMDB:</span> ${esc(cat?.name||'—')}<br><span class="muted">Последняя синхронизация:</span> ${esc(h.catalogBinding?.lastSyncAt||'—')}<br><span class="muted">Статус:</span> ${cat?'<span class="badge b-green">synced</span>':'<span class="badge b-red">missing</span>'}<div class="hint">CMDB управляет только IP/FQDN. Видимое имя <b>${esc(hostDisplayName(h))}</b> и группа прокси <b>${esc(proxyName(h.proxyGroup))}</b> принадлежат группе «${esc(groupName(h.ownerGroupId))}».</div></div>`
-  }
-  if(h.prefilledFromCatalog){
-    const src=state.catalogSources.find(s=>s.id===h.prefilledFromCatalog.sourceId);
-    return`<div class="box amber-box"><b>Ручной хост, разово заполненный из справочника.</b><br><span class="muted">Источник заполнения:</span> ${esc(src?.name||'CMDB')} · <span class="mono">${esc(h.prefilledFromCatalog.externalId)}</span><br><span class="muted">Скопировано:</span> ${esc(h.prefilledFromCatalog.copiedAt||'—')}<div class="hint">Автоматическое обновление выключено: IP/FQDN, видимое имя и группа прокси ведутся в MARS.</div></div>`
-  }
-  return`<div class="box"><b>Источник адреса:</b> Ручной ввод. <span class="hint">Связи с CMDB нет; синхронизация не меняет поля этого объекта.</span></div>`
-}
-function attachmentCard(h,a,i){
-  const svc=state.services.find(s=>s.id===a.serviceId);if(!svc)return'';
-  const port=a.portOverride||svc.defaultPort,target=`${h.address}:${port}`,creator=userById(a.createdBy),svcGroup=groupById(svc.ownerGroupId),can=canManageAttachment(a,h),hid=q(hostKey(h.id));
-  return`<div class="attach-card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div class="card-main"><span class="icon">${esc(svc.icon)}</span><div><div class="card-title">${esc(svc.name)}</div><div class="meta">Target: <span class="mono">${esc(target)}</span> · ${esc(svc.type)} · ${authBadge(svc)}</div><div class="meta">Сервис принадлежит: ${esc(svcGroup?.name||'—')} · Attachment создал: ${esc(creator?.name||'—')}</div></div></div><button class="xs ghost" style="color:var(--danger)" onclick="detachService(${hid},${i})" ${can?'':'disabled'}>🔌 Отсоединить</button></div><div class="port-row"><span class="muted">Порт:</span><input type="number" min="1" max="65535" id="port-${hostKey(h.id)}-${i}" value="${esc(port)}" ${can?'':'disabled'}><button class="xs success" onclick="applyPort(${hid},${i})" ${can?'':'disabled'}>✓ Применить</button><button class="xs outline" onclick="resetPort(${hid},${i})" ${can?'':'disabled'}>↺ Сбросить</button><span class="hint">${a.portOverride?'переопределён':'по умолчанию'}: ${esc(port)}</span></div></div>`
-}
-function openHostCreateModal(){
-  if(!canMonitor())return toast('Нет permission «Постановка на мониторинг» ни в одной группе');
-  hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null,ownerGroupId:monitoringGroups()[0]?.id||null};
-  renderHostModal()
-}
-function openHostEditModal(id){
-  const host=state.hosts.find(h=>hostKey(h.id)===hostKey(id));if(!host)return;
-  if(!canEditHost(host))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
-  hostDraft={mode:'edit',catalogExternalId:host.catalogBinding?.externalId||null,editingHostId:hostKey(host.id),ownerGroupId:host.ownerGroupId};
-  renderHostModal(host)
-}
-function renderHostModal(host=null){
-  const isEdit=!!host,cat=catalogByExternal(hostDraft.catalogExternalId);
-  openModal(isEdit?'Редактировать объект мониторинга':'Создать объект мониторинга',isEdit?'Управление доступно любому пользователю с permission «Постановка на мониторинг» в группе-владельце':'Выберите группу, видимое имя и источник IP/FQDN',isEdit?hostEditForm(host):hostCreateForm(cat),`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveHostFromModal()">${isEdit?'Сохранить изменения':'Создать хост'}</button>`);
-  updateTargetKeyPreview()
-}
-function hostCreateForm(cat){
-  const mode=hostDraft.mode;
-  const p=cat?{visibleName:cat.name,addressType:cat.addressType,address:cat.address,proxyGroup:cat.proxyGroup}:{visibleName:'',addressType:'ip',address:'',proxyGroup:'prod-dmz'};
-  const addressReadOnly=mode==='catalog';
-  return`<div class="box blue-box"><b>Модель:</b> видимое имя уникально только в рамках группы. Техническое имя генерируется автоматически. Ручной хост может существовать без CMDB.</div>
-    <div class="field"><label>Как создать хост?</label><select id="host-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogExternalId=null;renderHostModal()">${selectOption('manual','Ввести вручную',mode)}${selectOption('manual-prefill','Заполнить из справочника, но создать ручной хост',mode)}${selectOption('catalog','Создать с привязкой к справочнику',mode)}</select></div>
-    ${mode==='catalog'||mode==='manual-prefill'?catalogPicker():''}
-    ${mode==='catalog'&&!cat?'<div class="box amber-box">Выберите запись справочника, чтобы получить IP/FQDN.</div>':''}
-    ${mode==='manual-prefill'&&cat?'<div class="box amber-box">Поля скопированы из справочника разово. После создания хост останется ручным и синхронизация его не изменит.</div>':''}
-    ${hostFields(p,{addressReadOnly,groupReadOnly:false})}`
-}
-function hostEditForm(h){
-  const addressReadOnly=h.sourceType==='catalog';
-  return`${sourceDetails(h)}${h.sourceType==='catalog'?'<div class="box amber-box">IP/FQDN управляются CMDB. В этом окне можно изменить видимое имя и группу прокси своей группы.</div>':''}${hostFields(h,{addressReadOnly,groupReadOnly:true})}`
-}
-function hostFields(p,opts={}){
-  const groupId=hostDraft.ownerGroupId||p.ownerGroupId||monitoringGroups()[0]?.id||'';
-  const visible=hostDisplayName(p);
-  const target=makeTargetKey(groupId,visible);
-  return`<div class="row">
-    <div class="field"><label>Группа-владелец *</label><select id="host-group" class="wide" ${opts.groupReadOnly?'disabled':''} onchange="hostDraft.ownerGroupId=this.value;updateTargetKeyPreview();validateHostForm()">${monitoringGroupOptions(groupId)}</select><div class="hint">Группа, в которой действует permission «Постановка на мониторинг».</div></div>
-    <div class="field"><label>Видимое имя хоста *</label><input id="host-visible-name" class="wide" value="${esc(visible)}" oninput="updateTargetKeyPreview();validateHostForm()"><div class="hint">Может совпадать у разных групп. Используется как <span class="mono">mars_host</span>.</div></div>
-  </div>
-  <div class="box"><span class="muted">Техническое имя:</span> <span class="mono" id="target-key-preview">${esc(target)}</span><div class="hint">Уникальный бизнес-ключ: <span class="mono">mars_group + mars_host</span>. Внутренний immutable ID хоста сохраняется отдельно.</div></div>
-  <div class="row">
-    <div class="field"><label>Группа прокси *</label><select id="host-proxy" class="wide" onchange="validateHostForm()">${proxyOptions(p.proxyGroup,false)}</select><div class="hint">Настройка группы MARS: может отличаться у разных групп для одного CMDB-хоста.</div></div>
-    <div class="field"><label>Тип адреса *</label><select id="host-addr-type" class="wide" ${opts.addressReadOnly?'disabled':''} onchange="validateHostForm()">${selectOption('ip','IP-адрес',p.addressType)}${selectOption('fqdn','FQDN',p.addressType)}</select></div>
-  </div>
-  <div class="field"><label>IP/FQDN *</label><input id="host-address" class="wide mono" value="${esc(p.address)}" ${opts.addressReadOnly?'disabled':''} oninput="validateHostForm()"><div id="host-val" class="hint"></div></div>`
-}
-function updateTargetKeyPreview(){
-  const el=$('target-key-preview'),gid=$('host-group')?.value||hostDraft.ownerGroupId||'',name=$('host-visible-name')?.value.trim()||'—';
-  if(el)el.textContent=makeTargetKey(gid,name)
-}
-function catalogPicker(){
-  const s=($('catalog-search')?.value||'').toLowerCase(),items=state.catalogHosts.filter(h=>!s||h.name.toLowerCase().includes(s)||h.address.toLowerCase().includes(s)||h.externalId.toLowerCase().includes(s));
-  return`<div class="box"><div class="field"><label>Справочник хостов</label><input id="catalog-search" class="wide" value="${esc(s)}" placeholder="Поиск по имени, адресу или external ID..." oninput="renderHostModal()"></div><div style="max-height:220px;overflow:auto">${items.map(h=>`<div class="card clickable ${hostDraft.catalogExternalId===h.externalId?'selected':''}" onclick="hostDraft.catalogExternalId=${q(h.externalId)};renderHostModal()"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(h.name)}</div><div class="meta"><span class="mono">${esc(h.address)}</span> · default proxy: ${esc(proxyName(h.proxyGroup))} · ${esc(h.os)} · <span class="mono">${esc(h.externalId)}</span></div></div></div>${hostDraft.catalogExternalId===h.externalId?'<span class="badge b-green">✓ выбрано</span>':''}</div>`).join('')}</div></div>`
-}
-function validateHostForm(){
-  const v=$('host-val');if(!v)return true;
-  const name=$('host-visible-name')?.value.trim()||'',addr=$('host-address')?.value.trim()||'',type=$('host-addr-type')?.value||'ip',gid=$('host-group')?.value||hostDraft.ownerGroupId||'',edit=hostDraft.editingHostId;
-  if(!gid||!hasMonitoringPermission(gid)){v.textContent='Нет права на выбранную группу';v.style.color='var(--danger)';return false}
-  if(!name){v.textContent='Введите видимое имя';v.style.color='var(--danger)';return false}
-  if(state.hosts.some(h=>hostKey(h.id)!==hostKey(edit)&&h.ownerGroupId===gid&&hostDisplayName(h).toLowerCase()===name.toLowerCase())){v.textContent='В этой группе уже есть хост с таким видимым именем';v.style.color='var(--danger)';return false}
-  if(!addr){v.textContent='Введите IP/FQDN';v.style.color='var(--danger)';return false}
-  const ok=type==='ip'?isValidIp(addr):isValidFqdn(addr);
-  v.textContent=ok?'Адрес корректен':'Проверьте формат IP/FQDN';
-  v.style.color=ok?'var(--success)':'var(--danger)';
-  return ok
-}
-function saveHostFromModal(){
-  if(hostDraft.editingHostId){
-    const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostDraft.editingHostId));
-    if(!h||!canManageMonitoringHost(h))return toast('Редактирование недоступно');
-    if(!validateHostForm())return;
-    h.visibleName=$('host-visible-name').value.trim();h.name=h.visibleName;h.targetKey=makeTargetKey(h.ownerGroupId,h.visibleName);h.proxyGroup=$('host-proxy').value;
-    if(h.sourceType!=='catalog'){h.addressType=$('host-addr-type').value;h.address=$('host-address').value.trim()}
-    saveState();closeModal();renderAll();toast('Хост обновлён');return
-  }
-  const mode=hostDraft.mode,cat=catalogByExternal(hostDraft.catalogExternalId),gid=$('host-group')?.value||hostDraft.ownerGroupId;
-  if(!hasMonitoringPermission(gid))return toast('Нет права на выбранную группу');
-  if((mode==='catalog'||mode==='manual-prefill')&&!cat)return toast('Выберите запись справочника');
-  if(!validateHostForm())return;
-  const visibleName=$('host-visible-name').value.trim();
-  if(mode==='catalog'&&state.hosts.some(x=>x.sourceType==='catalog'&&x.ownerGroupId===gid&&x.catalogBinding?.externalId===cat.externalId&&x.catalogBinding?.sourceId===cat.sourceId))return toast('Эта запись CMDB уже поставлена на мониторинг в выбранной группе');
-  const h={id:uid('host'),ownerGroupId:gid,visibleName,targetKey:makeTargetKey(gid,visibleName),name:visibleName,addressType:mode==='catalog'?cat.addressType:$('host-addr-type').value,address:mode==='catalog'?cat.address:$('host-address').value.trim(),proxyGroup:$('host-proxy').value,status:'UP',sourceType:mode==='catalog'?'catalog':'manual',createdBy:currentUser().id,createdAt:nowText(),prefilledFromCatalog:mode==='manual-prefill'&&cat?{sourceId:cat.sourceId,externalId:cat.externalId,copiedAt:nowText()}:null,catalogBinding:mode==='catalog'?{sourceId:cat.sourceId,externalId:cat.externalId,lastSyncAt:nowText(),syncStatus:'synced'}:null,attachments:[]};
-  state.hosts.push(h);saveState();closeModal();renderAll();toast('Хост создан')
-}
-function openDeleteHostModal(id){
-  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;
-  if(!canDeleteHost(h))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
-  confirmModal('Удаление объекта мониторинга',`Удалить <b>${esc(hostDisplayName(h))}</b> из группы «${esc(groupName(h.ownerGroupId))}»?<br>Присоединённых сервисов: ${h.attachments.length}<br><span class="muted">Запись CMDB и объекты других групп не будут затронуты.</span>`,'deleteHost',q(hostKey(id)))
-}
-function deleteHost(id){state.hosts=state.hosts.filter(h=>hostKey(h.id)!==hostKey(id));selectedHostIds.delete(hostKey(id));if(hostKey(expandedHostId)===hostKey(id))expandedHostId=null;saveState();renderAll();toast('Объект мониторинга удалён')}
-function syncCatalogHosts(){let c=0;state.hosts.filter(h=>h.sourceType==='catalog').forEach(h=>{if(applyCatalogSync(h))c++});saveState();renderAll();toast(`Синхронизировано объектов: ${c}`)}
-function syncOneCatalogHost(id){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;if(applyCatalogSync(h)){saveState();renderAll();toast('IP/FQDN обновлены из CMDB')}else toast('Запись справочника не найдена')}
-function applyCatalogSync(h){const c=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);if(!c){h.catalogBinding.syncStatus='missing';return false}h.addressType=c.addressType;h.address=c.address;h.catalogBinding.lastSyncAt=nowText();h.catalogBinding.syncStatus='synced';return true}
-
-function authBadge(s){if(s.authMode==='basic')return'<span class="badge b-amber">🔐 Basic Auth</span>';if(s.authMode==='bearer')return'<span class="badge b-purple">🔐 Bearer Token</span>';return'<span class="badge">🔓 Без авторизации</span>'}
-function protocolLine(s){if(s.type!=='ExporterScrape')return'';return` · ${String(s.protocol||'http').toUpperCase()}${s.protocol==='https'?(s.clientCertificate?' · client cert':'')+(s.skipServerCertCheck?' · skip TLS verify':''):''}`}
-function serviceCollections(id){return state.collections.filter(c=>c.serviceIds.includes(id))}
-function usage(id){return state.hosts.reduce((n,h)=>n+h.attachments.filter(a=>a.serviceId===id).length,0)}
-function renderServices(){const arr=state.services,all=arr.length&&arr.every(s=>selectedServiceIds.has(s.id));const body=`<div class="panel"><div class="info"><b>Auth доступна для любого типа сервиса:</b> без авторизации, Basic Auth или Bearer Token. Для ExporterScrape можно выбрать HTTP/HTTPS; при HTTPS доступна вставка клиентского сертификата строкой.</div><div class="toolbar"><div style="display:flex;gap:12px;align-items:center"><input class="checkbox" type="checkbox" ${all?'checked':''} onchange="toggleAllServices(this.checked)"><span class="muted">Выбрано: <b>${selectedServiceIds.size}</b> из <b>${arr.length}</b></span></div><button class="sm danger" ${selectedServiceIds.size?'':'disabled'} onclick="openBulkDeleteServices()">🗑️ Удалить выбранные</button></div><div class="stats"><div class="stat"><div class="stat-label">Сервисов</div><div class="stat-value">${arr.length}</div></div><div class="stat"><div class="stat-label">Basic Auth</div><div class="stat-value">${arr.filter(s=>s.authMode==='basic').length}</div></div><div class="stat"><div class="stat-label">Bearer Token</div><div class="stat-value">${arr.filter(s=>s.authMode==='bearer').length}</div></div><div class="stat"><div class="stat-label">HTTPS Exporter</div><div class="stat-value">${arr.filter(s=>s.type==='ExporterScrape'&&s.protocol==='https').length}</div></div></div><div class="content">${arr.length?arr.map(serviceCard).join(''):'<div class="empty">Нет сервисов</div>'}</div></div>`;page('services','🔌 Сервисы','Сервис принадлежит группе. Управлять им может участник группы или MARS admin.',`<button ${canMonitor()?'':'disabled'} onclick="openServiceModal()">➕ Создать сервис</button>`,body)}
-function serviceCard(s){const can=canManageService(s),cols=serviceCollections(s.id),g=groupById(s.ownerGroupId);return`<div class="card ${selectedServiceIds.has(s.id)?'selected':''}"><div class="card-main"><input class="checkbox" type="checkbox" ${selectedServiceIds.has(s.id)?'checked':''} onchange="toggleService(${q(s.id)})" ${can?'':'disabled'}><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">Тип: ${esc(s.type)} · Порт: <span class="mono">${s.defaultPort}</span> · Метрики: <span class="mono">${esc(s.metrics)}</span>${protocolLine(s)}</div><div class="pills"><span class="badge b-blue">👥 ${esc(g?.name||'—')}</span>${authBadge(s)}<span class="badge">${usage(s.id)} хостов</span></div><div class="line"><span class="line-label">Коллекции:</span>${cols.length?cols.map(c=>`<span class="badge b-green">📦 ${esc(c.name)}</span>`).join(''):'<span class="muted">—</span>'}</div></div></div><div class="actions"><button class="xs outline" onclick="openCloneService(${q(s.id)})" ${can?'':'disabled'}>⧉ Клонировать</button><button class="xs purple" onclick="openCreateTemplateFromService(${q(s.id)})" ${can?'':'disabled'}>🧩 Создать шаблон</button><button class="xs outline" onclick="openServiceModal(${q(s.id)})" ${can?'':'disabled'}>✏️ Редактировать</button><button class="xs danger" onclick="openDeleteService(${q(s.id)})" ${can?'':'disabled'}>🗑️</button></div></div>`}
-function toggleService(id){const s=state.services.find(x=>x.id===id);if(!canManageService(s))return toast('Нет прав');selectedServiceIds.has(id)?selectedServiceIds.delete(id):selectedServiceIds.add(id);renderServices()}
-function toggleAllServices(ch){state.services.filter(canManageService).forEach(s=>ch?selectedServiceIds.add(s.id):selectedServiceIds.delete(s.id));renderServices()}
-function openServiceModal(id='',base=null){const existing=id?state.services.find(s=>s.id===id):null;if(existing&&!canManageService(existing))return toast('Недостаточно прав');const s=existing||base||{name:'',type:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',ownerGroupId:(isAdmin()?state.groups[0]?.id:currentUser().groups[0])||'g-infra',authMode:'none',basicUsername:'',basicPassword:'',bearerToken:'',protocol:'http',clientCertificate:'',skipServerCertCheck:false};openModal(existing?'Редактировать сервис':base?'Создать сервис из шаблона':'Создать сервис',existing?'Изменение доступно участникам группы-владельца':'Настрой один раз — применяй везде',serviceForm(s,!!base),`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveService(${q(existing?existing.id:'')})">${existing?'Сохранить':'Создать сервис'}</button>`);renderServiceDynamic()}
-function serviceForm(s,fromTpl=false){return`<div class="row"><div class="field"><label>Название *</label><input id="svc-name" class="wide" value="${esc(s.name)}"></div><div class="field"><label>Группа-владелец *</label><select id="svc-group" class="wide">${groupOptions(s.ownerGroupId)}</select></div></div><div class="row3"><div class="field"><label>Тип *</label><select id="svc-type" class="wide" onchange="renderServiceDynamic()">${typeOptions(s.type)}</select></div><div class="field"><label>Иконка</label><select id="svc-icon" class="wide">${iconOptions(s.icon)}</select></div><div class="field"><label>Порт по умолчанию *</label><input id="svc-port" type="number" min="1" max="65535" class="wide" value="${esc(s.defaultPort)}"></div></div><div class="field"><label>Путь к метрикам</label><input id="svc-metrics" class="wide mono" value="${esc(s.metrics)}"></div><div id="exporter-fields" data-protocol="${esc(s.protocol||'http')}" data-cert="${esc(s.clientCertificate||'')}" data-skip="${s.skipServerCertCheck?'1':'0'}"></div><div class="field"><label>Авторизация</label><select id="svc-auth" class="wide" onchange="renderServiceDynamic()">${selectOption('none','Без авторизации',s.authMode||'none')}${selectOption('basic','Basic Auth',s.authMode||'none')}${selectOption('bearer','Bearer Token',s.authMode||'none')}</select></div><div id="auth-fields" data-user="${esc(s.basicUsername||'')}" data-pass="${esc(s.basicPassword||'')}" data-token="${esc(s.bearerToken||'')}"></div>${fromTpl?'<div class="box blue-box">Сервис создаётся из шаблона без auth. Авторизацию можно настроить здесь перед созданием.</div>':''}`}
-function renderServiceDynamic(){const type=$('svc-type')?.value||'ExporterScrape',exp=$('exporter-fields');if(exp){const prevP=$('svc-protocol')?.value||exp.dataset.protocol||'http',prevC=$('svc-cert')?.value||exp.dataset.cert||'',prevS=$('svc-skip')?.checked||exp.dataset.skip==='1';exp.dataset.protocol=prevP;exp.dataset.cert=prevC;exp.dataset.skip=prevS?'1':'0';exp.innerHTML=type==='ExporterScrape'?`<div class="box"><div class="field"><label>Протокол сбора</label><select id="svc-protocol" class="wide" onchange="renderServiceDynamic()">${selectOption('http','HTTP',prevP)}${selectOption('https','HTTPS',prevP)}</select></div>${prevP==='https'?`<div class="field"><label>Клиентский сертификат</label><textarea id="svc-cert" rows="5" class="wide mono" placeholder="-----BEGIN CERTIFICATE-----&#10;...&#10;-----END CERTIFICATE-----">${esc(prevC)}</textarea><div class="hint">Сертификат вставляется строкой. При HTTP это поле не отображается.</div></div><label style="display:flex;gap:8px;align-items:center"><input id="svc-skip" type="checkbox" ${prevS?'checked':''}> Пропустить проверку серверного сертификата</label>`:''}</div>`:''}
-  const auth=$('auth-fields');if(auth){const mode=$('svc-auth')?.value||'none',u=$('svc-user')?.value||auth.dataset.user||'',p=$('svc-pass')?.value||auth.dataset.pass||'',tok=$('svc-token')?.value||auth.dataset.token||'';auth.dataset.user=u;auth.dataset.pass=p;auth.dataset.token=tok;if(mode==='basic')auth.innerHTML=`<div class="box"><div class="row"><div class="field"><label>Username</label><input id="svc-user" class="wide" value="${esc(u)}"></div><div class="field"><label>Password</label><input id="svc-pass" type="password" class="wide" value="${esc(p)}"></div></div></div>`;else if(mode==='bearer')auth.innerHTML=`<div class="box"><div class="field"><label>Bearer Token</label><textarea id="svc-token" rows="3" class="wide mono">${esc(tok)}</textarea></div></div>`;else auth.innerHTML=''}}
-function serviceFromForm(id=''){const type=$('svc-type').value,protocol=type==='ExporterScrape'?($('svc-protocol')?.value||'http'):'http';return{id:id||uid('svc'),name:$('svc-name').value.trim(),type,icon:$('svc-icon').value,defaultPort:num($('svc-port').value,0),metrics:$('svc-metrics').value.trim()||'/metrics',ownerGroupId:$('svc-group').value,authMode:$('svc-auth').value,basicUsername:$('svc-user')?.value||'',basicPassword:$('svc-pass')?.value||'',bearerToken:$('svc-token')?.value||'',protocol,clientCertificate:protocol==='https'?($('svc-cert')?.value||''):'',skipServerCertCheck:protocol==='https'?!!$('svc-skip')?.checked:false,usedBy:state.services.find(s=>s.id===id)?.usedBy||0,createdBy:state.services.find(s=>s.id===id)?.createdBy||currentUser().id}}
-function saveService(id=''){const s=serviceFromForm(id);if(!s.name||s.defaultPort<1||s.defaultPort>65535)return toast('Заполните обязательные поля');if(!canManageGroup(s.ownerGroupId))return toast('Недостаточно прав на группу');if(state.services.some(x=>x.id!==id&&x.name.toLowerCase()===s.name.toLowerCase()))return toast('Сервис с таким именем уже существует');if(id){const i=state.services.findIndex(x=>x.id===id);if(i>-1)state.services[i]=s}else state.services.push(s);saveState();closeModal();renderAll();toast(id?'Сервис обновлён':'Сервис создан')}
-function openCloneService(id){const s=state.services.find(x=>x.id===id);if(!s||!canManageService(s))return;openModal('Клонировать сервис',s.name,`<div class="field"><label>Имя нового сервиса</label><input id="clone-name" class="wide" value="${esc(s.name+' copy')}"></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="cloneService(${q(id)})">Создать копию</button>`,true)}
-function cloneService(id){const s=state.services.find(x=>x.id===id),name=$('clone-name').value.trim();if(!name)return toast('Введите имя');if(state.services.some(x=>x.name.toLowerCase()===name.toLowerCase()))return toast('Сервис с таким именем уже существует');state.services.push({...s,id:uid('svc'),name,usedBy:0,createdBy:currentUser().id});saveState();closeModal();renderAll();toast('Сервис склонирован')}
-function openDeleteService(id){const s=state.services.find(x=>x.id===id);if(!s||!canManageService(s))return;confirmModal('Удаление сервиса',`Удалить <b>${esc(s.name)}</b>?<br>Attachment'ов: ${usage(id)}<br>Коллекций: ${serviceCollections(id).length}`,'deleteService',q(id))}
-function deleteService(id){state.hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));state.collections.forEach(c=>c.serviceIds=c.serviceIds.filter(sid=>sid!==id));state.services=state.services.filter(s=>s.id!==id);selectedServiceIds.delete(id);saveState();renderAll();toast('Сервис удалён')}
-function openBulkDeleteServices(){const ids=[...selectedServiceIds].filter(id=>canManageService(state.services.find(s=>s.id===id)));if(!ids.length)return toast('Нет доступных к удалению сервисов');openModal('Массовое удаление сервисов','Будут очищены связанные attachment и коллекции',`<div class="box red-box">Удалить сервисов: ${ids.length}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="bulkDeleteServices()">Удалить</button>`,true)}
-function bulkDeleteServices(){[...selectedServiceIds].forEach(id=>{const s=state.services.find(x=>x.id===id);if(s&&canManageService(s))deleteServiceNoRender(id)});selectedServiceIds.clear();saveState();closeModal();renderAll();toast('Сервисы удалены')}
-function deleteServiceNoRender(id){state.hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));state.collections.forEach(c=>c.serviceIds=c.serviceIds.filter(sid=>sid!==id));state.services=state.services.filter(s=>s.id!==id)}
-
-function renderTemplates(){const arr=state.serviceTemplates,all=arr.length&&arr.every(t=>selectedTemplateIds.has(t.id));const body=`<div class="panel"><div class="info"><b>Правило:</b> шаблоны сервисов не содержат auth. Имя шаблона уникально.</div><div class="toolbar"><div style="display:flex;gap:12px;align-items:center"><input class="checkbox" type="checkbox" ${all?'checked':''} onchange="toggleAllTemplates(this.checked)"><span class="muted">Выбрано: <b>${selectedTemplateIds.size}</b> из <b>${arr.length}</b></span></div><button class="sm danger" ${selectedTemplateIds.size?'':'disabled'} onclick="openBulkDeleteTemplates()">🗑️ Удалить выбранные</button></div><div class="content">${arr.length?arr.map(templateCard).join(''):'<div class="empty">Нет шаблонов</div>'}</div></div>`;page('templates','🧩 Шаблоны сервисов','Клик по шаблону создаёт сервис на его основе. В UI шаблонов нет упоминаний об аутентификации.','',body)}
-function templateCard(t){const g=groupById(t.ownerGroupId);return`<div class="card clickable ${selectedTemplateIds.has(t.id)?'selected':''}" onclick="openServiceFromTemplate(${q(t.id)})"><div class="card-main"><input class="checkbox" type="checkbox" ${selectedTemplateIds.has(t.id)?'checked':''} onclick="event.stopPropagation()" onchange="toggleTemplate(${q(t.id)})"><span class="icon">${esc(t.icon)}</span><div><div class="card-title">${esc(t.name)}</div><div class="meta">Тип: ${esc(t.type)} · Порт: <span class="mono">${t.defaultPort}</span> · Метрики: <span class="mono">${esc(t.metrics)}</span>${t.type==='ExporterScrape'?' · '+String(t.protocol||'http').toUpperCase():''}</div><div class="pills"><span class="badge b-blue">👥 ${esc(g?.name||'—')}</span><span class="badge">создано: ${t.usedBy||0}</span></div></div></div><div class="actions" onclick="event.stopPropagation()"><button class="xs outline" onclick="openEditTemplate(${q(t.id)})">✏️ Редактировать</button><button class="xs danger" onclick="openDeleteTemplate(${q(t.id)})">🗑️</button></div></div>`}
-function toggleTemplate(id){selectedTemplateIds.has(id)?selectedTemplateIds.delete(id):selectedTemplateIds.add(id);renderTemplates()}
-function toggleAllTemplates(ch){state.serviceTemplates.forEach(t=>ch?selectedTemplateIds.add(t.id):selectedTemplateIds.delete(t.id));renderTemplates()}
-function openCreateTemplateFromService(id){const s=state.services.find(x=>x.id===id);if(!s)return;const name=`Шаблон "${s.name}"`;openModal('Создать шаблон сервиса','Из карточки сервиса',`<div class="box blue-box">Шаблон будет создан без аутентификации. Имя должно быть уникальным.</div><div class="field"><label>Название шаблона</label><input id="tpl-name" class="wide" value="${esc(name)}" oninput="validateTemplateName()"><div id="tpl-val" class="hint"></div></div><div class="box"><b>Основа:</b> ${esc(s.name)}<br>Тип: ${esc(s.type)} · Порт: ${s.defaultPort} · Метрики: <span class="mono">${esc(s.metrics)}</span></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="createTemplateFromService(${q(id)})">Создать шаблон</button>`,true);validateTemplateName()}
-function validateTemplateName(editId=''){const el=$('tpl-name'),msg=$('tpl-val');if(!el||!msg)return false;const name=el.value.trim(),exists=state.serviceTemplates.some(t=>t.id!==editId&&t.name.toLowerCase()===name.toLowerCase());msg.textContent=!name?'Введите название':exists?'Шаблон с таким именем уже существует':'Имя свободно';msg.style.color=!name||exists?'var(--danger)':'var(--success)';return!!name&&!exists}
-function createTemplateFromService(id){const s=state.services.find(x=>x.id===id);if(!s||!validateTemplateName())return;state.serviceTemplates.push({id:uid('tpl'),name:$('tpl-name').value.trim(),type:s.type,icon:s.icon,defaultPort:s.defaultPort,metrics:s.metrics,protocol:s.protocol||'http',skipServerCertCheck:!!s.skipServerCertCheck,ownerGroupId:s.ownerGroupId,createdBy:currentUser().id,usedBy:0});saveState();closeModal();renderAll();toast('Шаблон создан')}
-function openServiceFromTemplate(id){const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;const s={name:t.name.replace(/^Шаблон\s+"(.+)"$/,'$1'),type:t.type,icon:t.icon,defaultPort:t.defaultPort,metrics:t.metrics,ownerGroupId:canManageGroup(t.ownerGroupId)?t.ownerGroupId:(isAdmin()?state.groups[0]?.id:currentUser().groups[0])||'g-infra',authMode:'none',basicUsername:'',basicPassword:'',bearerToken:'',protocol:t.protocol||'http',clientCertificate:'',skipServerCertCheck:!!t.skipServerCertCheck};openServiceModal('',s)}
-function openEditTemplate(id){const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;openModal('Редактировать шаблон сервиса','Без настроек auth',`<div class="box blue-box">Шаблон не содержит авторизацию.</div><div class="field"><label>Название *</label><input id="tpl-name" class="wide" value="${esc(t.name)}" oninput="validateTemplateName(${q(id)})"><div id="tpl-val" class="hint"></div></div><div class="row3"><div class="field"><label>Тип</label><select id="tpl-type" class="wide">${typeOptions(t.type)}</select></div><div class="field"><label>Иконка</label><select id="tpl-icon" class="wide">${iconOptions(t.icon)}</select></div><div class="field"><label>Порт</label><input id="tpl-port" type="number" min="1" max="65535" class="wide" value="${t.defaultPort}"></div></div><div class="field"><label>Метрики</label><input id="tpl-metrics" class="wide mono" value="${esc(t.metrics)}"></div><div class="field"><label>Протокол для ExporterScrape</label><select id="tpl-protocol" class="wide">${selectOption('http','HTTP',t.protocol||'http')}${selectOption('https','HTTPS',t.protocol||'http')}</select></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveTemplate(${q(id)})">Сохранить</button>`);validateTemplateName(id)}
-function saveTemplate(id){if(!validateTemplateName(id))return;const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;t.name=$('tpl-name').value.trim();t.type=$('tpl-type').value;t.icon=$('tpl-icon').value;t.defaultPort=num($('tpl-port').value,80);t.metrics=$('tpl-metrics').value.trim()||'/metrics';t.protocol=$('tpl-protocol').value;saveState();closeModal();renderAll();toast('Шаблон обновлён')}
-function openDeleteTemplate(id){const t=state.serviceTemplates.find(x=>x.id===id);if(!t)return;confirmModal('Удаление шаблона',`Удалить шаблон <b>${esc(t.name)}</b>?`,'deleteTemplate',q(id))}
-function deleteTemplate(id){state.serviceTemplates=state.serviceTemplates.filter(t=>t.id!==id);selectedTemplateIds.delete(id);saveState();renderAll();toast('Шаблон удалён')}
-function openBulkDeleteTemplates(){openModal('Массовое удаление шаблонов','Подтвердите действие',`<div class="box red-box">Удалить шаблонов: ${selectedTemplateIds.size}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="bulkDeleteTemplates()">Удалить</button>`,true)}
-function bulkDeleteTemplates(){state.serviceTemplates=state.serviceTemplates.filter(t=>!selectedTemplateIds.has(t.id));selectedTemplateIds.clear();saveState();closeModal();renderAll();toast('Шаблоны удалены')}
-
-function renderCollections(){const avg=state.collections.length?(state.collections.reduce((s,c)=>s+c.serviceIds.length,0)/state.collections.length).toFixed(1):'0';const body=`<div class="panel"><div class="info"><b>Коллекция</b> хранит ссылки на сервисы. В карточках сервисов видно, в каких коллекциях они используются.</div><div class="stats three"><div class="stat"><div class="stat-label">Коллекций</div><div class="stat-value">${state.collections.length}</div></div><div class="stat"><div class="stat-label">Используется на хостах</div><div class="stat-value">${state.collections.reduce((s,c)=>s+c.usedBy,0)}</div></div><div class="stat"><div class="stat-label">Среднее сервисов</div><div class="stat-value">${avg}</div></div></div><div class="content">${state.collections.length?state.collections.map(collectionCard).join(''):'<div class="empty">Нет коллекций</div>'}</div></div>`;page('collections','📦 Коллекции','Группы сервисов для пакетного присоединения к хостам.',`<button onclick="openCollectionModal()">➕ Создать коллекцию</button>`,body)}
-function collectionCard(c){const svcs=c.serviceIds.map(id=>state.services.find(s=>s.id===id)).filter(Boolean);return`<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(c.name)} <span class="badge b-blue">${svcs.length} сервисов</span></div><div class="meta">${esc(c.description||'')}</div><div class="line"><span class="line-label">Сервисы:</span>${svcs.length?svcs.map(s=>`<span class="badge">${esc(s.icon)} ${esc(s.name)}</span>`).join(''):'<span class="muted">—</span>'}</div></div></div><div class="actions"><button class="xs danger" onclick="deleteCollection(${q(c.id)})">🗑️ Удалить</button></div></div>`}
-function openCollectionModal(){collectionDraftIds=[];collectionDraftName='';collectionDraftDesc='';renderCollectionModal()}
-function renderCollectionModal(){openModal('Создать коллекцию','Выберите сервисы из библиотеки',`<div class="field"><label>Название *</label><input id="col-name" class="wide" value="${esc(collectionDraftName)}" oninput="collectionDraftName=this.value"></div><div class="field"><label>Описание</label><textarea id="col-desc" rows="2" class="wide" oninput="collectionDraftDesc=this.value">${esc(collectionDraftDesc)}</textarea></div><div class="box"><b>Сервисы коллекции</b><div id="col-picked" style="margin-top:10px">${collectionDraftIds.length?collectionDraftIds.map(id=>{const s=state.services.find(x=>x.id===id);return s?`<span class="badge" style="margin:3px">${esc(s.icon)} ${esc(s.name)} <button class="xs ghost" onclick="removeFromCollectionDraft(${q(id)})">✕</button></span>`:''}).join(''):'<div class="muted">Коллекция пуста</div>'}</div><button class="outline" onclick="openServicePicker()">➕ Добавить сервис</button></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`)}
-function openServicePicker(){const items=state.services.filter(s=>!collectionDraftIds.includes(s.id));openModal('Добавить сервис в коллекцию','Выберите сервис',items.length?items.map(s=>`<div class="card clickable" onclick="addToCollectionDraft(${q(s.id)})"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">${esc(s.type)} · ${s.defaultPort}</div></div></div></div>`).join(''):'<div class="empty">Все сервисы уже добавлены</div>',`<button class="ghost" onclick="renderCollectionModal()">Назад</button>`,true)}
-function addToCollectionDraft(id){if(!collectionDraftIds.includes(id))collectionDraftIds.push(id);renderCollectionModal()}
-function removeFromCollectionDraft(id){collectionDraftIds=collectionDraftIds.filter(x=>x!==id);renderCollectionModal()}
-function saveCollection(){collectionDraftName=$('col-name')?.value.trim()||collectionDraftName;collectionDraftDesc=$('col-desc')?.value.trim()||collectionDraftDesc;if(!collectionDraftName||!collectionDraftIds.length)return toast('Введите название и добавьте сервисы');state.collections.push({id:uid('col'),name:collectionDraftName,description:collectionDraftDesc,serviceIds:[...collectionDraftIds],usedBy:0});saveState();closeModal();renderAll();toast('Коллекция создана')}
-function deleteCollection(id){state.collections=state.collections.filter(c=>c.id!==id);saveState();renderAll();toast('Коллекция удалена')}
-
-function openAttachModal(type){
-  if(selectedHostIds.size!==1)return toast('Выберите один хост');
-  const host=selectedHost();
-  if(!host)return toast('Хост не найден');
-  if(!canManageMonitoringHost(host))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
-  const items=type==='service'?state.services:state.collections;
-  openModal(type==='service'?'Присоединить сервис':'Присоединить коллекцию','Attachment будет принадлежать группе хоста',`<div class="box blue-box">Хост: <b>${esc(hostDisplayName(host))}</b> · группа: <b>${esc(groupName(host.ownerGroupId))}</b><br><span class="mono">${esc(host.targetKey)}</span> · ${esc(host.address)}</div>${items.length?items.map(i=>`<div class="card clickable" onclick="attachItem(${q(type)},${q(i.id)})"><div class="card-main"><span class="icon">${type==='service'?esc(i.icon):'📦'}</span><div><div class="card-title">${esc(i.name)}</div><div class="meta">${type==='service'?esc(i.type)+' · '+i.defaultPort:i.serviceIds.length+' сервисов'}</div></div></div></div>`).join(''):'<div class="empty">Нет доступных элементов</div>'}`,`<button class="ghost" onclick="closeModal()">Отмена</button>`)
-}
-function attachItem(type,itemId){
-  const host=selectedHost();if(!host||!canManageMonitoringHost(host))return toast('Недостаточно прав');
-  const ids=type==='service'?[itemId]:(state.collections.find(c=>c.id===itemId)?.serviceIds||[]);
-  let added=0;
-  ids.forEach(id=>{
-    const s=state.services.find(x=>x.id===id);
-    if(!s||host.attachments.some(a=>a.serviceId===id))return;
-    host.attachments.push({serviceId:id,createdBy:currentUser().id,ownerGroupId:host.ownerGroupId,portOverride:null});
-    added++
-  });
-  if(type==='collection'){const c=state.collections.find(x=>x.id===itemId);if(c)c.usedBy++}
-  else{const s=state.services.find(x=>x.id===itemId);if(s)s.usedBy++}
-  saveState();closeModal();expandedHostId=hostKey(host.id);renderAll();toast(`Присоединено сервисов: ${added}`)
-}
-function detachService(hostId,i){
-  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];
-  if(!h||!a)return;
-  if(!canManageAttachment(a,h))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
-  h.attachments.splice(i,1);saveState();renderAll();toast('Сервис отсоединён')
-}
-function applyPort(hostId,i){
-  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];
-  if(!a||!canManageAttachment(a,h))return toast('Недостаточно прав');
-  const val=$(`port-${hostKey(hostId)}-${i}`).value.trim();
-  if(!val)a.portOverride=null;else{const p=num(val,0);if(p<1||p>65535)return toast('Некорректный порт');a.portOverride=p}
-  saveState();renderAll();toast('Порт обновлён')
-}
-function resetPort(hostId,i){
-  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];
-  if(!a||!canManageAttachment(a,h))return toast('Недостаточно прав');
-  a.portOverride=null;saveState();renderAll();toast('Порт сброшен')
-}
-
-function renderAccess(){
-  const rows=[
-    ['Видимость','Все пользователи MARS видят объекты мониторинга всех групп и их attachment’ы.'],
-    ['Создать хост','Пользователь с permission «Постановка на мониторинг» в выбранной группе.'],
-    ['Редактировать / удалить хост','Любой пользователь с этим permission в группе-владельце. Создатель — только аудит.'],
-    ['Присоединить / отсоединить сервис','Любой пользователь с этим permission в группе хоста.'],
-    ['Manual host','IP/FQDN, visible name и группа прокси ведутся в MARS. CMDB не требуется.'],
-    ['Catalog host','CMDB обновляет только IP/FQDN. Visible name и группа прокси ведёт группа MARS.'],
-    ['Уникальность visible name','Только в пределах группы: UNIQUE(ownerGroupId, lower(visibleName)).'],
-    ['Техническое имя','Автоматически: groupKey:visibleName. Внутренний immutable ID хоста остаётся отдельным.']
-  ];
-  const body=`<div class="panel"><div class="info"><b>Ключевая идея:</b> «Хост» в MARS — это объект постановки на мониторинг конкретной группы. Он не является глобальной записью о физическом сервере. Связь с CMDB, если она есть, используется для адресации.</div><div class="content">
-    <h3>Пользователи и permission</h3>
-    ${state.users.map(u=>{
-      const permissions=(u.groups||[]).map(gid=>{
-        const can=u.isAdmin||((u.groupPermissions?.[gid]||[]).includes('monitoring.manage'));
-        return `<span class="badge ${can?'b-green':'b-red'}">${esc(groupName(gid))}: ${can?'постановка на мониторинг':'только просмотр'}</span>`
-      }).join('');
-      return `<div class="card"><div class="card-main"><span class="avatar" style="background:${u.isAdmin?'#7C3AED':'var(--primary)'}">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)} ${u.id===state.currentUserId?'<span class="badge b-blue">текущий</span>':''}</div><div class="meta">${u.isAdmin?'MARS admin':'Пользователь'}</div><div class="pills">${permissions||'<span class="muted">Нет групп</span>'}</div></div></div><button class="sm outline" onclick="switchUser(${q(u.id)})">Переключиться</button></div>`
-    }).join('')}
-    <h3>Группы</h3>
-    ${state.groups.map(g=>`<div class="card"><div class="card-main"><span class="icon">👥</span><div><div class="card-title">${esc(g.name)}</div><div class="meta">Ключ группы: <span class="mono">${esc(g.key)}</span> · Участники: ${state.users.filter(u=>(u.groups||[]).includes(g.id)).map(u=>esc(u.name)).join(', ')||'—'}</div></div></div></div>`).join('')}
-    <h3>Правила</h3>
-    <div class="box"><table style="width:100%;border-collapse:collapse"><tbody>${rows.map(r=>`<tr><td style="padding:8px;border-bottom:1px solid var(--slate-200);font-weight:800">${r[0]}</td><td style="padding:8px;border-bottom:1px solid var(--slate-200)">${r[1]}</td></tr>`).join('')}</tbody></table></div>
-  </div></div>`;
-  page('access','👥 Доступ','Проверка групповых permission и модели объектов мониторинга.','',body)
-}
-
-
-loadHostTableView();loadState();renderAll();
+function renderUserSwitcher(){$('current-user').innerHTML=state.users.map(u=>`<option value="${esc(u.id)}" ${u.id===state.currentUserId?'selected':''}>${esc(u.name)}${u.isAdmin?' · admin':''}</option>`).join('');$('avatar').textContent=currentUser().initials||'U'}
+function page(sec,title,sub,actions,body){$('section-'+sec).innerHTML=`<div class="page-head"><div><h1 class="title">${title}</h1><div class="sub">${sub||''}</div></div><div class="actions">${actions||''}</div></div>${body}`}
+const COLS={id:{label:'Host ID',value:h=>h.id,cell:h=>`<div class="cell-title mono">${esc(h.id)}</div><div class="cell-sub">Сгенерирован при создании</div>`},name:{label:'Имя',value:h=>h.name,cell:h=>`<div class="cell-title">${esc(h.name)}</div><div class="cell-sub">Имя может повторяться</div>`},address:{label:'IP / FQDN',value:h=>h.address,cell:h=>`<div class="cell-title mono">${addressBadge(h)} ${esc(h.address)}</div>`},source:{label:'Источник',value:h=>sourceLabel(h),cell:h=>sourceBadge(h)},cmdb:{label:'CMDB / External ID',value:h=>h.catalogBinding?.externalId||'',cell:h=>h.catalogBinding?`<div class="mono">${esc(h.catalogBinding.externalId)}</div><div class="cell-sub">${esc(state.catalogSources.find(s=>s.id===h.catalogBinding.sourceId)?.name||'CMDB')}</div>`:'<span class="muted">—</span>'},proxy:{label:'Группа прокси',value:h=>proxyName(h.proxyGroup),cell:h=>esc(proxyName(h.proxyGroup))},status:{label:'Статус',value:h=>h.status,cell:h=>`<span class="badge ${h.status==='UP'?'b-green':'b-amber'}">${h.status==='UP'?'● UP':'● WARN'}</span>`},services:{label:'Сервисы моих групп',value:h=>ownAttachments(h).map(a=>serviceById(a.serviceId)?.name||'').join(' '),cell:h=>{const a=ownAttachments(h);return a.length?`<div class="pill-row">${a.slice(0,3).map(x=>{const s=serviceById(x.serviceId);return `<span class="badge b-blue">${esc(s?.icon||'🔌')} ${esc(s?.name||'Сервис')}</span>`}).join('')}${a.length>3?`<span class="badge">+${a.length-3}</span>`:''}</div>`:'<span class="muted">Нет подключений моих групп</span>'}},createdAt:{label:'Создан',value:h=>h.createdAt,cell:h=>`<div>${esc(h.createdAt)}</div><div class="cell-sub">${esc(userById(h.createdBy)?.name||'—')}</div>`}};
+function getVisibleColumns(){return hostTable.columns.filter(k=>!hostTable.hidden.includes(k)&&COLS[k])}
+function allHostSearchValue(h){return [h.id,h.name,h.address,h.addressType,sourceLabel(h),h.catalogBinding?.externalId||'',proxyName(h.proxyGroup),h.status,h.createdAt,userById(h.createdBy)?.name||'',...h.attachments.flatMap(a=>[groupById(a.attachedByGroupId)?.name||'',serviceById(a.serviceId)?.name||''])].join(' ').toLowerCase()}
+function ruleValue(h,key){switch(key){case'source':return h.sourceType;case'addressType':return h.addressType;case'proxy':return h.proxyGroup;case'status':return h.status;case'serviceGroup':return h.attachments.map(a=>a.attachedByGroupId);case'service':return h.attachments.map(a=>a.serviceId);case'cmdb':return h.catalogBinding?.externalId||'none';case'name':return h.name;case'address':return h.address;case'id':return h.id;default:return ''}}
+function passesRule(h,r){const v=ruleValue(h,r.field);if(Array.isArray(v))return v.some(x=>String(x)===String(r.value));const text=String(v||'').toLowerCase(),needle=String(r.value||'').toLowerCase();if(r.operator==='equals')return text===needle;if(r.operator==='starts')return text.startsWith(needle);return text.includes(needle)}
+function filteredHostList(mode){let arr=(mode==='catalog'?catalogHosts():connectedHosts()).filter(h=>!hostFilter.query||allHostSearchValue(h).includes(hostFilter.query.toLowerCase()));arr=arr.filter(h=>hostFilter.rules.every(r=>passesRule(h,r)));const {sortKey,sortDirection}=hostTable;arr.sort((a,b)=>String(COLS[sortKey]?.value(a)||'').localeCompare(String(COLS[sortKey]?.value(b)||''),'ru',{numeric:true})*(sortDirection==='asc'?1:-1));return arr}
+function renderHosts(){const title=hostView==='connected'?'Подключённые хосты':'Хосты из справочника';const sub=hostView==='connected'?'Хосты, на которых подключены сервисы ваших групп.':'Только хосты, синхронизируемые из внешнего справочника. Ручные хосты здесь не отображаются.';const canCreate=[...userGroupIds()].some(hasMonitoringPermission);const arr=filteredHostList(hostView);const total=hostView==='connected'?connectedHosts().length:catalogHosts().length;const body=`<div class="panel"><div class="host-switch"><button class="${hostView==='connected'?'active':''}" onclick="setHostView('connected')">🔗 Подключённые хосты</button><button class="${hostView==='catalog'?'active':''}" onclick="setHostView('catalog')">📚 Хосты из справочника</button></div><div class="info">${hostView==='connected'?'<b>Видимость:</b> вы видите хост только при наличии подключения от одной из ваших групп. В деталях доступны только attachment’ы ваших групп.':'<b>Каталог инфраструктуры:</b> здесь отображаются только синхронизируемые CMDB-хосты. Для подключения выберите строку и добавьте сервис своей группы.'}</div><div class="toolbar"><div class="actions"><input id="host-search" class="input" value="${esc(hostFilter.query)}" placeholder="Поиск по всем полям…" oninput="setGlobalHostSearch(this.value)"><button class="sm outline" onclick="openHostFilters()">⚲ Фильтры${hostFilter.rules.length?` (${hostFilter.rules.length})`:''}</button><button class="sm outline" onclick="openColumnSettings()">☷ Столбцы</button></div><div class="actions">${hostView==='connected'?`<button ${canCreate?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`:'<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать</button>'}</div></div>${hostFilter.rules.length?`<div class="filter-summary"><div class="filters-list">${hostFilter.rules.map((r,i)=>`<span class="filter-chip">${esc(filterFieldLabel(r.field))}: ${esc(filterValueLabel(r))} <button class="ghost xs" onclick="removeHostFilter(${i})">✕</button></span>`).join('')}<button class="ghost xs" onclick="clearHostFilters()">Очистить</button></div></div>`:''}<div class="stats"><div class="stat"><label>В представлении</label><b>${total}</b></div><div class="stat"><label>После фильтра</label><b>${arr.length}</b></div><div class="stat"><label>Справочные</label><b>${(hostView==='catalog'?catalogHosts():connectedHosts()).filter(h=>h.sourceType==='catalog').length}</b></div><div class="stat"><label>Ручные</label><b>${(hostView==='catalog'?catalogHosts():connectedHosts()).filter(h=>h.sourceType!=='catalog').length}</b></div></div>${renderHostTable(arr)}</div>`;page('hosts',title,sub,`<button class="outline" onclick="resetDemo()">↺ Сбросить демо</button>`,body)}
+function setHostView(v){hostView=v;hostTable.page=1;renderHosts()}function setGlobalHostSearch(v){hostFilter.query=v;hostTable.page=1;renderHosts()}function sortHosts(key){if(hostTable.sortKey===key)hostTable.sortDirection=hostTable.sortDirection==='asc'?'desc':'asc';else{hostTable.sortKey=key;hostTable.sortDirection='asc'}renderHosts()}
+function renderHostTable(arr){const cols=getVisibleColumns(),pages=Math.max(1,Math.ceil(arr.length/hostTable.pageSize));if(hostTable.page>pages)hostTable.page=pages;const start=(hostTable.page-1)*hostTable.pageSize,items=arr.slice(start,start+hostTable.pageSize);return `<div class="table-wrap"><table><thead><tr>${cols.map(c=>`<th class="sort" onclick="sortHosts(${q(c)})">${esc(COLS[c].label)} ${hostTable.sortKey===c?(hostTable.sortDirection==='asc'?'↑':'↓'):''}</th>`).join('')}<th>Действия</th></tr></thead><tbody>${items.length?items.map(h=>`<tr class="data-row" onclick="openHostDetails(${q(h.id)})">${cols.map(c=>`<td>${COLS[c].cell(h)}</td>`).join('')}<td onclick="event.stopPropagation()"><div class="actions"><button class="xs outline" onclick="openHostDetails(${q(h.id)})">Детали</button>${canAttachAny()?`<button class="xs" onclick="openAttachModal(${q(h.id)})">＋ Сервис</button>`:''}</div></td></tr>`).join(''):`<tr><td colspan="${cols.length+1}" class="empty">Хосты не найдены</td></tr>`}</tbody></table></div><div class="table-footer"><div class="muted">Показано ${items.length?start+1:0}–${Math.min(start+hostTable.pageSize,arr.length)} из ${arr.length}</div><div class="pagination"><select onchange="changeHostPageSize(this.value)">${[10,25,50,100].map(n=>`<option value="${n}" ${n===hostTable.pageSize?'selected':''}>${n} / стр.</option>`).join('')}</select><button class="xs outline" onclick="changeHostPage(-1)" ${hostTable.page<=1?'disabled':''}>←</button><span class="muted">${hostTable.page} / ${pages}</span><button class="xs outline" onclick="changeHostPage(1)" ${hostTable.page>=pages?'disabled':''}>→</button></div></div>`}
+function changeHostPage(d){hostTable.page=Math.max(1,hostTable.page+d);renderHosts()}function changeHostPageSize(v){hostTable.pageSize=Number(v);hostTable.page=1;renderHosts()}
+function filterFieldLabel(k){return({source:'Источник',addressType:'Тип адреса',proxy:'Группа прокси',status:'Статус',serviceGroup:'Группа сервиса',service:'Сервис',cmdb:'CMDB / External ID',name:'Имя',address:'IP / FQDN',id:'Host ID'})[k]||k}function filterValueLabel(r){if(r.field==='source')return r.value==='catalog'?'Справочник':r.value==='manual'?'Ручной':'Ручной · prefill';if(r.field==='proxy')return proxyName(r.value);if(r.field==='serviceGroup')return groupById(r.value)?.name||r.value;if(r.field==='service')return serviceById(r.value)?.name||r.value;if(r.field==='cmdb')return r.value==='none'?'Без связи с CMDB':r.value;return r.value}
+function openHostFilters(){hostFilterDraft=hostFilter.rules.map(x=>({...x}));renderHostFilters()}
+function filterValueControl(r,index){const opts=(items)=>items.map(x=>`<option value="${esc(x.id)}" ${String(x.id)===String(r.value)?'selected':''}>${esc(x.name)}</option>`).join('');if(r.field==='source')return `<select onchange="setFilterDraftValue(${index},this.value)"><option value="catalog" ${r.value==='catalog'?'selected':''}>Справочник</option><option value="manual" ${r.value==='manual'?'selected':''}>Ручной</option><option value="manual-prefill" ${r.value==='manual-prefill'?'selected':''}>Ручной · prefill</option></select>`;if(r.field==='addressType')return `<select onchange="setFilterDraftValue(${index},this.value)"><option value="ip" ${r.value==='ip'?'selected':''}>IP</option><option value="fqdn" ${r.value==='fqdn'?'selected':''}>FQDN</option></select>`;if(r.field==='proxy')return `<select onchange="setFilterDraftValue(${index},this.value)">${opts(state.proxyGroups)}</select>`;if(r.field==='status')return `<select onchange="setFilterDraftValue(${index},this.value)"><option value="UP" ${r.value==='UP'?'selected':''}>UP</option><option value="WARN" ${r.value==='WARN'?'selected':''}>WARN</option></select>`;if(r.field==='serviceGroup')return `<select onchange="setFilterDraftValue(${index},this.value)">${opts(state.groups)}</select>`;if(r.field==='service')return `<select onchange="setFilterDraftValue(${index},this.value)">${opts(state.services)}</select>`;if(r.field==='cmdb')return `<select onchange="setFilterDraftValue(${index},this.value)"><option value="none" ${r.value==='none'?'selected':''}>Без связи с CMDB</option>${state.catalogHosts.map(h=>`<option value="${esc(h.externalId)}" ${h.externalId===r.value?'selected':''}>${esc(h.name)} · ${esc(h.externalId)}</option>`).join('')}</select>`;return `<input value="${esc(r.value||'')}" placeholder="Значение" oninput="setFilterDraftValue(${index},this.value)">`}
+function renderHostFilters(){openModal('Фильтры хостов','Поиск по любому полю. Для справочных значений доступен выбор из списка.',`<div class="box blue-box">Все условия объединяются через «И». Поиск в верхней строке ищет сразу по всем полям, включая скрытые столбцы.</div><div id="filter-draft-list">${hostFilterDraft.length?hostFilterDraft.map((r,i)=>`<div class="row" style="align-items:end"><div class="field"><label>Поле</label><select onchange="setFilterDraftField(${i},this.value)">${['source','addressType','proxy','status','serviceGroup','service','cmdb','name','address','id'].map(k=>`<option value="${k}" ${r.field===k?'selected':''}>${filterFieldLabel(k)}</option>`).join('')}</select></div><div class="field"><label>Условие / значение</label><div class="actions">${['name','address','id'].includes(r.field)?`<select onchange="setFilterDraftOperator(${i},this.value)"><option value="contains" ${r.operator==='contains'?'selected':''}>содержит</option><option value="equals" ${r.operator==='equals'?'selected':''}>равно</option><option value="starts" ${r.operator==='starts'?'selected':''}>начинается с</option></select>`:''}${filterValueControl(r,i)}<button class="xs danger" onclick="removeFilterDraft(${i})">✕</button></div></div></div>`).join(''):'<div class="empty">Фильтры не заданы</div>'}</div><button class="sm outline" onclick="addFilterDraft()">＋ Добавить условие</button>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="outline" onclick="hostFilterDraft=[];renderHostFilters()">Очистить</button><button onclick="applyHostFilters()">Применить</button>`)}
+function defaultFilterValue(field){if(field==='source')return'catalog';if(field==='addressType')return'ip';if(field==='proxy')return state.proxyGroups[0]?.id||'';if(field==='status')return'UP';if(field==='serviceGroup')return state.groups[0]?.id||'';if(field==='service')return state.services[0]?.id||'';if(field==='cmdb')return'none';return''}function addFilterDraft(){hostFilterDraft.push({field:'source',operator:'equals',value:'catalog'});renderHostFilters()}function removeFilterDraft(i){hostFilterDraft.splice(i,1);renderHostFilters()}function setFilterDraftField(i,v){hostFilterDraft[i].field=v;hostFilterDraft[i].operator=['name','address','id'].includes(v)?'contains':'equals';hostFilterDraft[i].value=defaultFilterValue(v);renderHostFilters()}function setFilterDraftValue(i,v){hostFilterDraft[i].value=v}function setFilterDraftOperator(i,v){hostFilterDraft[i].operator=v}function applyHostFilters(){hostFilter.rules=hostFilterDraft.map(x=>({...x}));hostTable.page=1;closeModal();renderHosts()}function removeHostFilter(i){hostFilter.rules.splice(i,1);hostTable.page=1;renderHosts()}function clearHostFilters(){hostFilter.rules=[];hostFilter.query='';hostTable.page=1;renderHosts()}
+function openColumnSettings(){const all=hostTable.columns;openModal('Столбцы таблицы','Скрывайте необязательные столбцы и меняйте порядок отображения.',`<div>${all.map((k,i)=>`<div class="card" style="align-items:center"><div class="card-main"><input class="checkbox" type="checkbox" ${!hostTable.hidden.includes(k)?'checked':''} onchange="toggleColumn(${q(k)},this.checked)"><div><div class="card-title">${esc(COLS[k].label)}</div><div class="meta">${k==='id'?'Сгенерированный уникальный идентификатор':'Поле таблицы'}</div></div></div><div class="actions"><button class="xs outline" onclick="moveColumn(${i},-1)" ${i===0?'disabled':''}>↑</button><button class="xs outline" onclick="moveColumn(${i},1)" ${i===all.length-1?'disabled':''}>↓</button></div></div>`).join('')}</div>`,`<button onclick="closeModal()">Готово</button>`,true)}
+function toggleColumn(k,shown){if(shown)hostTable.hidden=hostTable.hidden.filter(x=>x!==k);else if(hostTable.hidden.length<hostTable.columns.length-1)hostTable.hidden.push(k);openColumnSettings();renderHosts()}function moveColumn(i,d){const j=i+d;if(j<0||j>=hostTable.columns.length)return;const a=hostTable.columns;[a[i],a[j]]=[a[j],a[i]];openColumnSettings();renderHosts()}
+function canAttachAny(){return state.services.some(canAttachService)}
+function openHostDetails(id){const h=state.hosts.find(x=>x.id===id);if(!h)return;const allowed=isAdmin()?h.attachments:ownAttachments(h);const foreign=isAdmin()?[]:foreignEndpointServices(h);const source=h.sourceType==='catalog'?`<div class="box violet-box"><b>Источник: ${esc(state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId)?.name||'CMDB')}</b><br>External ID: <span class="mono">${esc(h.catalogBinding?.externalId||'—')}</span><br><span class="hint">IP/FQDN обновляются синхронизацией.</span></div>`:h.sourceType==='manual-prefill'?`<div class="box amber-box"><b>Ручной хост, разово заполненный из справочника.</b><br>Автоматическая синхронизация выключена.</div>`:`<div class="box"><b>Источник: ручной ввод.</b><br><span class="hint">Хост не появляется во вкладке «Хосты из справочника».</span></div>`;openModal(`Хост: ${h.name}`,`${h.id} · имя не является уникальным`,`${source}<div class="row"><div class="box"><b>Адрес</b><br>${addressBadge(h)} <span class="mono">${esc(h.address)}</span></div><div class="box"><b>Группа прокси</b><br>${esc(proxyName(h.proxyGroup))}</div></div><h3 style="margin:18px 0 8px">Подключения моих групп</h3>${allowed.length?allowed.map((a,i)=>attachmentDetail(h,a,i)).join(''):'<div class="empty">У ваших групп нет подключённых сервисов на этом хосте.</div>'}${foreign.length?foreignEndpointBlock(h,foreign):''}`,`<button class="ghost" onclick="closeModal()">Закрыть</button>${canAttachAny()?`<button class="outline" onclick="openAttachModal(${q(h.id)})">＋ Подключить сервис</button>`:''}${canEditHost(h)?`<button class="outline" onclick="openHostEditModal(${q(h.id)})">✏️ Редактировать</button>`:''}${canDeleteHost(h)?`<button class="danger" onclick="openDeleteHostModal(${q(h.id)})">🗑️ Удалить хост</button>`:''}`)}
+function attachmentDetail(h,a,i){const s=serviceById(a.serviceId),g=groupById(a.attachedByGroupId),port=a.portOverride||s?.defaultPort||'—',can=canDetach(a);return `<div class="card"><div class="card-main"><span class="icon">${esc(s?.icon||'🔌')}</span><div><div class="card-title">${esc(s?.name||'Сервис')}</div><div class="meta">Подключён от имени группы: <b>${esc(g?.name||'—')}</b> · Target: <span class="mono">${esc(h.address)}:${esc(port)}</span></div><div class="pill-row"><span class="badge">${esc(s?.type||'')}</span><span class="badge b-blue">${esc(s?.protocol||'http').toUpperCase()}</span>${a.portOverride?'<span class="badge b-amber">порт переопределён</span>':''}</div></div></div><div class="actions"><button class="xs outline" onclick="openPortModal(${q(h.id)},${q(a.id)})" ${can?'':'disabled'}>Порт</button><button class="xs danger" onclick="detachAttachment(${q(h.id)},${q(a.id)})" ${can?'':'disabled'}>Отвязать</button></div></div>`}
+function foreignEndpointServices(h){const own=userGroupIds(),key=endpointKey(h),map=new Map();state.hosts.filter(x=>endpointKey(x)===key).flatMap(x=>x.attachments).filter(a=>!own.has(a.attachedByGroupId)).forEach(a=>{const gid=a.attachedByGroupId,sid=a.serviceId;if(!map.has(gid))map.set(gid,new Set());map.get(gid).add(sid)});return [...map.entries()].map(([gid,set])=>({gid,serviceIds:[...set]}))}
+function foreignEndpointBlock(h,items){return `<div class="box blue-box" style="margin-top:16px"><b>Справка по тому же адресу</b><div class="hint">Для хостов MARS с ${h.addressType==='ip'?'тем же IP-адресом':'тем же FQDN'} <span class="mono">${esc(h.address)}</span> уже настроен мониторинг:</div>${items.map(x=>`<div style="margin-top:10px"><b>${esc(groupById(x.gid)?.name||'Группа')}</b><div class="pill-row" style="margin-top:5px">${x.serviceIds.map(id=>{const s=serviceById(id);return `<span class="badge b-violet">${esc(s?.icon||'🔌')} ${esc(s?.name||'Сервис')}</span>`}).join('')}</div></div>`).join('')}<div class="hint">Порты, параметры сборов и другие детали чужих подключений не раскрываются.</div></div>`}
+function openAttachModal(hostId){const h=state.hosts.find(x=>x.id===hostId);if(!h)return;const permitted=state.services.filter(canAttachService);openModal('Подключить сервис',`${h.name} · ${h.id}`,`<div class="box blue-box">Группа подключения определяется владельцем выбранного сервиса. Подключить можно только сервис вашей группы с permission «Постановка на мониторинг».</div><div class="service-picker">${permitted.length?permitted.map(s=>{const already=h.attachments.some(a=>a.serviceId===s.id&&a.attachedByGroupId===s.ownerGroupId);return `<div class="card"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">Группа: ${esc(groupById(s.ownerGroupId)?.name||'—')} · ${esc(s.type)} · порт ${s.defaultPort}</div></div></div><button class="sm" onclick="attachService(${q(h.id)},${q(s.id)})" ${already?'disabled':''}>${already?'Уже подключён':'Подключить'}</button></div>`}).join(''):'<div class="empty">Нет сервисов, которые доступны для подключения.</div>'}</div>`,`<button onclick="closeModal()">Готово</button>`,true)}
+function attachService(hostId,serviceId){const h=state.hosts.find(x=>x.id===hostId),s=serviceById(serviceId);if(!h||!s||!canAttachService(s))return toast('Недостаточно прав');if(h.attachments.some(a=>a.serviceId===serviceId&&a.attachedByGroupId===s.ownerGroupId))return toast('Сервис уже подключён этой группой');h.attachments.push({id:uid('att'),serviceId,attachedByGroupId:s.ownerGroupId,attachedByUserId:currentUser().id,attachedAt:now(),portOverride:null});saveState();openHostDetails(hostId);renderHosts();toast('Сервис подключён')}
+function detachAttachment(hostId,aid){const h=state.hosts.find(x=>x.id===hostId),a=h?.attachments.find(x=>x.id===aid);if(!h||!a||!canDetach(a))return toast('Отвязать может только группа, подключившая сервис');h.attachments=h.attachments.filter(x=>x.id!==aid);saveState();closeModal();renderHosts();toast('Сервис отвязан. Хост исчезнет из вашего списка, если это было последнее подключение вашей группы.')}
+function openPortModal(hostId,aid){const h=state.hosts.find(x=>x.id===hostId),a=h?.attachments.find(x=>x.id===aid),s=serviceById(a?.serviceId);if(!h||!a||!canDetach(a))return;openModal('Порт подключения',`${s?.name||'Сервис'} → ${h.name}`,`<div class="field"><label>Порт</label><input id="override-port" class="wide" type="number" min="1" max="65535" value="${esc(a.portOverride||s?.defaultPort||'')}"><div class="hint">Оставьте пустым для порта по умолчанию: ${s?.defaultPort||'—'}.</div></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="outline" onclick="savePortOverride(${q(hostId)},${q(aid)},true)">Сбросить</button><button onclick="savePortOverride(${q(hostId)},${q(aid)},false)">Сохранить</button>`,true)}
+function savePortOverride(hostId,aid,reset){const h=state.hosts.find(x=>x.id===hostId),a=h?.attachments.find(x=>x.id===aid);if(!a||!canDetach(a))return;if(reset)a.portOverride=null;else{const v=$('override-port').value.trim();if(!v)a.portOverride=null;else{const n=Number(v);if(!Number.isInteger(n)||n<1||n>65535)return toast('Введите порт от 1 до 65535');a.portOverride=n}}saveState();openHostDetails(hostId);renderHosts();toast('Порт обновлён')}
+function openHostCreateModal(){if(!canAttachAny())return toast('Нет permission «Постановка на мониторинг» ни в одной группе');hostDraft={mode:'manual',catalogId:'',selectedServiceIds:[],editingId:null};renderHostCreateModal()}
+function renderHostCreateModal(){const cat=state.catalogHosts.find(x=>x.externalId===hostDraft.catalogId),p=hostDraft.mode==='prefill'&&cat?cat:{name:'',addressType:'ip',address:'',proxyGroup:state.proxyGroups[0]?.id||''};openModal('Создать ручной хост','Для обычного пользователя требуется минимум один сервис для первичного подключения.',`<div class="field"><label>Источник полей</label><select id="create-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogId='';renderHostCreateModal()"><option value="manual" ${hostDraft.mode==='manual'?'selected':''}>Ввести вручную</option><option value="prefill" ${hostDraft.mode==='prefill'?'selected':''}>Заполнить из справочника, но оставить ручным</option></select></div>${hostDraft.mode==='prefill'?catalogSelectBlock():''}<div class="row"><div class="field"><label>Имя хоста</label><input id="new-host-name" class="wide" value="${esc(p.name)}"><div class="hint">Не уникально: одинаковые имена разрешены даже в одной группе.</div></div><div class="field"><label>Группа прокси</label><select id="new-host-proxy" class="wide">${state.proxyGroups.map(g=>`<option value="${esc(g.id)}" ${g.id===p.proxyGroup?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div></div><div class="row"><div class="field"><label>Тип адреса</label><select id="new-host-type" class="wide"><option value="ip" ${p.addressType==='ip'?'selected':''}>IP-адрес</option><option value="fqdn" ${p.addressType==='fqdn'?'selected':''}>FQDN</option></select></div><div class="field"><label>IP / FQDN</label><input id="new-host-address" class="wide mono" value="${esc(p.address)}"></div></div><div class="separator"></div><h3>Первичное подключение</h3><div class="hint">Нужно выбрать хотя бы один сервис. Группа подключения определяется группой-владельцем сервиса.</div><div class="service-picker" style="margin-top:10px">${state.services.filter(canAttachService).map(s=>`<label class="card" style="cursor:pointer"><div class="card-main"><input type="checkbox" class="checkbox" ${hostDraft.selectedServiceIds.includes(s.id)?'checked':''} onchange="toggleDraftService(${q(s.id)},this.checked)"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">Подключится от имени: ${esc(groupById(s.ownerGroupId)?.name||'—')} · порт ${s.defaultPort}</div></div></div></label>`).join('')}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="createManualHost()">Создать и подключить</button>`)}
+function catalogSelectBlock(){const list=state.catalogHosts;return `<div class="box"><b>Выберите запись справочника</b><div class="service-picker" style="margin-top:9px">${list.map(c=>`<div class="card" style="cursor:pointer" onclick="hostDraft.catalogId=${q(c.externalId)};renderHostCreateModal()"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(c.name)}</div><div class="meta mono">${esc(c.address)} · ${esc(c.externalId)}</div></div></div>${hostDraft.catalogId===c.externalId?'<span class="badge b-green">✓ выбрано</span>':''}</div>`).join('')}</div></div>`}
+function toggleDraftService(id,checked){if(checked){if(!hostDraft.selectedServiceIds.includes(id))hostDraft.selectedServiceIds.push(id)}else hostDraft.selectedServiceIds=hostDraft.selectedServiceIds.filter(x=>x!==id)}
+function createManualHost(){const name=$('new-host-name')?.value.trim(),address=$('new-host-address')?.value.trim();if(!name||!address)return toast('Заполните имя и IP/FQDN');if(!hostDraft.selectedServiceIds.length&&!isAdmin())return toast('Обычный пользователь должен подключить минимум один сервис');if(hostDraft.mode==='prefill'&&!hostDraft.catalogId)return toast('Выберите запись справочника');const cat=state.catalogHosts.find(x=>x.externalId===hostDraft.catalogId);const h={id:'H-'+Math.random().toString(36).slice(2,10).toUpperCase(),name,addressType:$('new-host-type').value,address,proxyGroup:$('new-host-proxy').value,status:'UP',sourceType:hostDraft.mode==='prefill'?'manual-prefill':'manual',createdBy:currentUser().id,createdAt:now(),catalogBinding:null,prefilledFromCatalog:cat?{sourceId:cat.sourceId,externalId:cat.externalId,copiedAt:now()}:null,attachments:hostDraft.selectedServiceIds.map(sid=>{const s=serviceById(sid);return{id:uid('att'),serviceId:sid,attachedByGroupId:s.ownerGroupId,attachedByUserId:currentUser().id,attachedAt:now(),portOverride:null}})};state.hosts.push(h);saveState();closeModal();hostView='connected';renderHosts();toast('Ручной хост создан и сервисы подключены')}
+function openHostEditModal(id){const h=state.hosts.find(x=>x.id===id);if(!h||!canEditHost(h))return toast('Изменение недоступно');openModal('Редактировать хост',h.id,`<div class="box amber-box">Изменение глобального хоста ограничено: у ручного хоста без подключений — создатель или администратор; у используемого или справочного — только администратор.</div><div class="row"><div class="field"><label>Имя</label><input id="edit-host-name" class="wide" value="${esc(h.name)}"></div><div class="field"><label>Группа прокси</label><select id="edit-host-proxy" class="wide">${state.proxyGroups.map(g=>`<option value="${esc(g.id)}" ${g.id===h.proxyGroup?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div></div><div class="row"><div class="field"><label>Тип адреса</label><select id="edit-host-type" class="wide"><option value="ip" ${h.addressType==='ip'?'selected':''}>IP</option><option value="fqdn" ${h.addressType==='fqdn'?'selected':''}>FQDN</option></select></div><div class="field"><label>IP / FQDN</label><input id="edit-host-address" class="wide mono" value="${esc(h.address)}"></div></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveHostEdit(${q(h.id)})">Сохранить</button>`)}
+function saveHostEdit(id){const h=state.hosts.find(x=>x.id===id);if(!h||!canEditHost(h))return;h.name=$('edit-host-name').value.trim()||h.name;h.proxyGroup=$('edit-host-proxy').value;h.addressType=$('edit-host-type').value;h.address=$('edit-host-address').value.trim()||h.address;saveState();openHostDetails(id);renderHosts();toast('Хост обновлён')}
+function openDeleteHostModal(id){const h=state.hosts.find(x=>x.id===id);if(!h||!canDeleteHost(h))return toast('Удалить хост может только MARS admin');confirmModal('Удалить глобальный хост',`Удалить <b>${esc(h.name)}</b> (<span class="mono">${esc(h.id)}</span>)?<br>Будет удалено подключений: ${h.attachments.length}.`,'deleteHost',q(id))}
+function deleteHost(id){if(!isAdmin())return;state.hosts=state.hosts.filter(h=>h.id!==id);saveState();closeModal();renderHosts();toast('Хост удалён')}
+function syncCatalogHosts(){let count=0;state.hosts.filter(h=>h.sourceType==='catalog').forEach(h=>{const c=state.catalogHosts.find(x=>x.sourceId===h.catalogBinding?.sourceId&&x.externalId===h.catalogBinding?.externalId);if(c){h.name=c.name;h.addressType=c.addressType;h.address=c.address;h.catalogBinding.lastSyncAt=now();h.catalogBinding.syncStatus='synced';count++}});saveState();renderHosts();toast(`Синхронизировано: ${count}`)}
+function renderServices(){const arr=state.services;page('services','🔌 Сервисы','Сервис принадлежит группе. При подключении к хосту группа attachment определяется владельцем сервиса.',`<button onclick="openServiceModal()">➕ Создать сервис</button>`,`<div class="panel"><div class="info"><b>Группа подключения:</b> сервис подключается к хосту от имени своей группы-владельца. Это значение сохраняется в attachment для аудита.</div><div class="content">${arr.map(serviceCard).join('')||'<div class="empty">Нет сервисов</div>'}</div></div>`)}
+function serviceCard(s){const g=groupById(s.ownerGroupId),can=canManageService(s),usage=state.hosts.reduce((n,h)=>n+h.attachments.filter(a=>a.serviceId===s.id).length,0);return `<div class="card"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">${esc(s.type)} · ${String(s.protocol||'http').toUpperCase()} · порт <span class="mono">${s.defaultPort}</span> · ${esc(s.metrics||'/metrics')}</div><div class="pill-row"><span class="badge b-blue">👥 ${esc(g?.name||'—')}</span><span class="badge">${usage} подключений</span><span class="badge">${s.authMode==='none'?'Без auth':s.authMode==='basic'?'Basic Auth':'Bearer Token'}</span></div></div></div><div class="actions"><button class="xs outline" onclick="openCloneService(${q(s.id)})" ${can?'':'disabled'}>⧉ Клонировать</button><button class="xs outline" onclick="openServiceModal(${q(s.id)})" ${can?'':'disabled'}>✏️</button><button class="xs danger" onclick="deleteService(${q(s.id)})" ${can?'':'disabled'}>🗑️</button></div></div>`}
+function groupOptions(selected){const gs=isAdmin()?state.groups:state.groups.filter(g=>hasMonitoringPermission(g.id));return gs.map(g=>`<option value="${esc(g.id)}" ${g.id===selected?'selected':''}>${esc(g.name)}</option>`).join('')}
+function openServiceModal(id=''){const x=id?serviceById(id):null;if(x&&!canManageService(x))return toast('Недостаточно прав');const s=x||{name:'',type:'ExporterScrape',icon:'🔌',defaultPort:80,metrics:'/metrics',ownerGroupId:state.groups.find(g=>hasMonitoringPermission(g.id))?.id||'',authMode:'none',protocol:'http'};openModal(x?'Редактировать сервис':'Создать сервис','Сервис определяет группу будущего attachment’а.',`<div class="row"><div class="field"><label>Название</label><input id="svc-name" class="wide" value="${esc(s.name)}"></div><div class="field"><label>Группа-владелец</label><select id="svc-group" class="wide">${groupOptions(s.ownerGroupId)}</select></div></div><div class="row3"><div class="field"><label>Тип</label><select id="svc-type" class="wide"><option ${s.type==='ExporterScrape'?'selected':''}>ExporterScrape</option><option ${s.type==='SQL'?'selected':''}>SQL</option><option ${s.type==='BlackBox'?'selected':''}>BlackBox</option></select></div><div class="field"><label>Иконка</label><input id="svc-icon" class="wide" value="${esc(s.icon)}"></div><div class="field"><label>Порт</label><input id="svc-port" class="wide" type="number" value="${esc(s.defaultPort)}"></div></div><div class="row"><div class="field"><label>Путь метрик</label><input id="svc-metrics" class="wide mono" value="${esc(s.metrics)}"></div><div class="field"><label>Авторизация</label><select id="svc-auth" class="wide"><option value="none" ${s.authMode==='none'?'selected':''}>Без авторизации</option><option value="basic" ${s.authMode==='basic'?'selected':''}>Basic Auth</option><option value="bearer" ${s.authMode==='bearer'?'selected':''}>Bearer Token</option></select></div></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveService(${q(id)})">${id?'Сохранить':'Создать'}</button>`)}
+function saveService(id=''){const s={id:id||uid('svc'),name:$('svc-name').value.trim(),type:$('svc-type').value,icon:$('svc-icon').value||'🔌',defaultPort:Number($('svc-port').value),metrics:$('svc-metrics').value.trim()||'/metrics',ownerGroupId:$('svc-group').value,authMode:$('svc-auth').value,protocol:'http',createdBy:id?serviceById(id)?.createdBy:currentUser().id};if(!s.name||!s.ownerGroupId||!Number.isInteger(s.defaultPort)||s.defaultPort<1)return toast('Заполните обязательные поля');if(!isAdmin()&&!hasMonitoringPermission(s.ownerGroupId))return toast('Нет права на группу');if(id){state.services[state.services.findIndex(x=>x.id===id)]={...serviceById(id),...s}}else state.services.push(s);saveState();closeModal();renderServices();toast(id?'Сервис обновлён':'Сервис создан')}
+function openCloneService(id){const s=serviceById(id);if(!s||!canManageService(s))return;openModal('Клонировать сервис',s.name,`<div class="field"><label>Имя копии</label><input id="clone-service-name" class="wide" value="${esc(s.name+' copy')}"></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="cloneService(${q(id)})">Создать</button>`,true)}function cloneService(id){const s=serviceById(id),name=$('clone-service-name').value.trim();if(!name)return toast('Введите имя');state.services.push({...s,id:uid('svc'),name,createdBy:currentUser().id});saveState();closeModal();renderServices();toast('Сервис склонирован')}
+function deleteService(id){const s=serviceById(id);if(!s||!canManageService(s))return;confirmModal('Удалить сервис',`Удалить <b>${esc(s.name)}</b>? Все его attachment’ы будут удалены.`,'confirmDeleteService',q(id))}function confirmDeleteService(id){state.hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));state.collections.forEach(c=>c.serviceIds=c.serviceIds.filter(x=>x!==id));state.services=state.services.filter(s=>s.id!==id);saveState();renderAll();toast('Сервис удалён')}
+function renderTemplates(){page('templates','🧩 Шаблоны сервисов','Шаблон задаёт базовую конфигурацию сервиса без параметров аутентификации.','',`<div class="panel"><div class="content">${state.templates.map(t=>{const g=groupById(t.ownerGroupId);return `<div class="card"><div class="card-main"><span class="icon">${esc(t.icon)}</span><div><div class="card-title">${esc(t.name)}</div><div class="meta">${esc(t.type)} · порт ${t.defaultPort} · ${esc(t.metrics)}</div><div class="pill-row"><span class="badge b-blue">${esc(g?.name||'—')}</span></div></div></div><button class="xs" onclick="createServiceFromTemplate(${q(t.id)})">Создать сервис</button></div>`}).join('')}</div></div>`)}
+function createServiceFromTemplate(id){const t=state.templates.find(x=>x.id===id);if(!t)return;state.services.push({id:uid('svc'),name:t.name.replace(/^Шаблон\s*[«"]?(.+?)[»"]?$/,'$1'),type:t.type,icon:t.icon,defaultPort:t.defaultPort,metrics:t.metrics,ownerGroupId:t.ownerGroupId,authMode:'none',protocol:t.protocol||'http',createdBy:currentUser().id});saveState();switchSection('services');toast('Сервис создан из шаблона')}
+function renderCollections(){page('collections','📦 Коллекции','Наборы сервисов для пакетного подключения к хостам.','',`<div class="panel"><div class="content">${state.collections.map(c=>`<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(c.name)}</div><div class="meta">${esc(c.description||'')}</div><div class="pill-row">${c.serviceIds.map(id=>{const s=serviceById(id);return s?`<span class="badge">${esc(s.icon)} ${esc(s.name)}</span>`:''}).join('')}</div></div></div></div>`).join('')}</div></div>`)}
+function renderAccess(){const rules=[['Видимость «Подключённые хосты»','Есть attachment от одной из групп пользователя.'],['«Хосты из справочника»','Только Host с sourceType = catalog; ручные не показываются.'],['Создание ручного хоста','Обычный пользователь создаёт Host только вместе минимум с одним attachment.'],['Отвязать сервис','Только пользователь с permission «Постановка на мониторинг» в группе attachment’а.'],['Удалить Host','Только MARS admin.'],['Чужие подключения','В деталях не раскрываются; по совпадающему IP/FQDN доступна справка «группа → сервисы».']];page('access','👥 Доступ','Демонстрационная модель пользователей, групп и прав.','',`<div class="panel"><div class="info"><b>Выбранный вариант:</b> имя хоста не уникально. Единственная техническая идентичность — сгенерированный Host ID.</div><div class="content"><h3>Пользователи</h3>${state.users.map(u=>`<div class="card"><div class="card-main"><span class="avatar">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)} ${u.id===currentUser().id?'<span class="badge b-blue">текущий</span>':''}</div><div class="meta">${u.isAdmin?'MARS admin':'Пользователь'}</div><div class="pill-row">${u.groups.map(g=>`<span class="badge b-blue">${esc(groupById(g)?.name||g)}${u.permissions?.[g]?.includes('monitoring.manage')?' · monitoring.manage':''}</span>`).join('')}</div></div></div><button class="xs outline" onclick="switchUser(${q(u.id)})">Переключиться</button></div>`).join('')}<h3>Правила</h3><div class="box"><table style="min-width:0"><tbody>${rules.map(r=>`<tr><td style="padding:8px;border-bottom:1px solid #e2e8f0;font-weight:800">${r[0]}</td><td style="padding:8px;border-bottom:1px solid #e2e8f0">${r[1]}</td></tr>`).join('')}</tbody></table></div></div></div>`)}
+loadState();renderAll();
 </script>
 </body>
 </html>
