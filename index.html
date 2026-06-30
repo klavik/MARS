@@ -345,19 +345,91 @@ function visibleHostColumns(){return hostTableView.columns.filter(id=>!hostTable
 function hostFilterOptions(selected){
   return Object.entries(HOST_TABLE_COLUMNS).map(([id,c])=>selectOption(id,c.label,selected)).join('')
 }
-function hostOperatorOptions(selected){
-  return [
-    ['contains','содержит'],['not_contains','не содержит'],['equals','равно'],['not_equals','не равно'],['starts_with','начинается с'],['ends_with','заканчивается на']
-  ].map(([v,l])=>selectOption(v,l,selected)).join('')
+function filterText(value){return String(value??'').trim().toLocaleLowerCase('ru-RU')}
+function sourceFilterKey(h){return h.sourceType==='catalog'?'catalog':(h.prefilledFromCatalog?'manual-prefill':'manual')}
+function hostBinding(h){return h.catalogBinding||h.prefilledFromCatalog||null}
+function cmdbBindingFilterKey(h){const b=hostBinding(h);return b?.sourceId&&b?.externalId?`${b.sourceId}|${b.externalId}`:'__none__'}
+function sortFilterOptions(items){return [...items].sort((a,b)=>String(a.label).localeCompare(String(b.label),'ru',{numeric:true,sensitivity:'base'}))}
+function uniqueFilterOptions(items){
+  const seen=new Set();
+  return items.filter(item=>{const key=String(item.value);if(seen.has(key))return false;seen.add(key);return true})
+}
+function hostFilterDictionary(field){
+  switch(field){
+    case 'ownerGroup': return sortFilterOptions(state.groups.map(g=>({value:g.id,label:`${g.name} (${g.key})`})));
+    case 'source': return [
+      {value:'manual',label:'Ручной'},
+      {value:'manual-prefill',label:'Ручной · заполнен из справочника'},
+      {value:'catalog',label:'Справочник'}
+    ];
+    case 'cmdbBinding': return [
+      {value:'__none__',label:'Без связи с CMDB'},
+      ...sortFilterOptions(uniqueFilterOptions(state.catalogHosts.map(h=>{
+        const source=state.catalogSources.find(s=>s.id===h.sourceId);
+        return {value:`${h.sourceId}|${h.externalId}`,label:`${source?.name||h.sourceId} · ${h.externalId} · ${h.name}`}
+      })))
+    ];
+    case 'addressType': return [{value:'ip',label:'IP-адрес'},{value:'fqdn',label:'FQDN'}];
+    case 'proxyGroup': return sortFilterOptions(state.proxyGroups.map(g=>({value:g.id,label:g.name})));
+    case 'status': return [...new Set(['UP','WARN',...state.hosts.map(h=>h.status).filter(Boolean)])].map(v=>({value:v,label:v==='UP'?'🟢 UP':v==='WARN'?'🟡 WARN':v}));
+    case 'services': return [
+      {value:'__none__',label:'Без присоединённых сервисов'},
+      ...sortFilterOptions(state.services.map(s=>({value:s.id,label:`${s.icon} ${s.name}`})))
+    ];
+    case 'createdBy': return sortFilterOptions(state.users.map(u=>({value:u.id,label:u.name})));
+    default: return null;
+  }
+}
+function hostFilterUsesDictionary(field){return Array.isArray(hostFilterDictionary(field))}
+function hostFilterDictionaryOptions(field,selected){
+  const items=hostFilterDictionary(field)||[];
+  const selectedText=String(selected??'');
+  const hasSelected=selectedText&&items.some(item=>String(item.value)===selectedText);
+  const safeItems=hasSelected||!selectedText?items:[{value:selectedText,label:`${selectedText} (значение недоступно в справочнике)`},...items];
+  return selectOption('','Выберите значение',selectedText)+safeItems.map(item=>selectOption(String(item.value),item.label,selectedText)).join('')
+}
+function hostFilterValueLabel(field,value){
+  const selectedText=String(value??'');
+  const match=(hostFilterDictionary(field)||[]).find(item=>String(item.value)===selectedText);
+  return match?match.label:selectedText;
+}
+function hostFilterOperatorItems(field){
+  if(field==='services')return [['contains','содержит'],['not_contains','не содержит']];
+  if(['ownerGroup','source','cmdbBinding','addressType','proxyGroup','status','createdBy'].includes(field))return [['equals','равно'],['not_equals','не равно']];
+  return [['contains','содержит'],['not_contains','не содержит'],['equals','равно'],['not_equals','не равно'],['starts_with','начинается с'],['ends_with','заканчивается на']];
+}
+function hostOperatorOptions(field,selected){
+  const items=hostFilterOperatorItems(field);
+  const actual=items.some(([value])=>value===selected)?selected:items[0][0];
+  return items.map(([value,label])=>selectOption(value,label,actual)).join('')
 }
 function hostColumnValue(h,columnId){
-  const col=HOST_TABLE_COLUMNS[columnId];return String(col?col.value(h):'').toLocaleLowerCase('ru-RU')
+  const col=HOST_TABLE_COLUMNS[columnId];return filterText(col?col.value(h):'')
+}
+function hostFilterValue(h,columnId){
+  switch(columnId){
+    case 'ownerGroup': return filterText(h.ownerGroupId);
+    case 'source': return filterText(sourceFilterKey(h));
+    case 'cmdbBinding': return filterText(cmdbBindingFilterKey(h));
+    case 'addressType': return filterText(h.addressType);
+    case 'proxyGroup': return filterText(h.proxyGroup);
+    case 'status': return filterText(h.status);
+    case 'services': return filterText((h.attachments||[]).map(a=>a.serviceId).join(' '));
+    case 'createdBy': return filterText(h.createdBy);
+    default: return hostColumnValue(h,columnId);
+  }
 }
 function hostSearchText(h){return HOST_TABLE_COLUMN_IDS.map(id=>hostColumnValue(h,id)).join(' ')}
 function hostMatchesRule(h,rule){
-  const needle=String(rule.value||'').trim().toLocaleLowerCase('ru-RU');
+  const field=rule.field||'visibleName';
+  const needle=filterText(rule.value);
   if(!needle)return true;
-  const value=hostColumnValue(h,rule.field||'visibleName');
+  if(field==='services'){
+    const serviceIds=(h.attachments||[]).map(a=>String(a.serviceId));
+    const present=needle==='__none__'?serviceIds.length===0:serviceIds.some(id=>filterText(id)===needle);
+    return rule.operator==='not_contains'?!present:present;
+  }
+  const value=hostFilterValue(h,field);
   switch(rule.operator){
     case 'equals': return value===needle;
     case 'not_equals': return value!==needle;
@@ -391,7 +463,8 @@ function activeHostFilterChips(){
   const chips=[];
   if(String(hostFilterState.query||'').trim())chips.push({kind:'query',text:`По всем полям: ${hostFilterState.query}`});
   (hostFilterState.rules||[]).filter(r=>String(r.value||'').trim()).forEach((r,index)=>{
-    chips.push({kind:'rule',index,text:`${HOST_TABLE_COLUMNS[r.field]?.label||r.field} · ${({contains:'содержит',not_contains:'не содержит',equals:'равно',not_equals:'не равно',starts_with:'начинается с',ends_with:'заканчивается на'})[r.operator]||'содержит'} · ${r.value}`})
+    const operatorLabel=Object.fromEntries(hostFilterOperatorItems(r.field||'visibleName'))[r.operator]||'содержит';
+    chips.push({kind:'rule',index,text:`${HOST_TABLE_COLUMNS[r.field]?.label||r.field} · ${operatorLabel} · ${hostFilterValueLabel(r.field||'visibleName',r.value)}`})
   });
   return chips
 }
@@ -461,11 +534,20 @@ function openHostDetailsModal(id){
   openModal(hostDisplayName(h),`${groupName(h.ownerGroupId)} · ${h.targetKey||makeTargetKey(h.ownerGroupId,hostDisplayName(h))}`,hostDetails(h),footer)
 }
 function openHostFiltersModal(){hostFilterDraft=JSON.parse(JSON.stringify(hostFilterState.rules||[]));renderHostFiltersModal()}
+function hostFilterValueControl(rule,index){
+  const field=rule.field||'visibleName';
+  if(hostFilterUsesDictionary(field))return `<select onchange="updateHostFilterDraft(${index},'value',this.value)">${hostFilterDictionaryOptions(field,rule.value||'')}</select>`;
+  return `<input value="${esc(rule.value||'')}" placeholder="Значение" oninput="updateHostFilterDraft(${index},'value',this.value)">`;
+}
 function renderHostFiltersModal(){
-  const content=`<div class="box blue-box"><b>Как работает фильтрация:</b> правила объединяются через «И». Поиск по всем полям в таблице можно задать на основном экране.</div><div id="host-filter-rules">${hostFilterDraft.length?hostFilterDraft.map((r,i)=>`<div class="filter-rule"><select onchange="updateHostFilterDraft(${i},'field',this.value)">${hostFilterOptions(r.field||'visibleName')}</select><select onchange="updateHostFilterDraft(${i},'operator',this.value)">${hostOperatorOptions(r.operator||'contains')}</select><input value="${esc(r.value||'')}" placeholder="Значение" oninput="updateHostFilterDraft(${i},'value',this.value)"><button class="xs danger" onclick="removeHostFilterDraft(${i})">✕</button></div>`).join(''):'<div class="empty">Нет дополнительных правил</div>'}</div><button class="sm outline" onclick="addHostFilterDraft()">＋ Добавить правило</button>`;
+  const content=`<div class="box blue-box"><b>Как работает фильтрация:</b> правила объединяются через «И». Поиск по всем полям задаётся на основном экране. Для полей со справочниками доступны готовые значения вместо свободного ввода.</div><div id="host-filter-rules">${hostFilterDraft.length?hostFilterDraft.map((r,i)=>{const field=r.field||'visibleName';return `<div class="filter-rule"><select onchange="changeHostFilterDraftField(${i},this.value)">${hostFilterOptions(field)}</select><select onchange="updateHostFilterDraft(${i},'operator',this.value)">${hostOperatorOptions(field,r.operator||'contains')}</select>${hostFilterValueControl(r,i)}<button class="xs danger" onclick="removeHostFilterDraft(${i})">✕</button></div>`}).join(''):'<div class="empty">Нет дополнительных правил</div>'}</div><button class="sm outline" onclick="addHostFilterDraft()">＋ Добавить правило</button>`;
   openModal('Фильтры хостов','Выберите любой столбец и условие поиска',content,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="outline" onclick="hostFilterDraft=[];renderHostFiltersModal()">Очистить</button><button onclick="applyHostFilters()">Применить</button>`)
 }
 function addHostFilterDraft(){hostFilterDraft.push({field:'visibleName',operator:'contains',value:''});renderHostFiltersModal()}
+function changeHostFilterDraftField(index,field){
+  const rule=hostFilterDraft[index];if(!rule)return;
+  rule.field=field;rule.value='';rule.operator=hostFilterOperatorItems(field)[0][0];renderHostFiltersModal()
+}
 function updateHostFilterDraft(index,key,value){if(hostFilterDraft[index])hostFilterDraft[index][key]=value}
 function removeHostFilterDraft(index){hostFilterDraft.splice(index,1);renderHostFiltersModal()}
 function applyHostFilters(){hostFilterState.rules=hostFilterDraft.filter(r=>String(r.value||'').trim());hostTableView.page=1;closeModal();renderHosts()}
