@@ -63,8 +63,8 @@
 <div class="modal-wrap" id="modal-wrap"><div class="modal" id="modal"><div class="modal-head"><div><div class="modal-title" id="modal-title"></div><div class="modal-sub" id="modal-sub"></div></div><button class="ghost" onclick="closeModal()">✕</button></div><div class="modal-body" id="modal-body"></div><div class="modal-foot" id="modal-foot"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>
-const STORE_KEY='mars-ui-state-v15';
-const LEGACY_KEYS=['mars-ui-state-v14','mars-ui-state-v13','mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9','mars-ui-state-v8','mars-ui-state-v7','mars-ui-state'];
+const STORE_KEY='mars-ui-state-v16';
+const LEGACY_KEYS=['mars-ui-state-v15','mars-ui-state-v14','mars-ui-state-v13','mars-ui-state-v12','mars-ui-state-v11','mars-ui-state-v10','mars-ui-state-v9','mars-ui-state-v8','mars-ui-state-v7','mars-ui-state'];
 let state=demoState(),activeSection='hosts';
 let selectedHostIds=new Set(),selectedServiceIds=new Set(),selectedTemplateIds=new Set();
 let expandedHostId=null,hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null};
@@ -84,12 +84,17 @@ function confirmModal(t,msg,fnName,args=''){openModal(t,'Подтвердите 
 function demoState(){return{
   currentUserId:'u-alice',
   users:[
-    {id:'u-admin',name:'MARS Admin',initials:'MA',isAdmin:true,canMonitor:true,groups:['g-infra','g-db','g-app']},
-    {id:'u-alice',name:'Alice Infra',initials:'AI',isAdmin:false,canMonitor:true,groups:['g-infra']},
-    {id:'u-bob',name:'Bob DB',initials:'BD',isAdmin:false,canMonitor:true,groups:['g-db']},
-    {id:'u-eve',name:'Eve ReadOnly',initials:'ER',isAdmin:false,canMonitor:false,groups:['g-app']}
+    {id:'u-admin',name:'MARS Admin',initials:'MA',isAdmin:true,canMonitor:true,groups:['g-infra','g-db','g-app'],groupPermissions:{'g-infra':['monitoring.manage'],'g-db':['monitoring.manage'],'g-app':['monitoring.manage']}},
+    {id:'u-alice',name:'Alice Infra',initials:'AI',isAdmin:false,canMonitor:true,groups:['g-infra'],groupPermissions:{'g-infra':['monitoring.manage']}},
+    {id:'u-dmitry',name:'Dmitry Infra',initials:'DI',isAdmin:false,canMonitor:true,groups:['g-infra'],groupPermissions:{'g-infra':['monitoring.manage']}},
+    {id:'u-bob',name:'Bob DB',initials:'BD',isAdmin:false,canMonitor:true,groups:['g-db'],groupPermissions:{'g-db':['monitoring.manage']}},
+    {id:'u-eve',name:'Eve ReadOnly',initials:'ER',isAdmin:false,canMonitor:false,groups:['g-app'],groupPermissions:{}}
   ],
-  groups:[{id:'g-infra',name:'Team Infra'},{id:'g-db',name:'Team DB'},{id:'g-app',name:'Team App'}],
+  groups:[
+    {id:'g-infra',name:'Администраторы Linux',key:'linux-admins'},
+    {id:'g-db',name:'Администраторы PostgreSQL',key:'postgres-admins'},
+    {id:'g-app',name:'Администраторы приложений',key:'app-admins'}
+  ],
   proxyGroups:[{id:'prod-dmz',name:'Production DMZ'},{id:'analytics',name:'Analytics'},{id:'k8s',name:'K8s Cluster'}],
   catalogSources:[{id:'cmdb-main',name:'CMDB Main'}],
   catalogHosts:[
@@ -99,12 +104,14 @@ function demoState(){return{
     {sourceId:'cmdb-main',externalId:'srv-1004',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',environment:'prod',os:'Talos Linux',updatedAt:'2026-04-30 09:15'}
   ],
   hosts:[
-    {id:'host-1',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'catalog',createdBy:'u-alice',createdAt:'2026-04-30 09:30',prefilledFromCatalog:null,catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1001',lastSyncAt:'2026-04-30 09:30',syncStatus:'synced'},attachments:[
-      {serviceId:'svc-1',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:null},
-      {serviceId:'svc-2',createdBy:'u-alice',ownerGroupId:'g-infra',portOverride:null}
+    {id:'host-1',ownerGroupId:'g-db',visibleName:'prod-db-01',targetKey:'postgres-admins:prod-db-01',name:'prod-db-01',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',status:'UP',sourceType:'catalog',createdBy:'u-bob',createdAt:'2026-04-30 09:30',prefilledFromCatalog:null,catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1002',lastSyncAt:'2026-04-30 09:30',syncStatus:'synced'},attachments:[
+      {serviceId:'svc-1',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:null}
     ]},
-    {id:'host-2',name:'manual-api-01',addressType:'fqdn',address:'api-01.manual.internal.example.com',proxyGroup:'prod-dmz',status:'WARN',sourceType:'manual',createdBy:'u-alice',createdAt:'2026-04-30 09:45',prefilledFromCatalog:null,catalogBinding:null,attachments:[]},
-    {id:'host-3',name:'cache-01-copy',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',status:'UP',sourceType:'manual',createdBy:'u-bob',createdAt:'2026-04-30 10:00',prefilledFromCatalog:{sourceId:'cmdb-main',externalId:'srv-1003',copiedAt:'2026-04-30 10:00'},catalogBinding:null,attachments:[
+    {id:'host-2',ownerGroupId:'g-infra',visibleName:'prod-db-01',targetKey:'linux-admins:prod-db-01',name:'prod-db-01',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'prod-dmz',status:'UP',sourceType:'catalog',createdBy:'u-alice',createdAt:'2026-04-30 09:45',prefilledFromCatalog:null,catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1002',lastSyncAt:'2026-04-30 09:45',syncStatus:'synced'},attachments:[
+      {serviceId:'svc-2',createdBy:'u-dmitry',ownerGroupId:'g-infra',portOverride:null}
+    ]},
+    {id:'host-3',ownerGroupId:'g-infra',visibleName:'manual-api-01',targetKey:'linux-admins:manual-api-01',name:'manual-api-01',addressType:'fqdn',address:'api-01.manual.internal.example.com',proxyGroup:'prod-dmz',status:'WARN',sourceType:'manual',createdBy:'u-alice',createdAt:'2026-04-30 10:00',prefilledFromCatalog:null,catalogBinding:null,attachments:[]},
+    {id:'host-4',ownerGroupId:'g-db',visibleName:'cache-01-copy',targetKey:'postgres-admins:cache-01-copy',name:'cache-01-copy',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',status:'UP',sourceType:'manual',createdBy:'u-bob',createdAt:'2026-04-30 10:10',prefilledFromCatalog:{sourceId:'cmdb-main',externalId:'srv-1003',copiedAt:'2026-04-30 10:10'},catalogBinding:null,attachments:[
       {serviceId:'svc-3',createdBy:'u-bob',ownerGroupId:'g-db',portOverride:6380}
     ]}
   ],
@@ -122,6 +129,7 @@ function demoState(){return{
     {id:'col-2',name:'Cache Stack',description:'Redis + Nginx',serviceIds:['svc-2','svc-3'],usedBy:8}
   ]
 }}
+
 function loadState(){
   let raw=localStorage.getItem(STORE_KEY);
   if(!raw){for(const k of LEGACY_KEYS){raw=localStorage.getItem(k);if(raw)break}}
@@ -130,28 +138,84 @@ function loadState(){
 }
 function normalizeState(s){
   const d=demoState(),ns={...d,...s};
-  ns.users=Array.isArray(ns.users)&&ns.users.length?ns.users:d.users;
-  ns.groups=Array.isArray(ns.groups)&&ns.groups.length?ns.groups:d.groups;
+  ns.groups=(Array.isArray(ns.groups)&&ns.groups.length?ns.groups:d.groups).map(g=>({
+    id:g.id||uid('g'),
+    name:g.name||'Группа',
+    key:g.key||g.slug||String(g.id||'group').replace(/^g-/,'')
+  }));
+  ns.users=(Array.isArray(ns.users)&&ns.users.length?ns.users:d.users).map(u=>{
+    const groups=Array.isArray(u.groups)?u.groups.filter(gid=>ns.groups.some(g=>g.id===gid)):[];
+    const oldCanMonitor=!!u.canMonitor;
+    const gp=u.groupPermissions&&typeof u.groupPermissions==='object'?u.groupPermissions:{};
+    const groupPermissions={};
+    groups.forEach(gid=>{
+      const raw=gp[gid];
+      const perms=Array.isArray(raw)?raw:(raw===true?['monitoring.manage']:[]);
+      groupPermissions[gid]=perms.length?perms:(oldCanMonitor?['monitoring.manage']:[]);
+    });
+    return {...u,id:u.id||uid('u'),name:u.name||'Пользователь',initials:u.initials||(u.name||'П').slice(0,2).toUpperCase(),isAdmin:!!u.isAdmin,canMonitor:oldCanMonitor,groups,groupPermissions};
+  });
   ns.proxyGroups=Array.isArray(ns.proxyGroups)&&ns.proxyGroups.length?ns.proxyGroups:d.proxyGroups;
   ns.catalogSources=Array.isArray(ns.catalogSources)&&ns.catalogSources.length?ns.catalogSources:d.catalogSources;
-  ns.catalogHosts=(Array.isArray(ns.catalogHosts)?ns.catalogHosts:d.catalogHosts).map(h=>({sourceId:h.sourceId||'cmdb-main',externalId:h.externalId||uid('ext'),name:h.name||'catalog-host',addressType:h.addressType||'ip',address:h.address||'127.0.0.1',proxyGroup:h.proxyGroup||h.segment||'prod-dmz',environment:h.environment||'prod',os:h.os||'Linux',updatedAt:h.updatedAt||nowText()}));
+  ns.catalogHosts=(Array.isArray(ns.catalogHosts)?ns.catalogHosts:d.catalogHosts).map(h=>({
+    sourceId:h.sourceId||'cmdb-main',
+    externalId:h.externalId||uid('ext'),
+    name:h.name||'catalog-host',
+    addressType:h.addressType||'ip',
+    address:h.address||'127.0.0.1',
+    proxyGroup:h.proxyGroup||h.segment||'prod-dmz',
+    environment:h.environment||'prod',
+    os:h.os||'Linux',
+    updatedAt:h.updatedAt||nowText()
+  }));
   ns.currentUserId=ns.users.some(u=>u.id===ns.currentUserId)?ns.currentUserId:ns.users[0].id;
+
   let rawServices=Array.isArray(ns.services)?ns.services:[];
   const migratedTemplates=rawServices.filter(s=>s.isTemplate).map(s=>normalizeTemplate(s,ns.currentUserId));
   ns.services=rawServices.filter(s=>!s.isTemplate).map(normalizeService);
   ns.serviceTemplates=[...(Array.isArray(ns.serviceTemplates)?ns.serviceTemplates:[]),...migratedTemplates].map(t=>normalizeTemplate(t,ns.currentUserId));
   ns.serviceTemplates=uniqueTemplates(ns.serviceTemplates);
+
   ns.hosts=(Array.isArray(ns.hosts)?ns.hosts:d.hosts).map(h=>{
     const host={...h};
-    host.id=hostKey(host.id||uid('host'));host.name=host.name||'host';host.addressType=host.addressType||'ip';host.address=host.address||'127.0.0.1';host.proxyGroup=host.proxyGroup||host.segment||'prod-dmz';delete host.segment;
-    host.status=host.status||'UP';host.sourceType=host.sourceType||'manual';host.createdBy=host.createdBy||ns.currentUserId;host.createdAt=host.createdAt||nowText();host.prefilledFromCatalog=host.prefilledFromCatalog||null;
-    host.catalogBinding=host.sourceType==='catalog'?(host.catalogBinding||{sourceId:'cmdb-main',externalId:null,lastSyncAt:null,syncStatus:'unknown'}):null;
-    host.attachments=(Array.isArray(host.attachments)?host.attachments:[]).map(a=>({serviceId:a.serviceId,createdBy:a.createdBy||a.attachedBy||host.createdBy||ns.currentUserId,ownerGroupId:a.ownerGroupId||(ns.services.find(s=>s.id===a.serviceId)||{}).ownerGroupId||'g-infra',portOverride:a.portOverride===undefined?null:a.portOverride})).filter(a=>ns.services.some(s=>s.id===a.serviceId));
+    host.id=hostKey(host.id||uid('host'));
+    host.ownerGroupId=host.ownerGroupId||host.groupId||host.monitoringGroupId||
+      (host.attachments&&host.attachments[0]&&host.attachments[0].ownerGroupId)||
+      (ns.users.find(u=>u.id===host.createdBy)?.groups||[])[0]||'g-infra';
+    if(!ns.groups.some(g=>g.id===host.ownerGroupId)) host.ownerGroupId=ns.groups[0]?.id||'g-infra';
+    host.visibleName=host.visibleName||host.name||'host';
+    host.name=host.visibleName; // compatibility with pre-v16 state
+    host.targetKey=`${(ns.groups.find(g=>g.id===host.ownerGroupId)?.key||String(host.ownerGroupId).replace(/^g-/,'group'))}:${normalizeTargetPart(host.visibleName)}`;
+    host.addressType=host.addressType||'ip';
+    host.address=host.address||'127.0.0.1';
+    host.proxyGroup=host.proxyGroup||host.segment||'prod-dmz';
+    delete host.segment;
+    host.status=host.status||'UP';
+    host.sourceType=host.sourceType||'manual';
+    host.createdBy=host.createdBy||ns.currentUserId;
+    host.createdAt=host.createdAt||nowText();
+    host.prefilledFromCatalog=host.prefilledFromCatalog||null;
+    host.catalogBinding=host.sourceType==='catalog'
+      ?(host.catalogBinding||{sourceId:'cmdb-main',externalId:null,lastSyncAt:null,syncStatus:'unknown'})
+      :null;
+    host.attachments=(Array.isArray(host.attachments)?host.attachments:[]).map(a=>({
+      serviceId:a.serviceId,
+      createdBy:a.createdBy||a.attachedBy||host.createdBy||ns.currentUserId,
+      ownerGroupId:host.ownerGroupId,
+      portOverride:a.portOverride===undefined?null:a.portOverride
+    })).filter(a=>ns.services.some(s=>s.id===a.serviceId));
     return host;
   });
-  ns.collections=(Array.isArray(ns.collections)?ns.collections:d.collections).map(c=>({id:c.id||uid('col'),name:c.name||'Коллекция',description:c.description||'',serviceIds:(Array.isArray(c.serviceIds)?c.serviceIds:[]).filter(id=>ns.services.some(s=>s.id===id)),usedBy:num(c.usedBy,0)}));
+  ns.collections=(Array.isArray(ns.collections)?ns.collections:d.collections).map(c=>({
+    id:c.id||uid('col'),
+    name:c.name||'Коллекция',
+    description:c.description||'',
+    serviceIds:(Array.isArray(c.serviceIds)?c.serviceIds:[]).filter(id=>ns.services.some(s=>s.id===id)),
+    usedBy:num(c.usedBy,0)
+  }));
   return ns;
 }
+
 function normalizeService(s){const oldAuth=s.auth||null;let authMode=s.authMode||'none';if(oldAuth&&!s.authMode)authMode=oldAuth.mode||'basic';const protocol=s.protocol||'http';return{id:s.id||uid('svc'),name:s.name||'Сервис',type:s.type||s.agent||'ExporterScrape',icon:s.icon||'🔌',defaultPort:num(s.defaultPort,80),metrics:s.metrics||'/metrics',ownerGroupId:s.ownerGroupId||s.groupId||'g-infra',authMode,basicUsername:s.basicUsername||(oldAuth?oldAuth.username||'':''),basicPassword:s.basicPassword||(oldAuth?oldAuth.password||'':''),bearerToken:s.bearerToken||(oldAuth?oldAuth.token||'':''),protocol,clientCertificate:protocol==='https'?(s.clientCertificate||''):'',skipServerCertCheck:protocol==='https'?!!(s.skipServerCertCheck||s.skipServerCertificateValidation):false,usedBy:num(s.usedBy,0),createdBy:s.createdBy||state.currentUserId||'u-admin'}}
 function normalizeTemplate(t,u='u-admin'){return{id:t.id||uid('tpl'),name:t.name||'Шаблон сервиса',type:t.type||t.agent||'ExporterScrape',icon:t.icon||'🔌',defaultPort:num(t.defaultPort,80),metrics:t.metrics||'/metrics',protocol:t.protocol||'http',skipServerCertCheck:!!(t.skipServerCertCheck||t.skipServerCertificateValidation),ownerGroupId:t.ownerGroupId||t.groupId||'g-infra',createdBy:t.createdBy||u,usedBy:num(t.usedBy,0)}}
 function uniqueTemplates(items){const seen=new Set();return items.filter(t=>{const k=t.name.toLowerCase();if(seen.has(k))return false;seen.add(k);return true})}
@@ -161,16 +225,30 @@ function resetDemo(){localStorage.removeItem(STORE_KEY);state=normalizeState(dem
 function currentUser(){return state.users.find(u=>u.id===state.currentUserId)||state.users[0]}
 function userById(id){return state.users.find(u=>u.id===id)}
 function groupById(id){return state.groups.find(g=>g.id===id)}
+function groupKey(id){return groupById(id)?.key||String(id||'group').replace(/^g-/,'')}
+function normalizeTargetPart(value){return String(value||'host').trim().replace(/\s+/g,'-')}
+function makeTargetKey(ownerGroupId,visibleName){return `${groupKey(ownerGroupId)}:${normalizeTargetPart(visibleName)}`}
 function isAdmin(){return !!currentUser().isAdmin}
 function userGroupIds(){return new Set(currentUser().groups||[])}
-function canMonitor(){return isAdmin()||!!currentUser().canMonitor}
+function hasMonitoringPermission(gid){
+  if(isAdmin()) return true;
+  const perms=currentUser().groupPermissions?.[gid]||[];
+  return Array.isArray(perms)&&perms.includes('monitoring.manage');
+}
+function monitoringGroups(){return isAdmin()?state.groups:state.groups.filter(g=>hasMonitoringPermission(g.id))}
+function canMonitor(){return monitoringGroups().length>0}
 function canManageGroup(gid){return isAdmin()||userGroupIds().has(gid)}
 function canManageService(svc){return svc&&(isAdmin()||userGroupIds().has(svc.ownerGroupId))}
-function canManageAttachment(a){return isAdmin()||a.createdBy===currentUser().id||userGroupIds().has(a.ownerGroupId)}
+function canManageMonitoringHost(host){return !!host&&(isAdmin()||hasMonitoringPermission(host.ownerGroupId))}
+function canManageAttachment(a,host){return canManageMonitoringHost(host)}
 function hasAttachments(host){return (host.attachments||[]).length>0}
-function canEditHost(host){if(!host)return false;if(host.sourceType==='catalog')return false;if(hasAttachments(host)&&!isAdmin())return false;return isAdmin()||host.createdBy===currentUser().id}
-function canDeleteHost(host){if(!host)return false;if(hasAttachments(host))return isAdmin();return isAdmin()||host.createdBy===currentUser().id}
-function hostLockReason(host){if(host.sourceType==='catalog')return'Чувствительные поля управляются справочником и обновляются синхронизацией.';if(hasAttachments(host)&&!isAdmin())return'Хост уже используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы, чтобы не сломать сбор метрик другим пользователям.';if(!(isAdmin()||host.createdBy===currentUser().id))return'Редактировать ручной хост может только создатель или администратор MARS.';return''}
+function canEditHost(host){return canManageMonitoringHost(host)}
+function canDeleteHost(host){return canManageMonitoringHost(host)}
+function hostLockReason(host){
+  if(!canManageMonitoringHost(host)) return 'Нет permission «Постановка на мониторинг» в группе-владельце этого хоста.';
+  if(host.sourceType==='catalog') return 'IP/FQDN управляются справочником и обновляются синхронизацией. Видимое имя и группа прокси остаются настройками группы.';
+  return '';
+}
 
 function switchUser(id){state.currentUserId=id;selectedHostIds.clear();selectedServiceIds.clear();selectedTemplateIds.clear();saveState();renderAll()}
 function switchSection(sec){activeSection=sec;document.querySelectorAll('.section').forEach(e=>e.classList.remove('active'));document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}
@@ -183,6 +261,11 @@ function proxyOptions(selected,all=false){return(all?selectOption('all','Все 
 function typeOptions(s){return['ExporterScrape','SQL','BlackBox'].map(t=>selectOption(t,t,s)).join('')}
 function iconOptions(s){return['🌐','🐘','🔴','📊','🐰','🔌','🔒'].map(i=>selectOption(i,i,s)).join('')}
 function groupOptions(s){const gs=isAdmin()?state.groups:state.groups.filter(g=>userGroupIds().has(g.id));return gs.map(g=>selectOption(g.id,g.name,s||gs[0]?.id)).join('')}
+function monitoringGroupOptions(s,disabled=false){
+  const gs=monitoringGroups();
+  return gs.map(g=>selectOption(g.id,`${g.name} (${g.key})`,s||gs[0]?.id)).join('');
+}
+
 function isValidIp(v){const p=v.split('.');return p.length===4&&p.every(x=>/^\d+$/.test(x)&&+x>=0&&+x<=255)}
 function isValidFqdn(v){return/^[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/.test(v)}
 function addressBadge(h){return h.addressType==='fqdn'?'<span class="addr fqdn">FQDN</span>':'<span class="addr ip">IP</span>'}
@@ -190,41 +273,186 @@ function sourceBadge(h){if(h.sourceType==='catalog')return'<span class="badge b-
 function catalogByExternal(externalId){return state.catalogHosts.find(h=>h.externalId===externalId)}
 function catalogHost(sourceId,externalId){return state.catalogHosts.find(h=>h.sourceId===sourceId&&h.externalId===externalId)}
 
+function hostDisplayName(h){return h.visibleName||h.name||'—'}
+function groupName(id){return groupById(id)?.name||id||'—'}
+function selectedHost(){return selectedHostIds.size===1?state.hosts.find(h=>hostKey(h.id)===[...selectedHostIds][0]):null}
 function renderHosts(){
-  const filtered=filteredHosts();
-  const allSelected=filtered.length&&filtered.every(h=>selectedHostIds.has(hostKey(h.id)));
+  const filtered=filteredHosts(),selected=selectedHost(),allSelected=filtered.length&&filtered.every(h=>selectedHostIds.has(hostKey(h.id)));
+  const canAttach=!!selected&&canManageMonitoringHost(selected);
   const body=`<div class="panel">
-    <div class="info"><b>Хост как monitoring target:</b> имя хоста, IP/FQDN и группа прокси считаются чувствительными полями. Для справочных хостов ими владеет CMDB; для ручных — MARS, но изменение блокируется, если хост уже используется в мониторинге.</div>
-    <div class="toolbar"><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllHosts(this.checked)"><span class="muted">Выбрано: <b>${selectedHostIds.size}</b> из <b>${filtered.length}</b></span></div><div class="actions"><button class="sm outline" ${selectedHostIds.size===1&&canMonitor()?'':'disabled'} onclick="openAttachModal('service')">⚡ Присоединить сервис</button><button class="sm outline" ${selectedHostIds.size===1&&canMonitor()?'':'disabled'} onclick="openAttachModal('collection')">📦 Присоединить коллекцию</button></div></div>
-    <div class="filters">🔍 <input id="host-search" class="input" value="${esc($('host-search')?.value||'')}" placeholder="Поиск..." oninput="renderHosts()"><select id="host-proxy-filter" onchange="renderHosts()">${proxyOptions($('host-proxy-filter')?.value||'all',true)}</select><select id="host-source-filter" onchange="renderHosts()">${selectOption('all','Все источники',$('host-source-filter')?.value||'all')}${selectOption('manual','Ручные',$('host-source-filter')?.value||'all')}${selectOption('catalog','Справочные',$('host-source-filter')?.value||'all')}</select></div>
-    <div class="stats"><div class="stat"><div class="stat-label">Всего хостов</div><div class="stat-value">${state.hosts.length}</div></div><div class="stat"><div class="stat-label">Справочные</div><div class="stat-value">${state.hosts.filter(h=>h.sourceType==='catalog').length}</div></div><div class="stat"><div class="stat-label">Ручные</div><div class="stat-value">${state.hosts.filter(h=>h.sourceType!=='catalog').length}</div></div><div class="stat"><div class="stat-label">Attachment'ов</div><div class="stat-value">${state.hosts.reduce((s,h)=>s+h.attachments.length,0)}</div></div></div>
-    <div class="content">${filtered.length?filtered.map(hostCard).join(''):'<div class="empty">Хосты не найдены</div>'}</div><div class="footer"><b>Manual</b> — MARS владеет полями. <b>Catalog</b> — CMDB владеет полями и обновляет их при синхронизации. <b>Prefill</b> — справочник используется только как подсказка для разового заполнения.</div></div>`;
-  page('hosts','Управление хостами','Хосты глобальны для MARS. Источник данных определяет, кто владеет чувствительными полями.',`<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать справочник</button><button class="outline" onclick="resetDemo()">↺ Сбросить демо</button><button ${canMonitor()?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`,body)
+    <div class="info"><b>Групповые объекты мониторинга:</b> видимое имя хоста уникально только в рамках группы. Техническое имя формируется автоматически как <span class="mono">groupKey:visibleName</span>. Одна запись CMDB может использоваться несколькими группами.</div>
+    <div class="toolbar">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllHosts(this.checked)"><span class="muted">Выбрано: <b>${selectedHostIds.size}</b> из <b>${filtered.length}</b></span></div>
+      <div class="actions"><button class="sm outline" ${canAttach?'':'disabled'} onclick="openAttachModal('service')">⚡ Присоединить сервис</button><button class="sm outline" ${canAttach?'':'disabled'} onclick="openAttachModal('collection')">📦 Присоединить коллекцию</button></div>
+    </div>
+    <div class="filters">
+      🔍 <input id="host-search" class="input" value="${esc($('host-search')?.value||'')}" placeholder="Поиск..." oninput="renderHosts()">
+      <select id="host-group-filter" onchange="renderHosts()">${selectOption('all','Все группы',$('host-group-filter')?.value||'all')}${state.groups.map(g=>selectOption(g.id,g.name,$('host-group-filter')?.value||'all')).join('')}</select>
+      <select id="host-proxy-filter" onchange="renderHosts()">${proxyOptions($('host-proxy-filter')?.value||'all',true)}</select>
+      <select id="host-source-filter" onchange="renderHosts()">${selectOption('all','Все источники',$('host-source-filter')?.value||'all')}${selectOption('manual','Ручные',$('host-source-filter')?.value||'all')}${selectOption('catalog','Справочные',$('host-source-filter')?.value||'all')}</select>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-label">Объектов мониторинга</div><div class="stat-value">${state.hosts.length}</div></div>
+      <div class="stat"><div class="stat-label">Справочные</div><div class="stat-value">${state.hosts.filter(h=>h.sourceType==='catalog').length}</div></div>
+      <div class="stat"><div class="stat-label">Групп-владельцев</div><div class="stat-value">${new Set(state.hosts.map(h=>h.ownerGroupId)).size}</div></div>
+      <div class="stat"><div class="stat-label">Attachment'ов</div><div class="stat-value">${state.hosts.reduce((s,h)=>s+h.attachments.length,0)}</div></div>
+    </div>
+    <div class="content">${filtered.length?filtered.map(hostCard).join(''):'<div class="empty">Хосты не найдены</div>'}</div>
+    <div class="footer"><b>Manual</b> — IP/FQDN ведутся в MARS. <b>Catalog</b> — IP/FQDN обновляются из CMDB. <b>Prefill</b> — CMDB заполнила форму разово, но связи для синхронизации нет. Видимое имя и группа прокси принадлежат группе MARS во всех режимах.</div>
+  </div>`;
+  page('hosts','Управление хостами','Каждая строка — контекст постановки на мониторинг конкретной группы. Все пользователи MARS видят объекты всех групп.',`<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать справочник</button><button class="outline" onclick="resetDemo()">↺ Сбросить демо</button><button ${canMonitor()?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`,body)
 }
-function filteredHosts(){const s=($('host-search')?.value||'').toLowerCase(),p=$('host-proxy-filter')?.value||'all',src=$('host-source-filter')?.value||'all';return state.hosts.filter(h=>(h.name.toLowerCase().includes(s)||h.address.toLowerCase().includes(s)||h.proxyGroup.toLowerCase().includes(s))&&(p==='all'||h.proxyGroup===p)&&(src==='all'||h.sourceType===src))}
-function hostCard(h){const key=hostKey(h.id),sel=selectedHostIds.has(key),open=hostKey(expandedHostId)===key,lock=hostLockReason(h),hid=q(key),creator=userById(h.createdBy),groups=[...new Set(h.attachments.map(a=>groupById(a.ownerGroupId)?.name).filter(Boolean))];return`<div class="card host-card ${sel?'selected':''}"><div class="host-top"><div class="card-main"><input class="checkbox" type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation()" onchange="toggleHost(${hid})"><span class="icon">🖥️</span><div><div class="card-title">${esc(h.name)}</div><div class="meta"><span class="mono">${addressBadge(h)}${esc(h.address)}</span> · Группа прокси: <b>${esc(proxyName(h.proxyGroup))}</b></div><div class="pills">${sourceBadge(h)}<span class="badge ${h.status==='UP'?'b-green':'b-amber'}">${h.status==='UP'?'🟢 UP':'🟡 WARN'}</span><span class="badge">${h.attachments.length} сервисов</span>${lock?'<span class="badge b-red">🔒 критичные поля заблокированы</span>':'<span class="badge b-green">🔓 можно редактировать</span>'}</div><div class="meta">Создал: ${esc(creator?.name||'—')} · Группы attachment'ов: ${groups.length?esc(groups.join(', ')):'—'}</div></div></div><div class="actions">${h.sourceType==='catalog'?`<button class="xs outline" onclick="syncOneCatalogHost(${hid})">🔄 Sync</button>`:''}<button class="xs outline" onclick="openHostEditModal(${hid})" ${canEditHost(h)?'':'disabled'}>✏️ Редактировать</button><button class="xs ghost" onclick="toggleHostDetails(${hid})">${open?'▲ Свернуть':'→ Детали'}</button><button class="xs danger" onclick="openDeleteHostModal(${hid})" ${canDeleteHost(h)?'':'disabled'}>🗑️ Удалить</button></div></div><div class="details ${open?'open':''}">${open?hostDetails(h):''}</div></div>`}
+function filteredHosts(){
+  const s=($('host-search')?.value||'').toLowerCase(),g=$('host-group-filter')?.value||'all',p=$('host-proxy-filter')?.value||'all',src=$('host-source-filter')?.value||'all';
+  return state.hosts.filter(h=>{
+    const text=[hostDisplayName(h),h.targetKey,h.address,h.proxyGroup,groupName(h.ownerGroupId)].join(' ').toLowerCase();
+    return text.includes(s)&&(g==='all'||h.ownerGroupId===g)&&(p==='all'||h.proxyGroup===p)&&(src==='all'||h.sourceType===src)
+  })
+}
+function hostCard(h){
+  const key=hostKey(h.id),sel=selectedHostIds.has(key),open=hostKey(expandedHostId)===key,hid=q(key),creator=userById(h.createdBy),group=groupById(h.ownerGroupId),can=canManageMonitoringHost(h);
+  const cmdbAddress=h.sourceType==='catalog'?'<span class="badge b-purple">📚 IP/FQDN из CMDB</span>':'';
+  return`<div class="card host-card ${sel?'selected':''}">
+    <div class="host-top">
+      <div class="card-main">
+        <input class="checkbox" type="checkbox" ${sel?'checked':''} onclick="event.stopPropagation()" onchange="toggleHost(${hid})">
+        <span class="icon">🖥️</span>
+        <div>
+          <div class="card-title">${esc(hostDisplayName(h))}</div>
+          <div class="meta"><span class="badge b-blue">👥 ${esc(group?.name||'—')}</span> · Техническое имя: <span class="mono">${esc(h.targetKey||makeTargetKey(h.ownerGroupId,hostDisplayName(h)))}</span></div>
+          <div class="meta"><span class="mono">${addressBadge(h)}${esc(h.address)}</span> · Группа прокси: <b>${esc(proxyName(h.proxyGroup))}</b></div>
+          <div class="pills">${sourceBadge(h)}${cmdbAddress}<span class="badge ${h.status==='UP'?'b-green':'b-amber'}">${h.status==='UP'?'🟢 UP':'🟡 WARN'}</span><span class="badge">${h.attachments.length} сервисов</span>${can?'<span class="badge b-green">✓ есть право постановки на мониторинг</span>':'<span class="badge b-red">🔒 нет права управления</span>'}</div>
+          <div class="meta">Создал: ${esc(creator?.name||'—')} · Группа-владелец: ${esc(group?.name||'—')}</div>
+        </div>
+      </div>
+      <div class="actions">
+        ${h.sourceType==='catalog'?`<button class="xs outline" onclick="syncOneCatalogHost(${hid})">🔄 Sync</button>`:''}
+        <button class="xs outline" onclick="openHostEditModal(${hid})" ${can?'':'disabled'}>✏️ Редактировать</button>
+        <button class="xs ghost" onclick="toggleHostDetails(${hid})">${open?'▲ Свернуть':'→ Детали'}</button>
+        <button class="xs danger" onclick="openDeleteHostModal(${hid})" ${can?'':'disabled'}>🗑️ Удалить</button>
+      </div>
+    </div>
+    <div class="details ${open?'open':''}">${open?hostDetails(h):''}</div>
+  </div>`
+}
 function proxyName(id){return state.proxyGroups.find(g=>g.id===id)?.name||id}
-function hostDetails(h){const lock=hostLockReason(h);return`${lock?`<div class="box amber-box">⚠️ ${esc(lock)}</div>`:''}${sourceDetails(h)}<h4>Присоединённые сервисы</h4>${h.attachments.length?h.attachments.map((a,i)=>attachmentCard(h,a,i)).join(''):'<div class="empty">Нет присоединённых сервисов</div>'}`}
-function sourceDetails(h){if(h.sourceType==='catalog'){const src=state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId),cat=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);return`<div class="box purple-box"><b>Источник данных:</b> ${esc(src?.name||'CMDB')}<br><span class="muted">External ID:</span> <span class="mono">${esc(h.catalogBinding?.externalId||'—')}</span><br><span class="muted">Последняя синхронизация:</span> ${esc(h.catalogBinding?.lastSyncAt||'—')}<br><span class="muted">Статус:</span> ${cat?'<span class="badge b-green">synced</span>':'<span class="badge b-red">missing</span>'}<div class="hint">Имя хоста, IP/FQDN и группа прокси управляются справочником.</div></div>`}if(h.prefilledFromCatalog){const src=state.catalogSources.find(s=>s.id===h.prefilledFromCatalog.sourceId);return`<div class="box amber-box"><b>Ручной хост, разово заполненный из справочника.</b><br><span class="muted">Источник заполнения:</span> ${esc(src?.name||'CMDB')} · <span class="mono">${esc(h.prefilledFromCatalog.externalId)}</span><br><span class="muted">Скопировано:</span> ${esc(h.prefilledFromCatalog.copiedAt||'—')}<div class="hint">Автоматическое обновление выключено.</div></div>`}return`<div class="box"><b>Источник данных:</b> Ручной ввод. <span class="hint">Синхронизация справочника не меняет поля этого хоста.</span></div>`}
-function attachmentCard(h,a,i){const svc=state.services.find(s=>s.id===a.serviceId);if(!svc)return'';const port=a.portOverride||svc.defaultPort,target=`${h.address}:${port}`,creator=userById(a.createdBy),g=groupById(a.ownerGroupId),can=canManageAttachment(a),hid=q(hostKey(h.id));return`<div class="attach-card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div class="card-main"><span class="icon">${esc(svc.icon)}</span><div><div class="card-title">${esc(svc.name)}</div><div class="meta">Target: <span class="mono">${esc(target)}</span> · ${esc(svc.type)} · ${authBadge(svc)}</div><div class="meta">Attachment создал: ${esc(creator?.name||'—')} · Владелец: ${esc(g?.name||'—')}</div></div></div><button class="xs ghost" style="color:var(--danger)" onclick="detachService(${hid},${i})" ${can?'':'disabled'}>🔌 Отсоединить</button></div><div class="port-row"><span class="muted">Порт:</span><input type="number" min="1" max="65535" id="port-${hostKey(h.id)}-${i}" value="${esc(port)}" ${can?'':'disabled'}><button class="xs success" onclick="applyPort(${hid},${i})" ${can?'':'disabled'}>✓ Применить</button><button class="xs outline" onclick="resetPort(${hid},${i})" ${can?'':'disabled'}>↺ Сбросить</button><span class="hint">${a.portOverride?'переопределён':'по умолчанию'}: ${esc(port)}</span></div></div>`}
+function hostDetails(h){
+  const noPermission=!canManageMonitoringHost(h);
+  return`${noPermission?`<div class="box red-box">⚠️ Нет permission «Постановка на мониторинг» в группе «${esc(groupName(h.ownerGroupId))}». Объект доступен только для просмотра.</div>`:''}${sourceDetails(h)}<h4>Присоединённые сервисы</h4>${h.attachments.length?h.attachments.map((a,i)=>attachmentCard(h,a,i)).join(''):'<div class="empty">Нет присоединённых сервисов</div>'}`
+}
+function sourceDetails(h){
+  if(h.sourceType==='catalog'){
+    const src=state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId),cat=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);
+    return`<div class="box purple-box"><b>Источник адреса:</b> ${esc(src?.name||'CMDB')}<br><span class="muted">External ID:</span> <span class="mono">${esc(h.catalogBinding?.externalId||'—')}</span><br><span class="muted">Каноническое имя в CMDB:</span> ${esc(cat?.name||'—')}<br><span class="muted">Последняя синхронизация:</span> ${esc(h.catalogBinding?.lastSyncAt||'—')}<br><span class="muted">Статус:</span> ${cat?'<span class="badge b-green">synced</span>':'<span class="badge b-red">missing</span>'}<div class="hint">CMDB управляет только IP/FQDN. Видимое имя <b>${esc(hostDisplayName(h))}</b> и группа прокси <b>${esc(proxyName(h.proxyGroup))}</b> принадлежат группе «${esc(groupName(h.ownerGroupId))}».</div></div>`
+  }
+  if(h.prefilledFromCatalog){
+    const src=state.catalogSources.find(s=>s.id===h.prefilledFromCatalog.sourceId);
+    return`<div class="box amber-box"><b>Ручной хост, разово заполненный из справочника.</b><br><span class="muted">Источник заполнения:</span> ${esc(src?.name||'CMDB')} · <span class="mono">${esc(h.prefilledFromCatalog.externalId)}</span><br><span class="muted">Скопировано:</span> ${esc(h.prefilledFromCatalog.copiedAt||'—')}<div class="hint">Автоматическое обновление выключено: IP/FQDN, видимое имя и группа прокси ведутся в MARS.</div></div>`
+  }
+  return`<div class="box"><b>Источник адреса:</b> Ручной ввод. <span class="hint">Связи с CMDB нет; синхронизация не меняет поля этого объекта.</span></div>`
+}
+function attachmentCard(h,a,i){
+  const svc=state.services.find(s=>s.id===a.serviceId);if(!svc)return'';
+  const port=a.portOverride||svc.defaultPort,target=`${h.address}:${port}`,creator=userById(a.createdBy),svcGroup=groupById(svc.ownerGroupId),can=canManageAttachment(a,h),hid=q(hostKey(h.id));
+  return`<div class="attach-card"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div class="card-main"><span class="icon">${esc(svc.icon)}</span><div><div class="card-title">${esc(svc.name)}</div><div class="meta">Target: <span class="mono">${esc(target)}</span> · ${esc(svc.type)} · ${authBadge(svc)}</div><div class="meta">Сервис принадлежит: ${esc(svcGroup?.name||'—')} · Attachment создал: ${esc(creator?.name||'—')}</div></div></div><button class="xs ghost" style="color:var(--danger)" onclick="detachService(${hid},${i})" ${can?'':'disabled'}>🔌 Отсоединить</button></div><div class="port-row"><span class="muted">Порт:</span><input type="number" min="1" max="65535" id="port-${hostKey(h.id)}-${i}" value="${esc(port)}" ${can?'':'disabled'}><button class="xs success" onclick="applyPort(${hid},${i})" ${can?'':'disabled'}>✓ Применить</button><button class="xs outline" onclick="resetPort(${hid},${i})" ${can?'':'disabled'}>↺ Сбросить</button><span class="hint">${a.portOverride?'переопределён':'по умолчанию'}: ${esc(port)}</span></div></div>`
+}
 function toggleHost(id){const key=hostKey(id);selectedHostIds.has(key)?selectedHostIds.delete(key):selectedHostIds.add(key);renderHosts()}
 function toggleAllHosts(checked){filteredHosts().forEach(h=>checked?selectedHostIds.add(hostKey(h.id)):selectedHostIds.delete(hostKey(h.id)));renderHosts()}
 function toggleHostDetails(id){const key=hostKey(id);expandedHostId=hostKey(expandedHostId)===key?null:key;renderHosts()}
 
-function openHostCreateModal(){if(!canMonitor())return toast('Нет права на постановку на мониторинг');hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null};renderHostModal()}
-function openHostEditModal(id){const host=state.hosts.find(h=>hostKey(h.id)===hostKey(id));if(!host)return;if(!canEditHost(host))return toast(hostLockReason(host)||'Недостаточно прав');hostDraft={mode:'edit',catalogExternalId:host.catalogBinding?.externalId||null,editingHostId:hostKey(host.id)};renderHostModal(host)}
-function renderHostModal(host=null){const isEdit=!!host,cat=catalogByExternal(hostDraft.catalogExternalId);openModal(isEdit?'Редактировать хост':'Создать хост',isEdit?'Чувствительные поля можно менять только при соблюдении правил доступа':'Выберите источник данных для чувствительных полей хоста',isEdit?hostEditForm(host):hostCreateForm(cat),`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveHostFromModal()">${isEdit?'Сохранить изменения':'Создать хост'}</button>`)}
-function hostCreateForm(cat){const mode=hostDraft.mode,p=cat||{name:'',addressType:'ip',address:'',proxyGroup:'prod-dmz'},ro=mode==='catalog';return`<div class="box blue-box"><b>Источник владения полями:</b> manual — поля ведутся в MARS; catalog — поля ведёт справочник и обновляет синхронизация.</div><div class="field"><label>Как создать хост?</label><select id="host-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogExternalId=null;renderHostModal()">${selectOption('manual','Ввести вручную',mode)}${selectOption('manual-prefill','Заполнить из справочника, но создать ручной хост',mode)}${selectOption('catalog','Создать справочный хост с автообновлением',mode)}</select></div>${mode==='catalog'||mode==='manual-prefill'?catalogPicker():''}${mode==='catalog'&&!cat?'<div class="box amber-box">Выберите запись справочника.</div>':''}${mode==='manual-prefill'&&cat?'<div class="box amber-box">Поля скопированы из справочника разово. После создания этот хост останется ручным.</div>':''}${hostFields(p,ro)}`}
-function hostEditForm(h){return`${sourceDetails(h)}${hasAttachments(h)&&!isAdmin()?'<div class="box red-box">Хост используется в мониторинге. Имя, IP/FQDN и группа прокси заблокированы для обычного пользователя.</div>':''}${hostFields(h,!canEditHost(h))}`}
-function hostFields(p,ro=false){return`<div class="row"><div class="field"><label>Имя хоста *</label><input id="host-name" class="wide" value="${esc(p.name)}" ${ro?'disabled':''} oninput="validateHostForm()"><div class="hint">Используется как label в метриках.</div></div><div class="field"><label>Группа прокси *</label><select id="host-proxy" class="wide" ${ro?'disabled':''} onchange="validateHostForm()">${proxyOptions(p.proxyGroup,false)}</select><div class="hint">Определяет route сбора через proxy/collector.</div></div></div><div class="row"><div class="field"><label>Тип адреса *</label><select id="host-addr-type" class="wide" ${ro?'disabled':''} onchange="validateHostForm()">${selectOption('ip','IP-адрес',p.addressType)}${selectOption('fqdn','FQDN',p.addressType)}</select></div><div class="field"><label>IP/FQDN *</label><input id="host-address" class="wide mono" value="${esc(p.address)}" ${ro?'disabled':''} oninput="validateHostForm()"><div id="host-val" class="hint"></div></div></div>`}
-function catalogPicker(){const s=($('catalog-search')?.value||'').toLowerCase(),items=state.catalogHosts.filter(h=>!s||h.name.toLowerCase().includes(s)||h.address.toLowerCase().includes(s)||h.externalId.toLowerCase().includes(s));return`<div class="box"><div class="field"><label>Справочник хостов</label><input id="catalog-search" class="wide" value="${esc(s)}" placeholder="Поиск по имени, адресу или external ID..." oninput="renderHostModal()"></div><div style="max-height:220px;overflow:auto">${items.map(h=>`<div class="card clickable ${hostDraft.catalogExternalId===h.externalId?'selected':''}" onclick="hostDraft.catalogExternalId=${q(h.externalId)};renderHostModal()"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(h.name)}</div><div class="meta"><span class="mono">${esc(h.address)}</span> · ${esc(proxyName(h.proxyGroup))} · ${esc(h.os)} · <span class="mono">${esc(h.externalId)}</span></div></div></div>${hostDraft.catalogExternalId===h.externalId?'<span class="badge b-green">✓ выбрано</span>':''}</div>`).join('')}</div></div>`}
-function validateHostForm(){const v=$('host-val');if(!v)return true;const name=$('host-name')?.value.trim()||'',addr=$('host-address')?.value.trim()||'',type=$('host-addr-type')?.value||'ip',edit=hostDraft.editingHostId;if(!name){v.textContent='Имя хоста обязательно';v.style.color='var(--danger)';return false}if(state.hosts.some(h=>hostKey(h.id)!==hostKey(edit)&&h.name.toLowerCase()===name.toLowerCase())){v.textContent='Хост с таким именем уже существует';v.style.color='var(--danger)';return false}const ok=type==='ip'?isValidIp(addr):isValidFqdn(addr);v.textContent=ok?'Адрес корректен':'Проверьте формат IP/FQDN';v.style.color=ok?'var(--success)':'var(--danger)';return ok}
-function saveHostFromModal(){if(hostDraft.editingHostId){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostDraft.editingHostId));if(!h||!canEditHost(h))return toast('Редактирование недоступно');if(!validateHostForm())return;h.name=$('host-name').value.trim();h.addressType=$('host-addr-type').value;h.address=$('host-address').value.trim();h.proxyGroup=$('host-proxy').value;saveState();closeModal();renderAll();toast('Хост обновлён');return}const mode=hostDraft.mode,cat=catalogByExternal(hostDraft.catalogExternalId);if((mode==='catalog'||mode==='manual-prefill')&&!cat)return toast('Выберите запись справочника');let h;if(mode==='catalog'){if(state.hosts.some(x=>x.sourceType==='catalog'&&x.catalogBinding?.externalId===cat.externalId&&x.catalogBinding?.sourceId===cat.sourceId))return toast('Этот справочный хост уже заведён');h={id:uid('host'),name:cat.name,addressType:cat.addressType,address:cat.address,proxyGroup:cat.proxyGroup,status:'UP',sourceType:'catalog',createdBy:currentUser().id,createdAt:nowText(),prefilledFromCatalog:null,catalogBinding:{sourceId:cat.sourceId,externalId:cat.externalId,lastSyncAt:nowText(),syncStatus:'synced'},attachments:[]}}else{if(!validateHostForm())return;h={id:uid('host'),name:$('host-name').value.trim(),addressType:$('host-addr-type').value,address:$('host-address').value.trim(),proxyGroup:$('host-proxy').value,status:'UP',sourceType:'manual',createdBy:currentUser().id,createdAt:nowText(),prefilledFromCatalog:mode==='manual-prefill'&&cat?{sourceId:cat.sourceId,externalId:cat.externalId,copiedAt:nowText()}:null,catalogBinding:null,attachments:[]}}if(state.hosts.some(x=>x.name.toLowerCase()===h.name.toLowerCase()))return toast('Хост с таким именем уже существует');state.hosts.push(h);saveState();closeModal();renderAll();toast('Хост создан')}
-function openDeleteHostModal(id){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;if(!canDeleteHost(h))return toast('Удаление недоступно');confirmModal('Удаление хоста',`Удалить <b>${esc(h.name)}</b>?<br>Присоединённых сервисов: ${h.attachments.length}`,'deleteHost',q(hostKey(id)))}
-function deleteHost(id){state.hosts=state.hosts.filter(h=>hostKey(h.id)!==hostKey(id));selectedHostIds.delete(hostKey(id));if(hostKey(expandedHostId)===hostKey(id))expandedHostId=null;saveState();renderAll();toast('Хост удалён')}
-function syncCatalogHosts(){let c=0;state.hosts.filter(h=>h.sourceType==='catalog').forEach(h=>{if(applyCatalogSync(h))c++});saveState();renderAll();toast(`Синхронизировано хостов: ${c}`)}
-function syncOneCatalogHost(id){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;if(applyCatalogSync(h)){saveState();renderAll();toast('Хост синхронизирован')}else toast('Запись справочника не найдена')}
-function applyCatalogSync(h){const c=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);if(!c){h.catalogBinding.syncStatus='missing';return false}h.name=c.name;h.addressType=c.addressType;h.address=c.address;h.proxyGroup=c.proxyGroup;h.catalogBinding.lastSyncAt=nowText();h.catalogBinding.syncStatus='synced';return true}
+function openHostCreateModal(){
+  if(!canMonitor())return toast('Нет permission «Постановка на мониторинг» ни в одной группе');
+  hostDraft={mode:'manual',catalogExternalId:null,editingHostId:null,ownerGroupId:monitoringGroups()[0]?.id||null};
+  renderHostModal()
+}
+function openHostEditModal(id){
+  const host=state.hosts.find(h=>hostKey(h.id)===hostKey(id));if(!host)return;
+  if(!canEditHost(host))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
+  hostDraft={mode:'edit',catalogExternalId:host.catalogBinding?.externalId||null,editingHostId:hostKey(host.id),ownerGroupId:host.ownerGroupId};
+  renderHostModal(host)
+}
+function renderHostModal(host=null){
+  const isEdit=!!host,cat=catalogByExternal(hostDraft.catalogExternalId);
+  openModal(isEdit?'Редактировать объект мониторинга':'Создать объект мониторинга',isEdit?'Управление доступно любому пользователю с permission «Постановка на мониторинг» в группе-владельце':'Выберите группу, видимое имя и источник IP/FQDN',isEdit?hostEditForm(host):hostCreateForm(cat),`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveHostFromModal()">${isEdit?'Сохранить изменения':'Создать хост'}</button>`);
+  updateTargetKeyPreview()
+}
+function hostCreateForm(cat){
+  const mode=hostDraft.mode;
+  const p=cat?{visibleName:cat.name,addressType:cat.addressType,address:cat.address,proxyGroup:cat.proxyGroup}:{visibleName:'',addressType:'ip',address:'',proxyGroup:'prod-dmz'};
+  const addressReadOnly=mode==='catalog';
+  return`<div class="box blue-box"><b>Модель:</b> видимое имя уникально только в рамках группы. Техническое имя генерируется автоматически. Ручной хост может существовать без CMDB.</div>
+    <div class="field"><label>Как создать хост?</label><select id="host-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogExternalId=null;renderHostModal()">${selectOption('manual','Ввести вручную',mode)}${selectOption('manual-prefill','Заполнить из справочника, но создать ручной хост',mode)}${selectOption('catalog','Создать с привязкой к справочнику',mode)}</select></div>
+    ${mode==='catalog'||mode==='manual-prefill'?catalogPicker():''}
+    ${mode==='catalog'&&!cat?'<div class="box amber-box">Выберите запись справочника, чтобы получить IP/FQDN.</div>':''}
+    ${mode==='manual-prefill'&&cat?'<div class="box amber-box">Поля скопированы из справочника разово. После создания хост останется ручным и синхронизация его не изменит.</div>':''}
+    ${hostFields(p,{addressReadOnly,groupReadOnly:false})}`
+}
+function hostEditForm(h){
+  const addressReadOnly=h.sourceType==='catalog';
+  return`${sourceDetails(h)}${h.sourceType==='catalog'?'<div class="box amber-box">IP/FQDN управляются CMDB. В этом окне можно изменить видимое имя и группу прокси своей группы.</div>':''}${hostFields(h,{addressReadOnly,groupReadOnly:true})}`
+}
+function hostFields(p,opts={}){
+  const groupId=hostDraft.ownerGroupId||p.ownerGroupId||monitoringGroups()[0]?.id||'';
+  const visible=hostDisplayName(p);
+  const target=makeTargetKey(groupId,visible);
+  return`<div class="row">
+    <div class="field"><label>Группа-владелец *</label><select id="host-group" class="wide" ${opts.groupReadOnly?'disabled':''} onchange="hostDraft.ownerGroupId=this.value;updateTargetKeyPreview();validateHostForm()">${monitoringGroupOptions(groupId)}</select><div class="hint">Группа, в которой действует permission «Постановка на мониторинг».</div></div>
+    <div class="field"><label>Видимое имя хоста *</label><input id="host-visible-name" class="wide" value="${esc(visible)}" oninput="updateTargetKeyPreview();validateHostForm()"><div class="hint">Может совпадать у разных групп. Используется как <span class="mono">mars_host</span>.</div></div>
+  </div>
+  <div class="box"><span class="muted">Техническое имя:</span> <span class="mono" id="target-key-preview">${esc(target)}</span><div class="hint">Уникальный бизнес-ключ: <span class="mono">mars_group + mars_host</span>. Внутренний immutable ID хоста сохраняется отдельно.</div></div>
+  <div class="row">
+    <div class="field"><label>Группа прокси *</label><select id="host-proxy" class="wide" onchange="validateHostForm()">${proxyOptions(p.proxyGroup,false)}</select><div class="hint">Настройка группы MARS: может отличаться у разных групп для одного CMDB-хоста.</div></div>
+    <div class="field"><label>Тип адреса *</label><select id="host-addr-type" class="wide" ${opts.addressReadOnly?'disabled':''} onchange="validateHostForm()">${selectOption('ip','IP-адрес',p.addressType)}${selectOption('fqdn','FQDN',p.addressType)}</select></div>
+  </div>
+  <div class="field"><label>IP/FQDN *</label><input id="host-address" class="wide mono" value="${esc(p.address)}" ${opts.addressReadOnly?'disabled':''} oninput="validateHostForm()"><div id="host-val" class="hint"></div></div>`
+}
+function updateTargetKeyPreview(){
+  const el=$('target-key-preview'),gid=$('host-group')?.value||hostDraft.ownerGroupId||'',name=$('host-visible-name')?.value.trim()||'—';
+  if(el)el.textContent=makeTargetKey(gid,name)
+}
+function catalogPicker(){
+  const s=($('catalog-search')?.value||'').toLowerCase(),items=state.catalogHosts.filter(h=>!s||h.name.toLowerCase().includes(s)||h.address.toLowerCase().includes(s)||h.externalId.toLowerCase().includes(s));
+  return`<div class="box"><div class="field"><label>Справочник хостов</label><input id="catalog-search" class="wide" value="${esc(s)}" placeholder="Поиск по имени, адресу или external ID..." oninput="renderHostModal()"></div><div style="max-height:220px;overflow:auto">${items.map(h=>`<div class="card clickable ${hostDraft.catalogExternalId===h.externalId?'selected':''}" onclick="hostDraft.catalogExternalId=${q(h.externalId)};renderHostModal()"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(h.name)}</div><div class="meta"><span class="mono">${esc(h.address)}</span> · default proxy: ${esc(proxyName(h.proxyGroup))} · ${esc(h.os)} · <span class="mono">${esc(h.externalId)}</span></div></div></div>${hostDraft.catalogExternalId===h.externalId?'<span class="badge b-green">✓ выбрано</span>':''}</div>`).join('')}</div></div>`
+}
+function validateHostForm(){
+  const v=$('host-val');if(!v)return true;
+  const name=$('host-visible-name')?.value.trim()||'',addr=$('host-address')?.value.trim()||'',type=$('host-addr-type')?.value||'ip',gid=$('host-group')?.value||hostDraft.ownerGroupId||'',edit=hostDraft.editingHostId;
+  if(!gid||!hasMonitoringPermission(gid)){v.textContent='Нет права на выбранную группу';v.style.color='var(--danger)';return false}
+  if(!name){v.textContent='Введите видимое имя';v.style.color='var(--danger)';return false}
+  if(state.hosts.some(h=>hostKey(h.id)!==hostKey(edit)&&h.ownerGroupId===gid&&hostDisplayName(h).toLowerCase()===name.toLowerCase())){v.textContent='В этой группе уже есть хост с таким видимым именем';v.style.color='var(--danger)';return false}
+  if(!addr){v.textContent='Введите IP/FQDN';v.style.color='var(--danger)';return false}
+  const ok=type==='ip'?isValidIp(addr):isValidFqdn(addr);
+  v.textContent=ok?'Адрес корректен':'Проверьте формат IP/FQDN';
+  v.style.color=ok?'var(--success)':'var(--danger)';
+  return ok
+}
+function saveHostFromModal(){
+  if(hostDraft.editingHostId){
+    const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostDraft.editingHostId));
+    if(!h||!canManageMonitoringHost(h))return toast('Редактирование недоступно');
+    if(!validateHostForm())return;
+    h.visibleName=$('host-visible-name').value.trim();h.name=h.visibleName;h.targetKey=makeTargetKey(h.ownerGroupId,h.visibleName);h.proxyGroup=$('host-proxy').value;
+    if(h.sourceType!=='catalog'){h.addressType=$('host-addr-type').value;h.address=$('host-address').value.trim()}
+    saveState();closeModal();renderAll();toast('Хост обновлён');return
+  }
+  const mode=hostDraft.mode,cat=catalogByExternal(hostDraft.catalogExternalId),gid=$('host-group')?.value||hostDraft.ownerGroupId;
+  if(!hasMonitoringPermission(gid))return toast('Нет права на выбранную группу');
+  if((mode==='catalog'||mode==='manual-prefill')&&!cat)return toast('Выберите запись справочника');
+  if(!validateHostForm())return;
+  const visibleName=$('host-visible-name').value.trim();
+  if(mode==='catalog'&&state.hosts.some(x=>x.sourceType==='catalog'&&x.ownerGroupId===gid&&x.catalogBinding?.externalId===cat.externalId&&x.catalogBinding?.sourceId===cat.sourceId))return toast('Эта запись CMDB уже поставлена на мониторинг в выбранной группе');
+  const h={id:uid('host'),ownerGroupId:gid,visibleName,targetKey:makeTargetKey(gid,visibleName),name:visibleName,addressType:mode==='catalog'?cat.addressType:$('host-addr-type').value,address:mode==='catalog'?cat.address:$('host-address').value.trim(),proxyGroup:$('host-proxy').value,status:'UP',sourceType:mode==='catalog'?'catalog':'manual',createdBy:currentUser().id,createdAt:nowText(),prefilledFromCatalog:mode==='manual-prefill'&&cat?{sourceId:cat.sourceId,externalId:cat.externalId,copiedAt:nowText()}:null,catalogBinding:mode==='catalog'?{sourceId:cat.sourceId,externalId:cat.externalId,lastSyncAt:nowText(),syncStatus:'synced'}:null,attachments:[]};
+  state.hosts.push(h);saveState();closeModal();renderAll();toast('Хост создан')
+}
+function openDeleteHostModal(id){
+  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;
+  if(!canDeleteHost(h))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
+  confirmModal('Удаление объекта мониторинга',`Удалить <b>${esc(hostDisplayName(h))}</b> из группы «${esc(groupName(h.ownerGroupId))}»?<br>Присоединённых сервисов: ${h.attachments.length}<br><span class="muted">Запись CMDB и объекты других групп не будут затронуты.</span>`,'deleteHost',q(hostKey(id)))
+}
+function deleteHost(id){state.hosts=state.hosts.filter(h=>hostKey(h.id)!==hostKey(id));selectedHostIds.delete(hostKey(id));if(hostKey(expandedHostId)===hostKey(id))expandedHostId=null;saveState();renderAll();toast('Объект мониторинга удалён')}
+function syncCatalogHosts(){let c=0;state.hosts.filter(h=>h.sourceType==='catalog').forEach(h=>{if(applyCatalogSync(h))c++});saveState();renderAll();toast(`Синхронизировано объектов: ${c}`)}
+function syncOneCatalogHost(id){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(id));if(!h)return;if(applyCatalogSync(h)){saveState();renderAll();toast('IP/FQDN обновлены из CMDB')}else toast('Запись справочника не найдена')}
+function applyCatalogSync(h){const c=catalogHost(h.catalogBinding?.sourceId,h.catalogBinding?.externalId);if(!c){h.catalogBinding.syncStatus='missing';return false}h.addressType=c.addressType;h.address=c.address;h.catalogBinding.lastSyncAt=nowText();h.catalogBinding.syncStatus='synced';return true}
 
 function authBadge(s){if(s.authMode==='basic')return'<span class="badge b-amber">🔐 Basic Auth</span>';if(s.authMode==='bearer')return'<span class="badge b-purple">🔐 Bearer Token</span>';return'<span class="badge">🔓 Без авторизации</span>'}
 function protocolLine(s){if(s.type!=='ExporterScrape')return'';return` · ${String(s.protocol||'http').toUpperCase()}${s.protocol==='https'?(s.clientCertificate?' · client cert':'')+(s.skipServerCertCheck?' · skip TLS verify':''):''}`}
@@ -273,13 +501,75 @@ function removeFromCollectionDraft(id){collectionDraftIds=collectionDraftIds.fil
 function saveCollection(){collectionDraftName=$('col-name')?.value.trim()||collectionDraftName;collectionDraftDesc=$('col-desc')?.value.trim()||collectionDraftDesc;if(!collectionDraftName||!collectionDraftIds.length)return toast('Введите название и добавьте сервисы');state.collections.push({id:uid('col'),name:collectionDraftName,description:collectionDraftDesc,serviceIds:[...collectionDraftIds],usedBy:0});saveState();closeModal();renderAll();toast('Коллекция создана')}
 function deleteCollection(id){state.collections=state.collections.filter(c=>c.id!==id);saveState();renderAll();toast('Коллекция удалена')}
 
-function openAttachModal(type){if(!canMonitor())return toast('Нет права на постановку на мониторинг');if(selectedHostIds.size!==1)return toast('Выберите один хост');const host=state.hosts.find(h=>hostKey(h.id)===[...selectedHostIds][0]),items=type==='service'?state.services:state.collections;openModal(type==='service'?'Присоединить сервис':'Присоединить коллекцию','Attachment получит владельца по группе сервиса',`<div class="box blue-box">Хост: <b>${esc(host.name)}</b> · ${esc(host.address)}</div>${items.length?items.map(i=>`<div class="card clickable" onclick="attachItem(${q(type)},${q(i.id)})"><div class="card-main"><span class="icon">${type==='service'?esc(i.icon):'📦'}</span><div><div class="card-title">${esc(i.name)}</div><div class="meta">${type==='service'?esc(i.type)+' · '+i.defaultPort:i.serviceIds.length+' сервисов'}</div></div></div></div>`).join(''):'<div class="empty">Нет доступных элементов</div>'}`,`<button class="ghost" onclick="closeModal()">Отмена</button>`)}
-function attachItem(type,itemId){const host=state.hosts.find(h=>hostKey(h.id)===[...selectedHostIds][0]),ids=type==='service'?[itemId]:(state.collections.find(c=>c.id===itemId)?.serviceIds||[]);let added=0;ids.forEach(id=>{const s=state.services.find(x=>x.id===id);if(!s||host.attachments.some(a=>a.serviceId===id))return;host.attachments.push({serviceId:id,createdBy:currentUser().id,ownerGroupId:s.ownerGroupId,portOverride:null});added++});if(type==='collection'){const c=state.collections.find(x=>x.id===itemId);if(c)c.usedBy++}else{const s=state.services.find(x=>x.id===itemId);if(s)s.usedBy++}saveState();closeModal();expandedHostId=hostKey(host.id);renderAll();toast(`Присоединено сервисов: ${added}`)}
-function detachService(hostId,i){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];if(!h||!a)return;if(!canManageAttachment(a))return toast('Недостаточно прав');h.attachments.splice(i,1);saveState();renderAll();toast('Сервис отсоединён')}
-function applyPort(hostId,i){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];if(!a||!canManageAttachment(a))return toast('Недостаточно прав');const val=$(`port-${hostKey(hostId)}-${i}`).value.trim();if(!val)a.portOverride=null;else{const p=num(val,0);if(p<1||p>65535)return toast('Некорректный порт');a.portOverride=p}saveState();renderAll();toast('Порт обновлён')}
-function resetPort(hostId,i){const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];if(!a||!canManageAttachment(a))return toast('Недостаточно прав');a.portOverride=null;saveState();renderAll();toast('Порт сброшен')}
+function openAttachModal(type){
+  if(selectedHostIds.size!==1)return toast('Выберите один хост');
+  const host=selectedHost();
+  if(!host)return toast('Хост не найден');
+  if(!canManageMonitoringHost(host))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
+  const items=type==='service'?state.services:state.collections;
+  openModal(type==='service'?'Присоединить сервис':'Присоединить коллекцию','Attachment будет принадлежать группе хоста',`<div class="box blue-box">Хост: <b>${esc(hostDisplayName(host))}</b> · группа: <b>${esc(groupName(host.ownerGroupId))}</b><br><span class="mono">${esc(host.targetKey)}</span> · ${esc(host.address)}</div>${items.length?items.map(i=>`<div class="card clickable" onclick="attachItem(${q(type)},${q(i.id)})"><div class="card-main"><span class="icon">${type==='service'?esc(i.icon):'📦'}</span><div><div class="card-title">${esc(i.name)}</div><div class="meta">${type==='service'?esc(i.type)+' · '+i.defaultPort:i.serviceIds.length+' сервисов'}</div></div></div></div>`).join(''):'<div class="empty">Нет доступных элементов</div>'}`,`<button class="ghost" onclick="closeModal()">Отмена</button>`)
+}
+function attachItem(type,itemId){
+  const host=selectedHost();if(!host||!canManageMonitoringHost(host))return toast('Недостаточно прав');
+  const ids=type==='service'?[itemId]:(state.collections.find(c=>c.id===itemId)?.serviceIds||[]);
+  let added=0;
+  ids.forEach(id=>{
+    const s=state.services.find(x=>x.id===id);
+    if(!s||host.attachments.some(a=>a.serviceId===id))return;
+    host.attachments.push({serviceId:id,createdBy:currentUser().id,ownerGroupId:host.ownerGroupId,portOverride:null});
+    added++
+  });
+  if(type==='collection'){const c=state.collections.find(x=>x.id===itemId);if(c)c.usedBy++}
+  else{const s=state.services.find(x=>x.id===itemId);if(s)s.usedBy++}
+  saveState();closeModal();expandedHostId=hostKey(host.id);renderAll();toast(`Присоединено сервисов: ${added}`)
+}
+function detachService(hostId,i){
+  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];
+  if(!h||!a)return;
+  if(!canManageAttachment(a,h))return toast('Нет permission «Постановка на мониторинг» в группе-владельце');
+  h.attachments.splice(i,1);saveState();renderAll();toast('Сервис отсоединён')
+}
+function applyPort(hostId,i){
+  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];
+  if(!a||!canManageAttachment(a,h))return toast('Недостаточно прав');
+  const val=$(`port-${hostKey(hostId)}-${i}`).value.trim();
+  if(!val)a.portOverride=null;else{const p=num(val,0);if(p<1||p>65535)return toast('Некорректный порт');a.portOverride=p}
+  saveState();renderAll();toast('Порт обновлён')
+}
+function resetPort(hostId,i){
+  const h=state.hosts.find(x=>hostKey(x.id)===hostKey(hostId)),a=h?.attachments[i];
+  if(!a||!canManageAttachment(a,h))return toast('Недостаточно прав');
+  a.portOverride=null;saveState();renderAll();toast('Порт сброшен')
+}
 
-function renderAccess(){const rows=[['Создать хост','Пользователь с правом “Постановка на мониторинг”'],['Редактировать manual host без attachment','Создатель или MARS admin'],['Редактировать manual host с attachment','Только MARS admin'],['Редактировать catalog host','Нельзя вручную: поля обновляются из справочника'],['Удалить хост без attachment','Создатель или MARS admin'],['Удалить хост с attachment','Только MARS admin'],['Присоединить сервис','Любой пользователь с правом “Постановка на мониторинг”'],['Отсоединить attachment','Автор attachment, участник группы-владельца или MARS admin']];const body=`<div class="panel"><div class="info"><b>Ключевая идея:</b> хосты и attachment'ы видны всем, но управление service/attachment зависит от группы. Чувствительные поля хоста защищены жизненным циклом и источником данных.</div><div class="content"><h3>Пользователи</h3>${state.users.map(u=>`<div class="card"><div class="card-main"><span class="avatar" style="background:${u.isAdmin?'#7C3AED':'var(--primary)'}">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)} ${u.id===state.currentUserId?'<span class="badge b-blue">текущий</span>':''}</div><div class="meta">${u.isAdmin?'MARS admin':'Пользователь'} · Постановка на мониторинг: ${u.canMonitor?'да':'нет'}</div><div class="pills">${u.groups.map(id=>`<span class="badge b-blue">${esc(groupById(id)?.name||id)}</span>`).join('')}</div></div></div><button class="sm outline" onclick="switchUser(${q(u.id)})">Переключиться</button></div>`).join('')}<h3>Группы</h3>${state.groups.map(g=>`<div class="card"><div class="card-main"><span class="icon">👥</span><div><div class="card-title">${esc(g.name)}</div><div class="meta">Участники: ${state.users.filter(u=>u.groups.includes(g.id)).map(u=>esc(u.name)).join(', ')||'—'}</div></div></div></div>`).join('')}<h3>Правила по хостам</h3><div class="box"><table style="width:100%;border-collapse:collapse"><tbody>${rows.map(r=>`<tr><td style="padding:8px;border-bottom:1px solid var(--slate-200);font-weight:800">${r[0]}</td><td style="padding:8px;border-bottom:1px solid var(--slate-200)">${r[1]}</td></tr>`).join('')}</tbody></table></div></div></div>`;page('access','👥 Доступ','Демо-модель пользователей, групп и прав для проверки сценариев.','',body)}
+function renderAccess(){
+  const rows=[
+    ['Видимость','Все пользователи MARS видят объекты мониторинга всех групп и их attachment’ы.'],
+    ['Создать хост','Пользователь с permission «Постановка на мониторинг» в выбранной группе.'],
+    ['Редактировать / удалить хост','Любой пользователь с этим permission в группе-владельце. Создатель — только аудит.'],
+    ['Присоединить / отсоединить сервис','Любой пользователь с этим permission в группе хоста.'],
+    ['Manual host','IP/FQDN, visible name и группа прокси ведутся в MARS. CMDB не требуется.'],
+    ['Catalog host','CMDB обновляет только IP/FQDN. Visible name и группа прокси ведёт группа MARS.'],
+    ['Уникальность visible name','Только в пределах группы: UNIQUE(ownerGroupId, lower(visibleName)).'],
+    ['Техническое имя','Автоматически: groupKey:visibleName. Внутренний immutable ID хоста остаётся отдельным.']
+  ];
+  const body=`<div class="panel"><div class="info"><b>Ключевая идея:</b> «Хост» в MARS — это объект постановки на мониторинг конкретной группы. Он не является глобальной записью о физическом сервере. Связь с CMDB, если она есть, используется для адресации.</div><div class="content">
+    <h3>Пользователи и permission</h3>
+    ${state.users.map(u=>{
+      const permissions=(u.groups||[]).map(gid=>{
+        const can=u.isAdmin||((u.groupPermissions?.[gid]||[]).includes('monitoring.manage'));
+        return `<span class="badge ${can?'b-green':'b-red'}">${esc(groupName(gid))}: ${can?'постановка на мониторинг':'только просмотр'}</span>`
+      }).join('');
+      return `<div class="card"><div class="card-main"><span class="avatar" style="background:${u.isAdmin?'#7C3AED':'var(--primary)'}">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)} ${u.id===state.currentUserId?'<span class="badge b-blue">текущий</span>':''}</div><div class="meta">${u.isAdmin?'MARS admin':'Пользователь'}</div><div class="pills">${permissions||'<span class="muted">Нет групп</span>'}</div></div></div><button class="sm outline" onclick="switchUser(${q(u.id)})">Переключиться</button></div>`
+    }).join('')}
+    <h3>Группы</h3>
+    ${state.groups.map(g=>`<div class="card"><div class="card-main"><span class="icon">👥</span><div><div class="card-title">${esc(g.name)}</div><div class="meta">Ключ группы: <span class="mono">${esc(g.key)}</span> · Участники: ${state.users.filter(u=>(u.groups||[]).includes(g.id)).map(u=>esc(u.name)).join(', ')||'—'}</div></div></div></div>`).join('')}
+    <h3>Правила</h3>
+    <div class="box"><table style="width:100%;border-collapse:collapse"><tbody>${rows.map(r=>`<tr><td style="padding:8px;border-bottom:1px solid var(--slate-200);font-weight:800">${r[0]}</td><td style="padding:8px;border-bottom:1px solid var(--slate-200)">${r[1]}</td></tr>`).join('')}</tbody></table></div>
+  </div></div>`;
+  page('access','👥 Доступ','Проверка групповых permission и модели объектов мониторинга.','',body)
+}
+
 
 loadState();renderAll();
 </script>
