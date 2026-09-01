@@ -102,6 +102,17 @@ let relationTypes=[{id:'belongs',name:'Относится к',reverse:'Соде�
 let relationRules=[{id:'RR-001',name:'Host → ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',multiplicity:'one',active:true,formed:1180,missing:61,ambiguous:13},{id:'RR-002',name:'Database → Host по имени хоста',sourceType:'Database',sourceAttr:'hostName',operator:'=',targetType:'Host',targetAttr:'name',relationTypeId:'hosted',multiplicity:'one',active:true,formed:322,missing:8,ambiguous:2},{id:'RR-003',name:'Application → Database',sourceType:'Application',sourceAttr:'databaseName',operator:'=',targetType:'Database',targetAttr:'name',relationTypeId:'uses',multiplicity:'many',active:false,formed:0,missing:0,ambiguous:0}];
 let adminTab='data',registrySettingsTab='objects';
 
+const registryCmdbSource={id:'galaxy-main',name:'Galaxy / CMDB Main'};
+let registryCmdbCollections=[
+ {id:'HOSTOS',name:'HOSTOS',description:'Хосты и основные инфраструктурные атрибуты ОС',available:12483,selected:true,status:'synced',lastSync:'01.09.2026, 14:15'},
+ {id:'UABD',name:'UABD',description:'Установленные экземпляры ПО и БД с контекстом размещения',available:8421,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'USP',name:'USP',description:'Установленное программное обеспечение',available:15234,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'PhyServer',name:'PhyServer',description:'Физические серверы',available:3188,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'Storage',name:'Storage',description:'Системы хранения данных',available:426,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'SANSW',name:'SANSW',description:'SAN-коммутаторы',available:212,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'IT System',name:'IT System',description:'Информационные системы',available:687,selected:false,status:'not_selected',lastSync:'—'}
+];
+
 function registryAttrLabel(type,id){return(objectTypes[type]||[]).find(a=>a.id===id)?.label||id}
 function registryEffectiveValue(o,id){return id==='name'?o.name:o.values?.[id]}
 function registryIsOverride(o,id){return o.manual?.[id]!==undefined&&o.raw?.[id]!==undefined&&String(o.manual[id])!==String(o.raw[id])}
@@ -161,7 +172,60 @@ function openRegistryValueEdit(id,attr){if(!isAdmin())return toast('Недост
 function saveRegistryManualValue(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin())return;const v=$('aro-value').value.trim();if(!v)return toast('Введите значение');o.manual=o.manual||{};o.manual[attr]=v;if(attr==='name')o.name=v;else o.values[attr]=v;openAdminRegistryObject(id);toast(o.raw?.[attr]!==undefined?'Manual override сохранён':'Manual-значение сохранено')}
 function removeRegistryOverride(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin()||o.raw?.[attr]===undefined)return;o.manual&&delete o.manual[attr];if(attr==='name')o.name=o.raw[attr];else o.values[attr]=o.raw[attr];openAdminRegistryObject(id);toast('Override удалён; effective снова берётся из внешнего источника')}
 function renderTypeSettings(){return`<div class="content">${Object.entries(objectTypes).map(([t,a])=>`<div class="card"><div class="card-main"><span class="icon">🧩</span><div><div class="card-title">${t}</div><div class="pill-row" style="margin-top:8px">${a.map(x=>`<span class="badge">${x.label} · <span class="mono">${x.id}</span></span>`).join('')}</div></div></div></div>`).join('')}</div>`}
-function renderMappingSettings(){const map=[['Host','name','Galaxy','HOSTOS','name'],['Host','fqdn','Galaxy','HOSTOS','fqdn'],['Host','ip','Galaxy','HOSTOS','ip'],['Host','environment','Galaxy','HOSTOS','hostcienvtype'],['Host','owner','Galaxy','HOSTOS','owner'],['Host','informationSystemId','Galaxy','HOSTOS','itsysrisid']];return`<div class="info"><b>Текущий scope:</b> Host наполняется только из Galaxy/HOSTOS; UABD/USP не используются для Host.</div><div class="table-wrap"><table><thead><tr><th>Тип MARS</th><th>Атрибут MARS</th><th>Источник</th><th>Коллекция</th><th>Поле</th></tr></thead><tbody>${map.map(m=>`<tr><td><span class="badge b-blue">${m[0]}</span></td><td><b>${m[1]}</b></td><td>${m[2]}</td><td><span class="badge b-violet">${m[3]}</span></td><td class="mono">${m[4]}</td></tr>`).join('')}</tbody></table></div>`}
+function registrySelectedCmdbCollections(){return registryCmdbCollections.filter(c=>c.selected)}
+function toggleRegistryCmdbCollection(id,checked){
+ const c=registryCmdbCollections.find(x=>x.id===id);if(!c)return;
+ c.selected=!!checked;
+ if(!c.selected){c.status='not_selected';c.lastSync='—'}
+ else if(c.status==='not_selected')c.status='pending';
+ renderAdmin()
+}
+function toggleAllRegistryCmdbCollections(checked){
+ registryCmdbCollections.forEach(c=>{c.selected=!!checked;if(!checked){c.status='not_selected';c.lastSync='—'}else if(c.status==='not_selected')c.status='pending'});
+ renderAdmin()
+}
+function syncRegistryCmdbCollections(){
+ const selected=registrySelectedCmdbCollections();if(!selected.length)return toast('Выберите хотя бы одну коллекцию для синхронизации');
+ const ts=now();
+ selected.forEach(c=>{c.status='synced';c.lastSync=ts});
+ renderAdmin();toast(`Синхронизировано коллекций: ${selected.length}`)
+}
+function registryCmdbCollectionStatus(c){
+ if(!c.selected)return'<span class="badge">Не выбрана</span>';
+ if(c.status==='synced')return'<span class="badge b-green">● Синхронизируется</span>';
+ return'<span class="badge b-amber">Ожидает синхронизации</span>'
+}
+function renderMappingSettings(){
+ const selected=registrySelectedCmdbCollections(),allSelected=selected.length===registryCmdbCollections.length;
+ const hostos=registryCmdbCollections.find(c=>c.id==='HOSTOS');
+ const map=[['Host','name','Galaxy','HOSTOS','name'],['Host','fqdn','Galaxy','HOSTOS','fqdn'],['Host','ip','Galaxy','HOSTOS','ip'],['Host','environment','Galaxy','HOSTOS','hostcienvtype'],['Host','owner','Galaxy','HOSTOS','owner'],['Host','informationSystemId','Galaxy','HOSTOS','itsysrisid']];
+ return`<div class="info"><b>Выбор коллекций Galaxy / CMDB.</b> Администратор выбирает, какие предоставляемые внешним источником коллекции MARS должен регулярно получать и синхронизировать. Выбор коллекции сам по себе ещё не определяет тип объекта MARS — соответствие типов и атрибутов задаётся mapping.</div>
+ <div class="toolbar">
+   <div>
+     <div><b>Источник:</b> ${esc(registryCmdbSource.name)}</div>
+     <div class="hint">Доступно коллекций: ${registryCmdbCollections.length} · выбрано для синхронизации: <b>${selected.length}</b></div>
+   </div>
+   <div class="actions">
+     <label class="badge" style="padding:7px 10px;cursor:pointer"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllRegistryCmdbCollections(this.checked)"> Выбрать все</label>
+     <button class="sm outline" onclick="syncRegistryCmdbCollections()" ${selected.length?'':'disabled'}>🔄 Синхронизировать выбранные</button>
+   </div>
+ </div>
+ <div class="table-wrap"><table><thead><tr><th style="width:52px">Синхр.</th><th>Коллекция Galaxy / CMDB</th><th>Описание</th><th>Объектов доступно</th><th>Состояние</th><th>Последняя синхронизация</th></tr></thead><tbody>
+ ${registryCmdbCollections.map(c=>`<tr>
+   <td><input class="checkbox" type="checkbox" ${c.selected?'checked':''} onchange="toggleRegistryCmdbCollection(${q(c.id)},this.checked)"></td>
+   <td><div class="cell-title">${esc(c.name)}</div><div class="cell-sub mono">${esc(c.id)}</div></td>
+   <td>${esc(c.description)}</td>
+   <td><b>${c.available.toLocaleString('ru-RU')}</b></td>
+   <td>${registryCmdbCollectionStatus(c)}</td>
+   <td>${esc(c.lastSync)}</td>
+ </tr>`).join('')}
+ </tbody></table></div>
+ <div class="content">
+   <div class="box blue-box"><b>Текущий scope для Host:</b> внешние значения типа <span class="mono">Host</span> берём только из коллекции <span class="mono">HOSTOS</span>. UABD/USP и другие коллекции не используются для наполнения Host. Они могут быть выбраны для синхронизации как источник будущих типов объектов и связей.</div>
+ </div>
+ <div class="toolbar"><div><b>Mapping атрибутов MARS</b><div class="hint">${hostos?.selected?'HOSTOS выбран для синхронизации — mapping активен.':'HOSTOS не выбран — его mapping не будет участвовать в синхронизации.'}</div></div></div>
+ ${hostos?.selected?`<div class="table-wrap"><table><thead><tr><th>Тип MARS</th><th>Атрибут MARS</th><th>Источник</th><th>Коллекция</th><th>Поле</th></tr></thead><tbody>${map.map(m=>`<tr><td><span class="badge b-blue">${m[0]}</span></td><td><b>${m[1]}</b></td><td>${m[2]}</td><td><span class="badge b-violet">${m[3]}</span></td><td class="mono">${m[4]}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">Выберите HOSTOS выше, чтобы использовать настроенный mapping для типа Host.</div>`}`
+}
 function renderRelationTypeSettings(){return`<div class="toolbar"><span class="muted">Системные + пользовательские типы</span><button onclick="openRelationTypeCreate()">➕ Добавить тип связи</button></div><div class="content">${relationTypes.map(t=>`<div class="card"><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${t.name}</div><div class="meta">Обратное название: <b>${t.reverse}</b></div><div class="pill-row"><span class="badge ${t.system?'b-violet':'b-blue'}">${t.system?'Системный':'Пользовательский'}</span><span class="badge ${t.active?'b-green':'b-amber'}">${t.active?'Активен':'Выключен'}</span></div></div></div></div>`).join('')}</div>`}
 function openRelationTypeCreate(){openModal('Добавить тип связи','Тип выбирается правилами из справочника.',`<div class="row"><div class="field"><label>Прямое название *</label><input id="rt-name" class="wide" placeholder="Например: Резервирует"></div><div class="field"><label>Обратное название *</label><input id="rt-rev" class="wide" placeholder="Например: Резервируется"></div></div><div class="box blue-box">Database <b>размещена на</b> Host<br>Host <b>размещает</b> Database</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType()">Добавить</button>`,true)}
 function saveRelationType(){const n=$('rt-name').value.trim(),r=$('rt-rev').value.trim();if(!n||!r)return toast('Заполните оба названия');relationTypes.push({id:uid('rt'),name:n,reverse:r,system:false,active:true});closeModal();renderAdmin();toast('Тип связи создан')}
