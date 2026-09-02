@@ -113,6 +113,33 @@ let registryCmdbCollections=[
  {id:'IT System',name:'IT System',description:'Информационные системы',available:687,selected:false,status:'not_selected',lastSync:'—'}
 ];
 
+const registryCmdbCollectionFields={
+ HOSTOS:['external_id','name','domain_name','fqdn','altname','ip','hostcienvtype','hostgroup','hoststatus','osver','vendor','model','sn','osname','network_segment','owner','smid','datacenter','itsm_name','criticality','itsysrisid','smitgroup','cluster'],
+ UABD:['external_id','name','hstname','hstcienvtype','hsthostipaddress','fqdn','owner','version','dbtype','itsysrisid','smitgroup'],
+ USP:['external_id','name','hstname','hstcienvtype','hsthostipaddress','fqdn','owner','version','vendor','smitgroup'],
+ PhyServer:['external_id','name','serial_number','model','vendor','datacenter','ip','owner'],
+ Storage:['external_id','name','vendor','model','serial_number','datacenter','ip','owner'],
+ SANSW:['external_id','name','vendor','model','serial_number','datacenter','ip','owner'],
+ 'IT System':['external_id','name','criticality','owner','description','smitgroup']
+};
+
+let registryMappingEditor={type:'Host',collection:'HOSTOS'};
+let registryMappings={
+ 'Host|HOSTOS':{
+   objectNameField:'name',
+   externalIdField:'external_id',
+   attrs:{
+     fqdn:'fqdn',
+     ip:'ip',
+     environment:'hostcienvtype',
+     owner:'owner',
+     informationSystemId:'itsysrisid'
+   },
+   updatedAt:'01.09.2026, 14:15'
+ }
+};
+
+
 function registryAttrLabel(type,id){return(objectTypes[type]||[]).find(a=>a.id===id)?.label||id}
 function registryEffectiveValue(o,id){return id==='name'?o.name:o.values?.[id]}
 function registryIsOverride(o,id){return o.manual?.[id]!==undefined&&o.raw?.[id]!==undefined&&String(o.manual[id])!==String(o.raw[id])}
@@ -178,16 +205,21 @@ function toggleRegistryCmdbCollection(id,checked){
  c.selected=!!checked;
  if(!c.selected){c.status='not_selected';c.lastSync='—'}
  else if(c.status==='not_selected')c.status='pending';
+ if(registryMappingEditor.collection===id&&!c.selected){
+   const allowed=registryAllowedCollectionsForType(registryMappingEditor.type);
+   registryMappingEditor.collection=allowed[0]?.id||''
+ }
  renderAdmin()
 }
 function toggleAllRegistryCmdbCollections(checked){
  registryCmdbCollections.forEach(c=>{c.selected=!!checked;if(!checked){c.status='not_selected';c.lastSync='—'}else if(c.status==='not_selected')c.status='pending'});
+ const allowed=registryAllowedCollectionsForType(registryMappingEditor.type);
+ if(!allowed.some(c=>c.id===registryMappingEditor.collection))registryMappingEditor.collection=allowed[0]?.id||'';
  renderAdmin()
 }
 function syncRegistryCmdbCollections(){
  const selected=registrySelectedCmdbCollections();if(!selected.length)return toast('Выберите хотя бы одну коллекцию для синхронизации');
- const ts=now();
- selected.forEach(c=>{c.status='synced';c.lastSync=ts});
+ const ts=now();selected.forEach(c=>{c.status='synced';c.lastSync=ts});
  renderAdmin();toast(`Синхронизировано коллекций: ${selected.length}`)
 }
 function registryCmdbCollectionStatus(c){
@@ -195,36 +227,75 @@ function registryCmdbCollectionStatus(c){
  if(c.status==='synced')return'<span class="badge b-green">● Синхронизируется</span>';
  return'<span class="badge b-amber">Ожидает синхронизации</span>'
 }
+function registryAllowedCollectionsForType(type){
+ const selected=registrySelectedCmdbCollections();
+ if(type==='Host')return selected.filter(c=>c.id==='HOSTOS');
+ return selected
+}
+function registryEnsureMapping(type,collection){
+ if(!type||!collection)return null;
+ const key=`${type}|${collection}`;
+ if(!registryMappings[key])registryMappings[key]={objectNameField:'',externalIdField:'',attrs:{},updatedAt:'—'};
+ return registryMappings[key]
+}
+function registryMappingFieldOptions(collection,value,required=false){
+ const fields=registryCmdbCollectionFields[collection]||[];
+ return`${required?'':'<option value="">— Не синхронизировать —</option>'}${fields.map(f=>`<option value="${esc(f)}" ${f===value?'selected':''}>${esc(f)}</option>`).join('')}`
+}
+function setRegistryMappingType(type){
+ registryMappingEditor.type=type;
+ const allowed=registryAllowedCollectionsForType(type);
+ if(!allowed.some(c=>c.id===registryMappingEditor.collection))registryMappingEditor.collection=allowed[0]?.id||'';
+ renderAdmin()
+}
+function setRegistryMappingCollection(collection){registryMappingEditor.collection=collection;renderAdmin()}
+function setRegistryMappingIdentity(kind,value){const m=registryEnsureMapping(registryMappingEditor.type,registryMappingEditor.collection);if(!m)return;m[kind]=value}
+function setRegistryMappingAttribute(attr,value){const m=registryEnsureMapping(registryMappingEditor.type,registryMappingEditor.collection);if(!m)return;if(value)m.attrs[attr]=value;else delete m.attrs[attr]}
+function saveRegistryMapping(){
+ const type=registryMappingEditor.type,collection=registryMappingEditor.collection;
+ const m=registryEnsureMapping(type,collection);if(!m)return toast('Сначала выберите тип и коллекцию');
+ if(!m.objectNameField)return toast('Выберите поле внешнего источника для имени объекта');
+ if(!m.externalIdField)return toast('Выберите поле External ID');
+ m.updatedAt=now();renderAdmin();toast(`Mapping ${type} ← ${collection} сохранён`)
+}
 function renderMappingSettings(){
  const selected=registrySelectedCmdbCollections(),allSelected=selected.length===registryCmdbCollections.length;
- const hostos=registryCmdbCollections.find(c=>c.id==='HOSTOS');
- const map=[['Host','name','Galaxy','HOSTOS','name'],['Host','fqdn','Galaxy','HOSTOS','fqdn'],['Host','ip','Galaxy','HOSTOS','ip'],['Host','environment','Galaxy','HOSTOS','hostcienvtype'],['Host','owner','Galaxy','HOSTOS','owner'],['Host','informationSystemId','Galaxy','HOSTOS','itsysrisid']];
- return`<div class="info"><b>Выбор коллекций Galaxy / CMDB.</b> Администратор выбирает, какие предоставляемые внешним источником коллекции MARS должен регулярно получать и синхронизировать. Выбор коллекции сам по себе ещё не определяет тип объекта MARS — соответствие типов и атрибутов задаётся mapping.</div>
+ const type=registryMappingEditor.type;
+ const allowedCollections=registryAllowedCollectionsForType(type);
+ if(allowedCollections.length&&!allowedCollections.some(c=>c.id===registryMappingEditor.collection))registryMappingEditor.collection=allowedCollections[0].id;
+ const collection=registryMappingEditor.collection;
+ const mapping=registryEnsureMapping(type,collection);
+ const attrs=(objectTypes[type]||[]).filter(a=>a.id!=='name');
+ const mappedCount=mapping?Object.keys(mapping.attrs||{}).filter(a=>mapping.attrs[a]).length:0;
+ return`<div class="info"><b>Выбор коллекций Galaxy / CMDB.</b> Администратор выбирает, какие предоставляемые внешним источником коллекции MARS должен регулярно получать и синхронизировать. Выбор коллекции сам по себе не определяет тип объекта MARS — соответствие типов и атрибутов задаётся ниже в mapping.</div>
  <div class="toolbar">
-   <div>
-     <div><b>Источник:</b> ${esc(registryCmdbSource.name)}</div>
-     <div class="hint">Доступно коллекций: ${registryCmdbCollections.length} · выбрано для синхронизации: <b>${selected.length}</b></div>
-   </div>
-   <div class="actions">
-     <label class="badge" style="padding:7px 10px;cursor:pointer"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllRegistryCmdbCollections(this.checked)"> Выбрать все</label>
-     <button class="sm outline" onclick="syncRegistryCmdbCollections()" ${selected.length?'':'disabled'}>🔄 Синхронизировать выбранные</button>
-   </div>
+   <div><div><b>Источник:</b> ${esc(registryCmdbSource.name)}</div><div class="hint">Доступно коллекций: ${registryCmdbCollections.length} · выбрано для синхронизации: <b>${selected.length}</b></div></div>
+   <div class="actions"><label class="badge" style="padding:7px 10px;cursor:pointer"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllRegistryCmdbCollections(this.checked)"> Выбрать все</label><button class="sm outline" onclick="syncRegistryCmdbCollections()" ${selected.length?'':'disabled'}>🔄 Синхронизировать выбранные</button></div>
  </div>
  <div class="table-wrap"><table><thead><tr><th style="width:52px">Синхр.</th><th>Коллекция Galaxy / CMDB</th><th>Описание</th><th>Объектов доступно</th><th>Состояние</th><th>Последняя синхронизация</th></tr></thead><tbody>
- ${registryCmdbCollections.map(c=>`<tr>
-   <td><input class="checkbox" type="checkbox" ${c.selected?'checked':''} onchange="toggleRegistryCmdbCollection(${q(c.id)},this.checked)"></td>
-   <td><div class="cell-title">${esc(c.name)}</div><div class="cell-sub mono">${esc(c.id)}</div></td>
-   <td>${esc(c.description)}</td>
-   <td><b>${c.available.toLocaleString('ru-RU')}</b></td>
-   <td>${registryCmdbCollectionStatus(c)}</td>
-   <td>${esc(c.lastSync)}</td>
- </tr>`).join('')}
+ ${registryCmdbCollections.map(c=>`<tr><td><input class="checkbox" type="checkbox" ${c.selected?'checked':''} onchange="toggleRegistryCmdbCollection(${q(c.id)},this.checked)"></td><td><div class="cell-title">${esc(c.name)}</div><div class="cell-sub mono">${esc(c.id)}</div></td><td>${esc(c.description)}</td><td><b>${c.available.toLocaleString('ru-RU')}</b></td><td>${registryCmdbCollectionStatus(c)}</td><td>${esc(c.lastSync)}</td></tr>`).join('')}
  </tbody></table></div>
+ <div class="content"><div class="box blue-box"><b>Текущий scope для Host:</b> тип <span class="mono">Host</span> может получать внешние значения только из <span class="mono">Galaxy/HOSTOS</span>. UABD/USP и другие коллекции не используются для наполнения Host. При этом они могут синхронизироваться для других типов объектов и будущих связей.</div></div>
+ <div class="toolbar"><div><b>Mapping атрибутов MARS</b><div class="hint">Выберите тип объекта MARS и синхронизируемую коллекцию, затем сопоставьте внутренние атрибуты с полями внешнего источника.</div></div><div class="actions"><span class="muted">Замаплено атрибутов: <b>${mappedCount}</b> / ${attrs.length}</span></div></div>
  <div class="content">
-   <div class="box blue-box"><b>Текущий scope для Host:</b> внешние значения типа <span class="mono">Host</span> берём только из коллекции <span class="mono">HOSTOS</span>. UABD/USP и другие коллекции не используются для наполнения Host. Они могут быть выбраны для синхронизации как источник будущих типов объектов и связей.</div>
- </div>
- <div class="toolbar"><div><b>Mapping атрибутов MARS</b><div class="hint">${hostos?.selected?'HOSTOS выбран для синхронизации — mapping активен.':'HOSTOS не выбран — его mapping не будет участвовать в синхронизации.'}</div></div></div>
- ${hostos?.selected?`<div class="table-wrap"><table><thead><tr><th>Тип MARS</th><th>Атрибут MARS</th><th>Источник</th><th>Коллекция</th><th>Поле</th></tr></thead><tbody>${map.map(m=>`<tr><td><span class="badge b-blue">${m[0]}</span></td><td><b>${m[1]}</b></td><td>${m[2]}</td><td><span class="badge b-violet">${m[3]}</span></td><td class="mono">${m[4]}</td></tr>`).join('')}</tbody></table></div>`:`<div class="empty">Выберите HOSTOS выше, чтобы использовать настроенный mapping для типа Host.</div>`}`
+   <div class="row">
+     <div class="field"><label>Тип объекта MARS</label><select class="wide" onchange="setRegistryMappingType(this.value)">${Object.keys(objectTypes).map(t=>`<option value="${esc(t)}" ${t===type?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+     <div class="field"><label>Коллекция Galaxy / CMDB</label><select class="wide" onchange="setRegistryMappingCollection(this.value)" ${allowedCollections.length?'':'disabled'}>${allowedCollections.length?allowedCollections.map(c=>`<option value="${esc(c.id)}" ${c.id===collection?'selected':''}>${esc(c.name)}</option>`).join(''):'<option>Нет доступных выбранных коллекций</option>'}</select><div class="hint">${type==='Host'?'Для Host в текущем scope доступна только HOSTOS.':'Показываются только коллекции, отмеченные выше для синхронизации.'}</div></div>
+   </div>
+   ${!collection||!mapping?`<div class="empty">Выберите подходящую коллекцию выше, чтобы настроить mapping.</div>`:`
+   <div class="box"><b>Создание и идентификация объекта</b><div class="hint">Эти поля используются не как обычные атрибуты, а для создания объекта MARS и устойчивой привязки внешней записи к <span class="mono">object_id</span>.</div>
+     <div class="row" style="margin-top:12px">
+       <div class="field"><label>Имя объекта MARS *</label><select class="wide mono" onchange="setRegistryMappingIdentity('objectNameField',this.value)">${registryMappingFieldOptions(collection,mapping.objectNameField,true)}</select><div class="hint">${esc(type)}.name ← ${esc(collection)}.${esc(mapping.objectNameField||'—')}</div></div>
+       <div class="field"><label>External ID *</label><select class="wide mono" onchange="setRegistryMappingIdentity('externalIdField',this.value)">${registryMappingFieldOptions(collection,mapping.externalIdField,true)}</select><div class="hint">После первой привязки: External ID → постоянный MARS object_id.</div></div>
+     </div>
+   </div>
+   <div class="box" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><b>Атрибуты объекта ${esc(type)}</b><div class="hint">Строки формируются из атрибутов типа MARS. Чтобы добавить новый атрибут, сначала добавьте его во вкладке «Типы объектов».</div></div><span class="badge b-blue">${esc(collection)}</span></div></div>
+   <div class="table-wrap"><table><thead><tr><th>Атрибут MARS</th><th>Поле ${esc(collection)}</th><th>Результат</th></tr></thead><tbody>
+     ${attrs.map(a=>{const field=mapping.attrs?.[a.id]||'';return`<tr><td><div class="cell-title">${esc(a.label)}</div><div class="cell-sub mono">${esc(type)}.${esc(a.id)}</div></td><td><select class="wide mono" onchange="setRegistryMappingAttribute(${q(a.id)},this.value)">${registryMappingFieldOptions(collection,field,false)}</select></td><td>${field?`<span class="mono">${esc(type)}.${esc(a.id)}</span> ← <span class="badge b-violet">${esc(collection)}.${esc(field)}</span>`:`<span class="badge">Не синхронизируется</span><div class="cell-sub">Атрибут остаётся доступен для Manual-значения.</div>`}</td></tr>`}).join('')}
+   </tbody></table></div>
+   <div class="toolbar" style="margin:14px -18px -16px;border-top:1px solid var(--line);border-bottom:0"><div class="hint">Последнее сохранение mapping: <b>${esc(mapping.updatedAt||'—')}</b></div><div class="actions"><button onclick="saveRegistryMapping()">Сохранить mapping</button></div></div>
+   `}
+ </div>`
 }
 function renderRelationTypeSettings(){return`<div class="toolbar"><span class="muted">Системные + пользовательские типы</span><button onclick="openRelationTypeCreate()">➕ Добавить тип связи</button></div><div class="content">${relationTypes.map(t=>`<div class="card"><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${t.name}</div><div class="meta">Обратное название: <b>${t.reverse}</b></div><div class="pill-row"><span class="badge ${t.system?'b-violet':'b-blue'}">${t.system?'Системный':'Пользовательский'}</span><span class="badge ${t.active?'b-green':'b-amber'}">${t.active?'Активен':'Выключен'}</span></div></div></div></div>`).join('')}</div>`}
 function openRelationTypeCreate(){openModal('Добавить тип связи','Тип выбирается правилами из справочника.',`<div class="row"><div class="field"><label>Прямое название *</label><input id="rt-name" class="wide" placeholder="Например: Резервирует"></div><div class="field"><label>Обратное название *</label><input id="rt-rev" class="wide" placeholder="Например: Резервируется"></div></div><div class="box blue-box">Database <b>размещена на</b> Host<br>Host <b>размещает</b> Database</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType()">Добавить</button>`,true)}
