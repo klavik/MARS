@@ -1,1345 +1,314 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infrastructure Monitoring System</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* Login Screen */
-        .login-screen {
-            background: white;
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 500px;
-            margin: 100px auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .login-screen h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
-
-        .login-screen p {
-            color: #666;
-            margin-bottom: 30px;
-        }
-
-        .user-select {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .user-btn {
-            padding: 15px 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: left;
-            font-size: 16px;
-        }
-
-        .user-btn:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-            transform: translateX(5px);
-        }
-
-        .user-btn .role {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .role-admin {
-            background: #ffe0e0;
-            color: #d32f2f;
-        }
-
-        .role-user {
-            background: #e0f2ff;
-            color: #1976d2;
-        }
-
-        /* Dashboard */
-        .dashboard {
-            display: none;
-        }
-
-        .dashboard.active {
-            display: block;
-        }
-
-        .header {
-            background: white;
-            border-radius: 16px;
-            padding: 20px 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 24px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-info span {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            background: #f5f5f5;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #e0e0e0;
-        }
-
-        .controls {
-            background: white;
-            border-radius: 16px;
-            padding: 20px 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .filter-select {
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            background: white;
-        }
-
-        .add-btn {
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            margin-left: auto;
-        }
-
-        .add-btn:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        .add-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .objects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .object-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-
-        .object-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .object-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: start;
-            margin-bottom: 15px;
-        }
-
-        .object-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .object-type {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-active {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .status-warning {
-            background: #fff3e0;
-            color: #f57c00;
-        }
-
-        .status-error {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .status-archived {
-            background: #f5f5f5;
-            color: #757575;
-        }
-
-        .object-actions {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #f0f0f0;
-            display: flex;
-            gap: 10px;
-        }
-
-        .action-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .archive-btn {
-            background: #f5f5f5;
-            color: #666;
-        }
-
-        .archive-btn:hover {
-            background: #e0e0e0;
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .modal-header h2 {
-            color: #333;
-            font-size: 22px;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 28px;
-            cursor: pointer;
-            color: #999;
-            line-height: 1;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            border-bottom: 2px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px 16px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            color: #666;
-            transition: all 0.3s;
-            border-bottom: 2px solid transparent;
-            margin-bottom: -2px;
-        }
-
-        .tab:hover {
-            color: #667eea;
-        }
-
-        .tab.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .submit-btn:hover {
-            background: #5568d3;
-        }
-
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        /* Catalog */
-        .catalog-list {
-            max-height: 350px;
-            overflow-y: auto;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        .catalog-group {
-            margin-bottom: 15px;
-        }
-
-        .catalog-group-title {
-            font-size: 13px;
-            font-weight: 600;
-            color: #667eea;
-            text-transform: uppercase;
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .catalog-item {
-            display: flex;
-            align-items: center;
-            padding: 8px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .catalog-item:hover {
-            background: #f8f9ff;
-        }
-
-        .catalog-item input[type="checkbox"] {
-            margin-right: 10px;
-            cursor: pointer;
-            width: 16px;
-            height: 16px;
-        }
-
-        .catalog-item-label {
-            flex: 1;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .catalog-item.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .catalog-item.disabled .catalog-item-label {
-            text-decoration: line-through;
-            color: #999;
-        }
-
-        .catalog-select-all {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding: 8px 10px;
-            background: #f8f9ff;
-            border-radius: 6px;
-        }
-
-        .catalog-select-all label {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            cursor: pointer;
-        }
-
-        .catalog-counter {
-            font-size: 13px;
-            color: #667eea;
-            font-weight: 600;
-        }
-
-        /* File Upload */
-        .file-upload-area {
-            border: 2px dashed #e0e0e0;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-        }
-
-        .file-upload-area:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-
-        .file-upload-area.dragover {
-            border-color: #667eea;
-            background: #f0f3ff;
-        }
-
-        .file-upload-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-
-        .file-upload-text {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .file-upload-hint {
-            color: #999;
-            font-size: 12px;
-        }
-
-        .file-info {
-            background: #f8f9ff;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        .file-info.show {
-            display: block;
-        }
-
-        .file-info-name {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .file-info-stats {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .file-format-hint {
-            background: #fff8e1;
-            border-left: 3px solid #ffa726;
-            padding: 12px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            color: #5d4037;
-        }
-
-        .file-format-hint code {
-            background: rgba(0,0,0,0.05);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-        }
-
-        .empty-state h3 {
-            color: #666;
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .empty-state p {
-            color: #999;
-            font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
-
-            .add-btn {
-                margin-left: 0;
-                width: 100%;
-            }
-
-            .objects-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .tab {
-                font-size: 12px;
-                padding: 10px 8px;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MARS — прототип</title>
+<style>
+:root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.product-nav{background:#0f172a;color:#fff;position:sticky;top:0;z-index:40;border-bottom:1px solid #1e293b}.product-nav-inner{max-width:1440px;margin:auto;min-height:52px;padding:0 24px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}.product-brand{font-weight:900}.product-tabs{display:flex;gap:4px;flex-wrap:wrap}.product-tab{padding:9px 12px;border-radius:8px;background:transparent;color:#cbd5e1;border:0;cursor:pointer;font-weight:800}.product-tab:hover{background:#1e293b;color:#fff}.product-tab.active{background:var(--blue);color:#fff}
+.app-section{display:none}.app-section.active{display:block}
+nav.app-nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:52px;z-index:20}.nav{max-width:1440px;margin:auto;padding:0 24px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:900;font-size:20px;white-space:nowrap}.tabs{display:flex;gap:2px;flex-wrap:wrap}.tab{padding:21px 13px 18px;cursor:pointer;font-size:14px;color:var(--muted);border-bottom:3px solid transparent}.tab.active{color:var(--blue);border-color:var(--blue);font-weight:800}.user{display:flex;align-items:center;gap:10px}.avatar{width:33px;height:33px;background:var(--blue);color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:800}
+main{max-width:1440px;margin:auto;padding:24px}.section{display:none}.section.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px}.title{margin:0;font-size:25px;font-weight:900}.sub{color:var(--muted);font-size:14px;margin-top:5px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,23,42,.05);margin-bottom:16px}.info{padding:13px 18px;background:var(--blue50);border-bottom:1px solid #bfdbfe;color:#1e40af;font-size:14px;line-height:1.45}.toolbar{padding:12px 18px;background:var(--slatebg);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.content{padding:16px 18px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--slatebg)}.stat{background:#fff;border:1px solid var(--line);padding:12px;border-radius:11px}.stat label{display:block;color:var(--muted);font-size:12px}.stat b{display:block;font-size:22px;margin-top:4px}
+button{border:0;border-radius:9px;padding:8px 12px;background:var(--blue);color:#fff;font-weight:750;cursor:pointer;font-size:14px}button:hover{background:var(--blue2)}button:disabled{opacity:.45;cursor:not-allowed}.outline{background:#fff;color:var(--slate);border:1px solid #cbd5e1}.outline:hover{background:#f8fafc}.ghost{background:transparent;color:var(--slate)}.ghost:hover{background:#f1f5f9}.danger{background:#dc2626}.danger:hover{background:#b91c1c}.success{background:#16a34a}.xs{font-size:12px;padding:5px 8px}.sm{font-size:13px;padding:7px 10px}
+input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10px;font-size:14px;background:#fff;outline:none}input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}textarea{resize:vertical}.wide{width:100%}.input{width:300px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.muted{color:var(--muted)}.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.field{margin-bottom:14px}.field label{display:block;font-weight:800;font-size:13px;color:var(--slate);margin-bottom:6px}.hint{color:var(--muted);font-size:12px;margin-top:5px;line-height:1.4}
+.badge{display:inline-flex;gap:4px;align-items:center;padding:4px 7px;border-radius:7px;background:#f1f5f9;color:#334155;font-size:12px;font-weight:750;white-space:nowrap}.b-blue{background:#dbeafe;color:#1d4ed8}.b-green{background:var(--greenbg);color:var(--green)}.b-amber{background:var(--amberbg);color:var(--amber)}.b-red{background:var(--redbg);color:var(--red)}.b-violet{background:var(--violetbg);color:var(--violet)}.pill-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.box{padding:13px;border-radius:10px;border:1px solid var(--line);background:#f8fafc;margin:10px 0;line-height:1.45}.blue-box{background:var(--blue50);border-color:#bfdbfe;color:#1e40af}.amber-box{background:#fffbeb;border-color:#fde68a;color:#92400e}.red-box{background:#fef2f2;border-color:#fecaca;color:#b91c1c}.violet-box{background:#faf5ff;border-color:#e9d5ff;color:#6b21a8}
+.host-switch,.inner-tabs{display:flex;gap:6px;padding:12px 18px 0;background:#fff;flex-wrap:wrap}.host-switch button,.inner-tabs button{border-radius:9px 9px 0 0;background:transparent;color:var(--muted);border:1px solid transparent;border-bottom:0}.host-switch button.active,.inner-tabs button.active{background:var(--blue50);border-color:#bfdbfe;color:#1d4ed8;font-weight:850}.table-wrap{overflow:auto;max-height:620px;border-top:1px solid var(--line)}table{border-collapse:collapse;width:100%;min-width:1000px;font-size:13px}th{position:sticky;top:0;background:#f8fafc;border-bottom:1px solid var(--line);text-align:left;padding:10px 12px;color:#475569;font-weight:850;white-space:nowrap;z-index:1}td{padding:10px 12px;border-bottom:1px solid #eef2f7;vertical-align:top}tr.data-row{cursor:pointer}tr.data-row:hover{background:#f8fbff}.cell-title{font-weight:850;color:#0f172a}.cell-sub{font-size:12px;color:var(--muted);margin-top:3px}.empty{padding:36px;text-align:center;color:var(--muted)}.table-footer{padding:11px 18px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;background:#f8fafc}.pagination{display:flex;align-items:center;gap:6px}
+.card{background:#fff;border:1px solid var(--line);border-radius:11px;padding:13px;margin-bottom:10px;display:flex;gap:12px;justify-content:space-between;align-items:flex-start}.card:hover{border-color:#93c5fd}.card-main{display:flex;gap:12px;align-items:flex-start;min-width:0}.icon{font-size:25px;line-height:1}.card-title{font-size:15px;font-weight:900}.meta{margin-top:4px;color:var(--muted);font-size:13px;line-height:1.45}.modal-wrap{position:fixed;inset:0;background:rgba(15,23,42,.62);display:none;align-items:center;justify-content:center;z-index:90;padding:16px;backdrop-filter:blur(3px)}.modal-wrap.show{display:flex}.modal{width:100%;max-width:940px;max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.32)}.modal.small{max-width:600px}.modal-head,.modal-foot{background:#f8fafc;padding:15px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.modal-foot{border-top:1px solid var(--line);border-bottom:0}.modal-title{font-size:18px;font-weight:900}.modal-sub{font-size:13px;color:var(--muted);margin-top:3px}.modal-body{padding:18px;overflow:auto}.toast{position:fixed;right:18px;bottom:18px;background:#0f172a;color:#fff;padding:12px 16px;border-radius:10px;z-index:110;opacity:0;transform:translateY(50px);transition:.22s}.toast.show{opacity:1;transform:none}.checkbox{width:17px;height:17px;accent-color:var(--blue)}.service-picker{max-height:300px;overflow:auto}.separator{height:1px;background:var(--line);margin:14px 0}
+.rule-flow{display:grid;grid-template-columns:1fr 120px 1fr;gap:14px;align-items:end}.rule-preview{margin-top:14px;padding:16px;border:1px dashed #bfdbfe;border-radius:11px;background:var(--blue50);text-align:center}.rule-preview-line{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;font-weight:850}.rule-node{background:#fff;border:1px solid #bfdbfe;border-radius:9px;padding:8px 11px;color:#1e3a8a}.rule-arrow{color:var(--blue);font-weight:900}.rule-code{margin-top:8px;color:#475569;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px}.grid3cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+
+/* UX реестра объектов мониторинга — не влияет на механику постановки на мониторинг */
+.registry-filters{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.registry-filters select{min-width:150px}.registry-object-name{font-size:14px;font-weight:900}.registry-object-sub{font-size:12px;color:var(--muted);margin-top:3px}.registry-card-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--line)}.registry-card-tabs button{background:transparent;color:var(--muted);border-radius:0;padding:9px 11px;border-bottom:3px solid transparent}.registry-card-tabs button:hover{background:#f8fafc}.registry-card-tabs button.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:850;background:transparent}.registry-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.registry-summary .box{margin:0}.registry-relation{cursor:pointer}.registry-relation:hover{border-color:#60a5fa;background:#f8fbff}.registry-source-row{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid #eef2f7}.registry-source-row:last-child{border-bottom:0}.registry-attr-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}.admin-object-toolbar{display:flex;gap:8px;justify-content:space-between;align-items:center;flex-wrap:wrap}.admin-object-list{max-height:560px;overflow:auto}.effective-main{font-weight:900}.effective-note{font-size:12px;color:var(--muted);margin-top:3px}.override-value{display:inline-flex;gap:6px;align-items:center}.readonly-note{padding:10px 12px;border-radius:9px;background:#f8fafc;color:#475569;font-size:12px;border:1px solid var(--line)}
+@media(max-width:900px){.registry-summary{grid-template-columns:1fr}.registry-source-row{grid-template-columns:1fr}}
+
+@media(max-width:900px){main{padding:14px}.row,.row3,.stats,.rule-flow,.grid3cards{grid-template-columns:1fr}.input{width:100%}.nav,.product-nav-inner{padding:0 14px}.tab{padding:10px}.page-head{gap:10px}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <!-- Login Screen -->
-        <div class="login-screen" id="loginScreen">
-            <h1>Infrastructure Monitoring</h1>
-            <p>Выберите пользователя для входа в систему</p>
-            <div class="user-select">
-                <button class="user-btn" onclick="login('admin_user')">
-                    👤 admin_user
-                    <span class="role role-admin">Администратор</span>
-                </button>
-                <button class="user-btn" onclick="login('regular_user')">
-                    👤 regular_user
-                    <span class="role role-user">Пользователь</span>
-                </button>
-            </div>
-        </div>
+<div class="product-nav"><div class="product-nav-inner"><div class="product-brand">🖥️ MARS</div><div class="product-tabs"><button class="product-tab active" data-product="monitoring">Постановка на мониторинг</button><button class="product-tab" data-product="registry">Реестр объектов мониторинга</button><button class="product-tab" data-product="admin">⚙️ Администрирование</button></div></div></div>
 
-        <!-- Dashboard -->
-        <div class="dashboard" id="dashboard">
-            <div class="header">
-                <h1>📊 Мониторинг инфраструктуры</h1>
-                <div class="user-info">
-                    <span id="currentUserDisplay"></span>
-                    <button class="logout-btn" onclick="logout()">Выйти</button>
-                </div>
-            </div>
+<!-- 1. Постановка на мониторинг. Механика из исходного макета сохранена отдельным state/набором функций. -->
+<div id="product-monitoring" class="app-section active">
+<nav class="app-nav"><div class="nav"><div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap"><div class="brand">Постановка на мониторинг</div><div class="tabs"><div id="nav-hosts" class="tab active" onclick="switchSection('hosts')">Хосты</div><div id="nav-services" class="tab" onclick="switchSection('services')">🔌 Сервисы</div><div id="nav-templates" class="tab" onclick="switchSection('templates')">🧩 Шаблоны</div><div id="nav-collections" class="tab" onclick="switchSection('collections')">📦 Коллекции</div><div id="nav-access" class="tab" onclick="switchSection('access')">👥 Доступ</div></div></div><div class="user"><select id="current-user" onchange="switchUser(this.value)"></select><div id="avatar" class="avatar">AI</div></div></div></nav>
+<main><section id="section-hosts" class="section active"></section><section id="section-services" class="section"></section><section id="section-templates" class="section"></section><section id="section-collections" class="section"></section><section id="section-access" class="section"></section></main>
+</div>
 
-            <div class="controls">
-                <select class="filter-select" id="typeFilter" onchange="renderObjects()">
-                    <option value="">Все типы</option>
-                </select>
-                <select class="filter-select" id="statusFilter" onchange="renderObjects()">
-                    <option value="">Все статусы</option>
-                    <option value="Active">Активные</option>
-                    <option value="Warning">Предупреждение</option>
-                    <option value="Error">Ошибка</option>
-                    <option value="Archived">Архив</option>
-                </select>
-                <button class="add-btn" id="addBtn" onclick="openModal()">+ Добавить объект</button>
-            </div>
+<!-- 2. Реестр объектов мониторинга -->
+<div id="product-registry" class="app-section"><main id="registry-main"></main></div>
+<!-- 3. Администрирование -->
+<div id="product-admin" class="app-section"><main id="admin-main"></main></div>
 
-            <div class="objects-grid" id="objectsGrid"></div>
-        </div>
-    </div>
+<div id="modal-wrap" class="modal-wrap"><div id="modal" class="modal"><div class="modal-head"><div><div id="modal-title" class="modal-title"></div><div id="modal-sub" class="modal-sub"></div></div><button class="ghost" onclick="closeModal()">✕</button></div><div id="modal-body" class="modal-body"></div><div id="modal-foot" class="modal-foot"></div></div></div>
+<div id="toast" class="toast"></div>
+<script>
+const STORE_KEY='mars-ui-nonunique-hosts-v3';
+let state=demoState();
+let activeSection='hosts',hostView='connected',showHostsWithoutServices=false;
+let selectedHostIds=new Set(),attachServiceIds=new Set(),attachHostId=null,bulkAttachServiceIds=new Set(),collectionServicePickerIds=new Set();
+let hostDraft={mode:'manual',catalogId:'',selectedServiceIds:[],editingId:null,ownerGroupId:'',cloneFromId:null};
+let collectionDraft={id:null,name:'',description:'',ownerGroupId:'',serviceIds:[],originalServiceIds:[]};
+const $=id=>document.getElementById(id);const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));const q=v=>"'"+String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";const uid=p=>p+'-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);const now=()=>new Date().toLocaleString('ru-RU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+function toast(msg){const e=$('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2400)}
+function openModal(title,sub,body,foot,small=false){$('modal-title').textContent=title;$('modal-sub').textContent=sub||'';$('modal-body').innerHTML=body;$('modal-foot').innerHTML=foot||'<button onclick="closeModal()">Закрыть</button>';$('modal').classList.toggle('small',small);$('modal-wrap').classList.add('show')}
+function closeModal(){$('modal-wrap').classList.remove('show');$('modal').classList.remove('small')}
+function confirmModal(title,msg,action,args=''){openModal(title,'Подтвердите действие',`<div class="box red-box">${msg}</div>`,`<button class="outline" onclick="closeModal()">Отмена</button><button class="danger" onclick="${action}(${args});closeModal()">Удалить</button>`,true)}
+function demoState(){return {currentUserId:'u-alice',users:[{id:'u-admin',name:'MARS Admin',initials:'MA',isAdmin:true,groups:['g-linux','g-postgres','g-app'],permissions:{'g-linux':['monitoring.manage'],'g-postgres':['monitoring.manage'],'g-app':['monitoring.manage']}},{id:'u-alice',name:'Alice Infra',initials:'AI',isAdmin:false,groups:['g-linux'],permissions:{'g-linux':['monitoring.manage']}},{id:'u-dmitry',name:'Dmitry Infra',initials:'DI',isAdmin:false,groups:['g-linux'],permissions:{'g-linux':['monitoring.manage']}},{id:'u-bob',name:'Bob DB',initials:'BD',isAdmin:false,groups:['g-postgres'],permissions:{'g-postgres':['monitoring.manage']}},{id:'u-eve',name:'Eve ReadOnly',initials:'ER',isAdmin:false,groups:['g-app'],permissions:{}}],groups:[{id:'g-linux',name:'Администраторы Linux'},{id:'g-postgres',name:'Администраторы PostgreSQL'},{id:'g-app',name:'Администраторы приложений'}],proxyGroups:[{id:'prod-dmz',name:'Production DMZ'},{id:'analytics',name:'Analytics'},{id:'k8s',name:'K8s Cluster'}],catalogSources:[{id:'cmdb-main',name:'CMDB Main'}],catalogHosts:[{sourceId:'cmdb-main',externalId:'srv-1001',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',environment:'prod',os:'Ubuntu 22.04'},{sourceId:'cmdb-main',externalId:'srv-1002',name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',environment:'prod',os:'PostgreSQL Appliance'},{sourceId:'cmdb-main',externalId:'srv-1003',name:'cache-01',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',environment:'stage',os:'Debian 12'},{sourceId:'cmdb-main',externalId:'srv-1004',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',environment:'prod',os:'Talos Linux'}],hosts:[{id:'H-01JQ7K8P4F',name:'db-analytics',addressType:'fqdn',address:'db-analytics.internal.example.com',proxyGroup:'analytics',status:'UP',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1002',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,collectionLinks:[{collectionId:'col-data',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'30.06.2026, 10:25'}],attachments:[{id:'att-1',serviceId:'svc-pg',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'30.06.2026, 10:20',portOverride:null,direct:true,collectionIds:['col-data']},{id:'att-1r',serviceId:'svc-redis',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'30.06.2026, 10:25',portOverride:null,direct:false,collectionIds:['col-data']}]},{id:'H-01JQ7K8P5A',name:'web-prod-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1001',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,collectionLinks:[{collectionId:'col-web',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 10:24'}],attachments:[{id:'att-2',serviceId:'svc-nginx',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 10:22',portOverride:null,direct:true,collectionIds:['col-web']},{id:'att-2n',serviceId:'svc-node',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 10:24',portOverride:null,direct:false,collectionIds:['col-web']}]},{id:'H-01JQ7K8P6B',name:'cache-01',addressType:'ip',address:'192.168.1.10',proxyGroup:'k8s',status:'UP',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1003',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,collectionLinks:[],attachments:[]},{id:'H-01JQ7K8P7C',name:'app-k8s-node-07',addressType:'fqdn',address:'node-07.k8s.internal.example.com',proxyGroup:'k8s',status:'WARN',sourceType:'catalog',createdBy:'u-admin',createdAt:'30.06.2026, 10:10',catalogBinding:{sourceId:'cmdb-main',externalId:'srv-1004',lastSyncAt:'30.06.2026, 10:10',syncStatus:'synced'},prefilledFromCatalog:null,collectionLinks:[],attachments:[]},{id:'H-01JQ7K8P8D',name:'prod-db-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'manual',ownerGroupId:'g-postgres',createdBy:'u-bob',createdAt:'30.06.2026, 11:05',catalogBinding:null,prefilledFromCatalog:null,collectionLinks:[],attachments:[{id:'att-3',serviceId:'svc-pg',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'30.06.2026, 11:05',portOverride:5433,direct:true,collectionIds:[]},{id:'att-3b',serviceId:'svc-node',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 11:12',portOverride:null,direct:true,collectionIds:[]}]},{id:'H-01JQ7K8P9E',name:'prod-db-01',addressType:'ip',address:'10.0.1.50',proxyGroup:'prod-dmz',status:'UP',sourceType:'manual',ownerGroupId:'g-linux',createdBy:'u-alice',createdAt:'30.06.2026, 11:15',catalogBinding:null,prefilledFromCatalog:null,collectionLinks:[],attachments:[{id:'att-4',serviceId:'svc-node',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 11:15',portOverride:null,direct:true,collectionIds:[]}]},{id:'H-01JQ7K8Q0F',name:'legacy-api',addressType:'fqdn',address:'api-01.manual.internal.example.com',proxyGroup:'prod-dmz',status:'WARN',sourceType:'manual-prefill',ownerGroupId:'g-linux',createdBy:'u-alice',createdAt:'30.06.2026, 11:25',catalogBinding:null,prefilledFromCatalog:{sourceId:'cmdb-main',externalId:'srv-1001',copiedAt:'30.06.2026, 11:25'},collectionLinks:[],attachments:[{id:'att-5',serviceId:'svc-nginx',attachedByGroupId:'g-linux',attachedByUserId:'u-alice',attachedAt:'30.06.2026, 11:25',portOverride:8443,direct:true,collectionIds:[]}]},{id:'H-01JQ7K8Q1G',name:'old-linux-target',addressType:'ip',address:'10.0.9.77',proxyGroup:'prod-dmz',status:'UP',sourceType:'manual',ownerGroupId:'g-linux',createdBy:'u-alice',createdAt:'25.06.2026, 15:10',catalogBinding:null,prefilledFromCatalog:null,collectionLinks:[],attachments:[{id:'att-6',serviceId:'svc-pg',attachedByGroupId:'g-postgres',attachedByUserId:'u-bob',attachedAt:'27.06.2026, 12:00',portOverride:null,direct:true,collectionIds:[]}]}],services:[{id:'svc-pg',name:'PostgreSQL',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',ownerGroupId:'g-postgres',authMode:'basic',protocol:'http',createdBy:'u-bob'},{id:'svc-nginx',name:'Nginx HTTPS',type:'ExporterScrape',icon:'🌐',defaultPort:443,metrics:'/nginx_metrics',ownerGroupId:'g-linux',authMode:'none',protocol:'https',createdBy:'u-alice'},{id:'svc-node',name:'Node Exporter',type:'ExporterScrape',icon:'🖥️',defaultPort:9100,metrics:'/metrics',ownerGroupId:'g-linux',authMode:'none',protocol:'http',createdBy:'u-alice'},{id:'svc-redis',name:'Redis Cache',type:'ExporterScrape',icon:'🔴',defaultPort:6379,metrics:'/metrics',ownerGroupId:'g-postgres',authMode:'bearer',protocol:'http',createdBy:'u-bob'}],templates:[{id:'tpl-nginx',name:'Шаблон «Nginx Standard»',type:'ExporterScrape',icon:'🌐',defaultPort:80,metrics:'/metrics',protocol:'http',ownerGroupId:'g-linux',createdBy:'u-alice'},{id:'tpl-pg',name:'Шаблон «PostgreSQL Advanced»',type:'SQL',icon:'🐘',defaultPort:5432,metrics:'/metrics',protocol:'http',ownerGroupId:'g-postgres',createdBy:'u-bob'}],collections:[{id:'col-web',name:'Linux Standard',description:'Базовый набор для Linux-хостов',ownerGroupId:'g-linux',createdBy:'u-alice',serviceIds:['svc-nginx','svc-node']},{id:'col-data',name:'PostgreSQL Standard',description:'Набор сервисов для PostgreSQL-хостов',ownerGroupId:'g-postgres',createdBy:'u-bob',serviceIds:['svc-pg','svc-redis']}]}}
+function normalizeState(s){const d=demoState(),n={...d,...s};n.users=n.users||d.users;n.groups=n.groups||d.groups;n.proxyGroups=n.proxyGroups||d.proxyGroups;n.catalogHosts=n.catalogHosts||d.catalogHosts;n.catalogSources=n.catalogSources||d.catalogSources;n.services=n.services||d.services;n.templates=n.templates||d.templates;n.collections=(n.collections||d.collections).map(c=>({...c,serviceIds:(c.serviceIds||[]).filter(id=>n.services.some(s=>s.id===id))}));n.hosts=(n.hosts||d.hosts).map(h=>({...h,collectionLinks:h.collectionLinks||[],attachments:(h.attachments||[]).map(a=>({...a,direct:a.direct===undefined?true:!!a.direct,collectionIds:a.collectionIds||[]}))}));if(!n.users.some(u=>u.id===n.currentUserId))n.currentUserId=n.users[0].id;return reconcileCollections(n)}
+function reconcileCollections(n){n.hosts.forEach(h=>{const linked=new Set((h.collectionLinks||[]).map(l=>l.collectionId));h.attachments=(h.attachments||[]).map(a=>({...a,collectionIds:(a.collectionIds||[]).filter(cid=>linked.has(cid)&&n.collections.some(c=>c.id===cid))}));(h.collectionLinks||[]).forEach(link=>{const c=n.collections.find(x=>x.id===link.collectionId);if(!c)return;c.serviceIds.forEach(sid=>{let a=h.attachments.find(x=>x.serviceId===sid&&x.attachedByGroupId===c.ownerGroupId);if(a){if(!a.collectionIds.includes(c.id))a.collectionIds.push(c.id)}else h.attachments.push({id:uid('att'),serviceId:sid,attachedByGroupId:c.ownerGroupId,attachedByUserId:link.attachedByUserId,attachedAt:link.attachedAt||now(),portOverride:null,direct:false,collectionIds:[c.id]})})});h.attachments=h.attachments.filter(a=>a.direct||(a.collectionIds||[]).length)});return n}
+function loadState(){try{state=localStorage.getItem(STORE_KEY)?normalizeState(JSON.parse(localStorage.getItem(STORE_KEY))):demoState()}catch(e){state=demoState()}saveState()}function saveState(){localStorage.setItem(STORE_KEY,JSON.stringify(state))}function resetDemo(){localStorage.removeItem(STORE_KEY);state=normalizeState(demoState());selectedHostIds.clear();showHostsWithoutServices=false;saveState();renderAll();toast('Демо-данные сброшены')}
+function currentUser(){return state.users.find(u=>u.id===state.currentUserId)||state.users[0]}function userById(id){return state.users.find(u=>u.id===id)}function groupById(id){return state.groups.find(g=>g.id===id)}function serviceById(id){return state.services.find(s=>s.id===id)}function templateById(id){return state.templates.find(t=>t.id===id)}function collectionById(id){return state.collections.find(c=>c.id===id)}function isAdmin(){return !!currentUser().isAdmin}function userGroupIds(){return new Set(currentUser().groups||[])}function hasMonitoringPermission(gid){return isAdmin()||!!currentUser().permissions?.[gid]?.includes('monitoring.manage')}function canManageService(s){return !!s&&hasMonitoringPermission(s.ownerGroupId)}function canManageTemplate(t){return !!t&&hasMonitoringPermission(t.ownerGroupId)}function canManageCollection(c){return !!c&&hasMonitoringPermission(c.ownerGroupId)}function visibleCollections(){return isAdmin()?state.collections:state.collections.filter(c=>userGroupIds().has(c.ownerGroupId))}function canAttachService(s){return canManageService(s)}function canDetach(a){return !!a&&hasMonitoringPermission(a.attachedByGroupId)}function isManualHost(h){return !!h&&h.sourceType!=='catalog'}function isCreatorGroupUser(h){return !!h?.ownerGroupId&&(isAdmin()||(userGroupIds().has(h.ownerGroupId)&&hasMonitoringPermission(h.ownerGroupId)))}function canEditHost(h){return !!h&&isManualHost(h)&&(isAdmin()||isCreatorGroupUser(h))}function canCloneHost(h){return canEditHost(h)}function canDeleteHost(h){return !!h&&(isAdmin()||(isManualHost(h)&&isCreatorGroupUser(h)&&h.attachments.length===0))}function hostDeleteReason(h){if(!h)return'Хост не найден';if(isAdmin())return'';if(!isManualHost(h))return'Хосты из справочника обычный пользователь удалить не может.';if(!isCreatorGroupUser(h))return'Удалить ручной хост могут создатель и его одногрупники с permission «Постановка на мониторинг».';if(h.attachments.length)return`Сначала отсоедините все сервисы. На хосте осталось подключений: ${h.attachments.length}.`;return''}
+function sourceLabel(h){return h.sourceType==='catalog'?'Справочник':h.sourceType==='manual-prefill'?'Ручной · prefill':'Ручной'}function sourceBadge(h){return h.sourceType==='catalog'?'<span class="badge b-violet">📚 Справочник</span>':h.sourceType==='manual-prefill'?'<span class="badge b-amber">📋 Ручной · prefill</span>':'<span class="badge b-blue">✍️ Ручной</span>'}function addressBadge(h){return h.addressType==='fqdn'?'<span class="badge b-green">FQDN</span>':'<span class="badge b-blue">IP</span>'}function proxyName(id){return state.proxyGroups.find(x=>x.id===id)?.name||id}function findAttachment(h,sid,gid){return(h.attachments||[]).find(a=>a.serviceId===sid&&a.attachedByGroupId===gid)}function hasDirectService(h,sid,gid){return !!findAttachment(h,sid,gid)?.direct}function ownAttachments(h){return(h.attachments||[]).filter(a=>isAdmin()||userGroupIds().has(a.attachedByGroupId))}function isOwnedForUser(h){return isManualHost(h)&&h.ownerGroupId&&(isAdmin()||userGroupIds().has(h.ownerGroupId))}function visibleHostCollections(h){return(h.collectionLinks||[]).filter(l=>isAdmin()||userGroupIds().has(l.attachedByGroupId)).map(l=>collectionById(l.collectionId)).filter(Boolean)}
+function switchSection(sec){activeSection=sec;document.querySelectorAll('#product-monitoring .section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('#product-monitoring .tab').forEach(s=>s.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}function switchUser(id){state.currentUserId=id;selectedHostIds.clear();saveState();renderAll()}function renderAll(){renderUserSwitcher();renderHosts();renderServices();renderTemplates();renderCollections();renderAccess()}function renderUserSwitcher(){$('current-user').innerHTML=state.users.map(u=>`<option value="${esc(u.id)}" ${u.id===state.currentUserId?'selected':''}>${esc(u.name)}${u.isAdmin?' · admin':''}</option>`).join('');$('avatar').textContent=currentUser().initials||'U'}function page(sec,title,sub,actions,body){$('section-'+sec).innerHTML=`<div class="page-head"><div><h1 class="title">${title}</h1><div class="sub">${sub||''}</div></div><div class="actions">${actions||''}</div></div>${body}`}
+function connectedHosts(){return state.hosts.filter(h=>ownAttachments(h).length||(isOwnedForUser(h)&&h.attachments.length)||(showHostsWithoutServices&&isOwnedForUser(h)&&!h.attachments.length))}function catalogHosts(){return state.hosts.filter(h=>h.sourceType==='catalog')}
+function renderHosts(){const arr=hostView==='catalog'?catalogHosts():connectedHosts();const without=state.hosts.filter(h=>isOwnedForUser(h)&&!h.attachments.length).length;const canCreate=isAdmin()||[...userGroupIds()].some(hasMonitoringPermission);page('hosts',hostView==='catalog'?'Хосты из справочника':'Подключённые хосты',hostView==='catalog'?'Синхронизируемые хосты внешнего справочника.':'Хосты с мониторингом ваших групп и ручные Host вашей группы.',`<button class="outline" onclick="resetDemo()">↺ Сбросить демо</button>`,`<div class="panel"><div class="host-switch"><button class="${hostView==='connected'?'active':''}" onclick="hostView='connected';renderHosts()">🔗 Подключённые хосты</button><button class="${hostView==='catalog'?'active':''}" onclick="hostView='catalog';renderHosts()">📚 Хосты из справочника</button></div><div class="info">${hostView==='connected'?'<b>Механика сохранена:</b> ручной Host может существовать без сервисов; коллекции являются desired-state и не создают дублей Host-Service.':'<b>Каталог:</b> поля справочных Host обновляются синхронизацией.'}</div><div class="toolbar"><div class="actions">${hostView==='connected'?`<label class="badge ${showHostsWithoutServices?'b-amber':''}" style="cursor:pointer"><input class="checkbox" type="checkbox" ${showHostsWithoutServices?'checked':''} onchange="showHostsWithoutServices=this.checked;renderHosts()"> Показывать хосты без сервисов${without?` · ${without}`:''}</label>`:''}</div><div class="actions">${selectedHostIds.size?`<span class="muted">Выбрано: <b>${selectedHostIds.size}</b></span><button class="sm outline" onclick="openBulkAttachModal()">＋ Сервис</button><button class="sm outline" onclick="openBulkCollectionModal()">📦 Коллекция</button>`:''}${hostView==='connected'?`<button ${canCreate?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`:'<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать</button>'}</div></div>${renderHostTable(arr)}</div>`) }
+function renderHostTable(arr){return`<div class="table-wrap"><table><thead><tr><th></th><th>Host ID</th><th>Имя</th><th>IP / FQDN</th><th>Источник</th><th>CMDB / External ID</th><th>Группа прокси</th><th>Коллекции</th><th>Сервисы моих групп</th><th>Действия</th></tr></thead><tbody>${arr.length?arr.map(h=>`<tr class="data-row" onclick="openHostDetails(${q(h.id)})"><td onclick="event.stopPropagation()"><input class="checkbox" type="checkbox" ${selectedHostIds.has(h.id)?'checked':''} onchange="this.checked?selectedHostIds.add(${q(h.id)}):selectedHostIds.delete(${q(h.id)});renderHosts()"></td><td class="mono"><b>${esc(h.id)}</b></td><td><b>${esc(h.name)}</b></td><td>${addressBadge(h)} <span class="mono">${esc(h.address)}</span></td><td>${sourceBadge(h)}</td><td class="mono">${esc(h.catalogBinding?.externalId||'—')}</td><td>${esc(proxyName(h.proxyGroup))}</td><td><div class="pill-row">${visibleHostCollections(h).map(c=>`<span class="badge b-green">📦 ${esc(c.name)}</span>`).join('')||'<span class="muted">—</span>'}</div></td><td><div class="pill-row">${ownAttachments(h).map(a=>{const s=serviceById(a.serviceId);return`<span class="badge b-blue">${esc(s?.icon||'🔌')} ${esc(s?.name||'')}</span>`}).join('')||'<span class="muted">—</span>'}</div></td><td onclick="event.stopPropagation()"><div class="actions"><button class="xs outline" onclick="openHostDetails(${q(h.id)})">Детали</button>${state.services.some(canAttachService)?`<button class="xs" onclick="openAttachModal(${q(h.id)})">＋ Сервис</button>`:''}${canCloneHost(h)?`<button class="xs outline" onclick="openCloneHost(${q(h.id)})">⧉</button>`:''}${canDeleteHost(h)?`<button class="xs danger" onclick="openDeleteHostModal(${q(h.id)})">🗑️</button>`:''}</div></td></tr>`).join(''):`<tr><td colspan="10" class="empty">Хосты не найдены</td></tr>`}</tbody></table></div>`}
+function openHostDetails(id){const h=state.hosts.find(x=>x.id===id);if(!h)return;const links=h.collectionLinks||[];openModal(`Хост: ${h.name}`,`${h.id} · ${sourceLabel(h)}`,`${h.sourceType==='catalog'?`<div class="box violet-box"><b>Источник: ${esc(state.catalogSources.find(s=>s.id===h.catalogBinding?.sourceId)?.name||'CMDB')}</b><br>External ID: <span class="mono">${esc(h.catalogBinding?.externalId||'—')}</span></div>`:`<div class="box blue-box"><b>Группа создателя:</b> ${esc(groupById(h.ownerGroupId)?.name||'—')}</div>`}<div class="row"><div class="box"><b>Адрес</b><br>${addressBadge(h)} <span class="mono">${esc(h.address)}</span></div><div class="box"><b>Группа прокси</b><br>${esc(proxyName(h.proxyGroup))}</div></div><h3>Привязанные коллекции</h3>${links.length?links.map(l=>{const c=collectionById(l.collectionId);return`<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(c?.name||'')}</div><div class="meta">Desired state · ${c?.serviceIds.length||0} сервисов</div></div></div>${c&&canManageCollection(c)?`<button class="xs outline" onclick="requestUnlinkCollection(${q(h.id)},${q(c.id)})">Отвязать</button>`:''}</div>`}).join(''):'<div class="empty">Нет привязанных коллекций</div>'}<h3>Подключения моих групп</h3>${ownAttachments(h).length?ownAttachments(h).map(a=>attachmentCard(h,a)).join(''):'<div class="empty">Нет подключений</div>'}`,`<button class="ghost" onclick="closeModal()">Закрыть</button>${state.services.some(canAttachService)?`<button class="outline" onclick="openAttachModal(${q(h.id)})">＋ Сервис</button><button class="outline" onclick="openAttachCollectionModal(${q(h.id)})">📦 Коллекция</button>`:''}${canEditHost(h)?`<button class="outline" onclick="openHostEditModal(${q(h.id)})">✏️ Редактировать</button>`:''}${canDeleteHost(h)?`<button class="danger" onclick="openDeleteHostModal(${q(h.id)})">Удалить</button>`:''}`)}
+function attachmentCard(h,a){const s=serviceById(a.serviceId),cs=(a.collectionIds||[]).map(collectionById).filter(Boolean);return`<div class="card"><div class="card-main"><span class="icon">${esc(s?.icon||'🔌')}</span><div><div class="card-title">${esc(s?.name||'')}</div><div class="meta">Группа: <b>${esc(groupById(a.attachedByGroupId)?.name||'—')}</b> · Target: <span class="mono">${esc(h.address)}:${esc(a.portOverride||s?.defaultPort||'—')}</span></div><div class="pill-row">${a.direct?'<span class="badge b-blue">Самостоятельно</span>':''}${cs.map(c=>`<span class="badge b-green">📦 ${esc(c.name)}</span>`).join('')}</div></div></div><div class="actions">${a.direct&&canDetach(a)?`<button class="xs danger" onclick="detachAttachment(${q(h.id)},${q(a.id)})">Отвязать</button>`:''}</div></div>`}
+function markDirect(h,s){let a=findAttachment(h,s.id,s.ownerGroupId);if(a){a.direct=true;return false}h.attachments.push({id:uid('att'),serviceId:s.id,attachedByGroupId:s.ownerGroupId,attachedByUserId:currentUser().id,attachedAt:now(),portOverride:null,direct:true,collectionIds:[]});return true}
+function openAttachModal(hostId){const h=state.hosts.find(x=>x.id===hostId);if(!h)return;attachHostId=hostId;attachServiceIds=new Set();renderAttachModal()}function renderAttachModal(){const h=state.hosts.find(x=>x.id===attachHostId),services=state.services.filter(canAttachService);openModal('Подключить сервисы',`${h.name} · ${h.id}`,`<div class="box blue-box"><b>Можно выбрать несколько сервисов.</b> Если сервис уже есть через коллекцию, дубль не создаётся — добавляется самостоятельная причина.</div><div class="service-picker">${services.map(s=>{const a=findAttachment(h,s.id,s.ownerGroupId),disabled=!!a?.direct,checked=attachServiceIds.has(s.id);return`<label class="card"><div class="card-main"><input class="checkbox" type="checkbox" ${checked?'checked':''} ${disabled?'disabled':''} onchange="this.checked?attachServiceIds.add(${q(s.id)}):attachServiceIds.delete(${q(s.id)});renderAttachModal()"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">${esc(groupById(s.ownerGroupId)?.name||'')} · порт ${s.defaultPort}${a&&!a.direct?' · уже есть через коллекцию':''}</div></div></div></label>`}).join('')}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="attachSelectedServices()" ${attachServiceIds.size?'':'disabled'}>Подключить выбранные (${attachServiceIds.size})</button>`,true)}function attachSelectedServices(){const h=state.hosts.find(x=>x.id===attachHostId);let n=0;[...attachServiceIds].map(serviceById).filter(Boolean).forEach(s=>{if(markDirect(h,s))n++});saveState();closeModal();renderHosts();toast(`Подключено: ${n}`)}
+function detachAttachment(hid,aid){const h=state.hosts.find(x=>x.id===hid),a=h?.attachments.find(x=>x.id===aid);if(!a||!canDetach(a)||!a.direct)return;a.direct=false;if(!(a.collectionIds||[]).length)h.attachments=h.attachments.filter(x=>x.id!==aid);saveState();openHostDetails(hid);renderHosts();toast((a.collectionIds||[]).length?'Самостоятельная привязка снята; сервис остаётся по коллекции':'Сервис отвязан')}
+function selectedHosts(){return state.hosts.filter(h=>selectedHostIds.has(h.id))}function openBulkAttachModal(){const hs=selectedHosts();bulkAttachServiceIds=new Set();openModal('Массовое подключение сервисов',`Выбрано хостов: ${hs.length}`,`<div class="service-picker">${state.services.filter(canAttachService).map(s=>`<label class="card"><div class="card-main"><input class="checkbox" type="checkbox" onchange="this.checked?bulkAttachServiceIds.add(${q(s.id)}):bulkAttachServiceIds.delete(${q(s.id)})"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div></div></div></label>`).join('')}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="bulkAttach()">Подключить</button>`,true)}function bulkAttach(){let n=0;selectedHosts().forEach(h=>[...bulkAttachServiceIds].map(serviceById).filter(Boolean).forEach(s=>{if(!hasDirectService(h,s.id,s.ownerGroupId)){markDirect(h,s);n++}}));saveState();closeModal();renderHosts();toast(`Самостоятельных подключений: ${n}`)}
+function manageableGroups(){return state.groups.filter(g=>hasMonitoringPermission(g.id))}function openHostCreateModal(){if(!manageableGroups().length)return toast('Нет permission «Постановка на мониторинг»');hostDraft={mode:'manual',catalogId:'',selectedServiceIds:[],ownerGroupId:manageableGroups()[0].id,cloneFromId:null};renderHostCreateModal()}function openCloneHost(id){const h=state.hosts.find(x=>x.id===id);if(!h||!canCloneHost(h))return;hostDraft={mode:'clone',catalogId:'',selectedServiceIds:h.attachments.filter(a=>a.direct&&canAttachService(serviceById(a.serviceId))).map(a=>a.serviceId),ownerGroupId:h.ownerGroupId,cloneFromId:h.id};renderHostCreateModal()}
+function renderHostCreateModal(){const clone=hostDraft.cloneFromId?state.hosts.find(h=>h.id===hostDraft.cloneFromId):null,cat=state.catalogHosts.find(x=>x.externalId===hostDraft.catalogId),p=clone||(hostDraft.mode==='prefill'&&cat?cat:{name:'',addressType:'ip',address:'',proxyGroup:state.proxyGroups[0].id});openModal(clone?'Клонировать ручной хост':'Создать ручной хост',clone?`Новый Host ID. Исходный: ${clone.id}`:'Сервис можно подключить сразу или позже.',`${!clone?`<div class="field"><label>Источник полей</label><select id="create-mode" class="wide" onchange="hostDraft.mode=this.value;hostDraft.catalogId='';renderHostCreateModal()"><option value="manual" ${hostDraft.mode==='manual'?'selected':''}>Ввести вручную</option><option value="prefill" ${hostDraft.mode==='prefill'?'selected':''}>Заполнить из справочника, но оставить ручным</option></select></div>${hostDraft.mode==='prefill'?`<div class="service-picker">${state.catalogHosts.map(c=>`<div class="card" onclick="hostDraft.catalogId=${q(c.externalId)};renderHostCreateModal()" style="cursor:pointer"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">${esc(c.name)}</div><div class="meta mono">${esc(c.address)} · ${esc(c.externalId)}</div></div></div>${hostDraft.catalogId===c.externalId?'<span class="badge b-green">✓</span>':''}</div>`).join('')}</div>`:''}`:''}<div class="field"><label>Группа создателя *</label><select id="new-host-owner" class="wide">${manageableGroups().map(g=>`<option value="${esc(g.id)}" ${g.id===hostDraft.ownerGroupId?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div><div class="row"><div class="field"><label>Имя хоста</label><input id="new-host-name" class="wide" value="${esc(p.name)}"></div><div class="field"><label>Группа прокси</label><select id="new-host-proxy" class="wide">${state.proxyGroups.map(g=>`<option value="${esc(g.id)}" ${g.id===p.proxyGroup?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div></div><div class="row"><div class="field"><label>Тип адреса</label><select id="new-host-type" class="wide"><option value="ip" ${p.addressType==='ip'?'selected':''}>IP</option><option value="fqdn" ${p.addressType==='fqdn'?'selected':''}>FQDN</option></select></div><div class="field"><label>IP / FQDN</label><input id="new-host-address" class="wide mono" value="${esc(p.address)}"></div></div><div class="separator"></div><h3>Подключение сервисов <span class="muted" style="font-size:13px;font-weight:500">(необязательно)</span></h3><div class="service-picker">${state.services.filter(canAttachService).map(s=>`<label class="card"><div class="card-main"><input class="checkbox" type="checkbox" ${hostDraft.selectedServiceIds.includes(s.id)?'checked':''} onchange="this.checked?hostDraft.selectedServiceIds.push(${q(s.id)}):hostDraft.selectedServiceIds=hostDraft.selectedServiceIds.filter(x=>x!==${q(s.id)})"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">${esc(groupById(s.ownerGroupId)?.name||'')}</div></div></div></label>`).join('')}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="createManualHost()">${clone?'Создать копию':'Создать хост'}</button>`)}
+function createManualHost(){const name=$('new-host-name').value.trim(),address=$('new-host-address').value.trim();if(!name||!address)return toast('Заполните имя и IP/FQDN');const cat=state.catalogHosts.find(x=>x.externalId===hostDraft.catalogId);const h={id:'H-'+Math.random().toString(36).slice(2,10).toUpperCase(),name,addressType:$('new-host-type').value,address,proxyGroup:$('new-host-proxy').value,status:'UP',sourceType:hostDraft.mode==='prefill'?'manual-prefill':'manual',ownerGroupId:$('new-host-owner').value,createdBy:currentUser().id,createdAt:now(),catalogBinding:null,prefilledFromCatalog:cat?{sourceId:cat.sourceId,externalId:cat.externalId,copiedAt:now()}:null,collectionLinks:[],attachments:[]};hostDraft.selectedServiceIds=[...new Set(hostDraft.selectedServiceIds)];hostDraft.selectedServiceIds.map(serviceById).filter(Boolean).forEach(s=>markDirect(h,s));state.hosts.push(h);if(!h.attachments.length)showHostsWithoutServices=true;saveState();closeModal();hostView='connected';renderHosts();toast('Ручной хост создан')}
+function openHostEditModal(id){const h=state.hosts.find(x=>x.id===id);if(!h||!canEditHost(h))return;openModal('Редактировать ручной хост',h.id,`<div class="row"><div class="field"><label>Имя</label><input id="edit-host-name" class="wide" value="${esc(h.name)}"></div><div class="field"><label>Группа прокси</label><select id="edit-host-proxy" class="wide">${state.proxyGroups.map(g=>`<option value="${esc(g.id)}" ${g.id===h.proxyGroup?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div></div><div class="row"><div class="field"><label>Тип адреса</label><select id="edit-host-type" class="wide"><option value="ip" ${h.addressType==='ip'?'selected':''}>IP</option><option value="fqdn" ${h.addressType==='fqdn'?'selected':''}>FQDN</option></select></div><div class="field"><label>IP / FQDN</label><input id="edit-host-address" class="wide mono" value="${esc(h.address)}"></div></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveHostEdit(${q(id)})">Сохранить</button>`)}function saveHostEdit(id){const h=state.hosts.find(x=>x.id===id);h.name=$('edit-host-name').value.trim()||h.name;h.proxyGroup=$('edit-host-proxy').value;h.addressType=$('edit-host-type').value;h.address=$('edit-host-address').value.trim()||h.address;saveState();openHostDetails(id);renderHosts();toast('Хост обновлён')}function openDeleteHostModal(id){const h=state.hosts.find(x=>x.id===id),reason=hostDeleteReason(h);if(reason)return toast(reason);confirmModal('Удалить Host',`Удалить <b>${esc(h.name)}</b>?`,'deleteHost',q(id))}function deleteHost(id){state.hosts=state.hosts.filter(x=>x.id!==id);saveState();renderHosts();toast('Хост удалён')}function syncCatalogHosts(){let n=0;state.hosts.filter(h=>h.sourceType==='catalog').forEach(h=>{const c=state.catalogHosts.find(x=>x.externalId===h.catalogBinding?.externalId);if(c){h.name=c.name;h.addressType=c.addressType;h.address=c.address;h.catalogBinding.lastSyncAt=now();n++}});saveState();renderHosts();toast(`Синхронизировано: ${n}`)}
+function visibleServices(){return isAdmin()?state.services:state.services.filter(s=>userGroupIds().has(s.ownerGroupId))}function renderServices(){const arr=visibleServices();page('services','🔌 Сервисы','Показываются сервисы ваших групп; admin видит все.',`<button onclick="openServiceModal()">➕ Создать сервис</button>`,`<div class="panel"><div class="info"><b>Механика:</b> сервис принадлежит группе, права управления определяются permission этой группы.</div><div class="content">${arr.map(serviceCard).join('')}</div></div>`)}function serviceCard(s){return`<div class="card"><div class="card-main"><span class="icon">${esc(s.icon)}</span><div><div class="card-title">${esc(s.name)}</div><div class="meta">${esc(s.type)} · ${esc(s.protocol.toUpperCase())} · порт ${s.defaultPort}</div><div class="pill-row"><span class="badge b-blue">👥 ${esc(groupById(s.ownerGroupId)?.name||'')}</span></div></div></div><div class="actions">${canManageService(s)?`<button class="xs outline" onclick="openServiceModal(${q(s.id)})">✏️</button><button class="xs danger" onclick="deleteService(${q(s.id)})">🗑️</button>`:''}</div></div>`}
+function openServiceModal(id=''){const x=id?serviceById(id):null,s=x||{name:'',type:'ExporterScrape',icon:'🔌',defaultPort:80,metrics:'/metrics',ownerGroupId:manageableGroups()[0]?.id||'',authMode:'none',protocol:'http'};openModal(x?'Редактировать сервис':'Создать сервис','',`<div class="row"><div class="field"><label>Название</label><input id="svc-name" class="wide" value="${esc(s.name)}"></div><div class="field"><label>Группа-владелец</label><select id="svc-group" class="wide">${manageableGroups().map(g=>`<option value="${esc(g.id)}" ${g.id===s.ownerGroupId?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div></div><div class="row3"><div class="field"><label>Тип</label><select id="svc-type" class="wide"><option ${s.type==='ExporterScrape'?'selected':''}>ExporterScrape</option><option ${s.type==='SQL'?'selected':''}>SQL</option><option ${s.type==='BlackBox'?'selected':''}>BlackBox</option></select></div><div class="field"><label>Иконка</label><input id="svc-icon" class="wide" value="${esc(s.icon)}"></div><div class="field"><label>Порт</label><input id="svc-port" class="wide" type="number" value="${s.defaultPort}"></div></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveService(${q(id)})">${id?'Сохранить':'Создать'}</button>`)}function saveService(id=''){const d={id:id||uid('svc'),name:$('svc-name').value.trim(),type:$('svc-type').value,icon:$('svc-icon').value||'🔌',defaultPort:Number($('svc-port').value),metrics:'/metrics',ownerGroupId:$('svc-group').value,authMode:'none',protocol:'http',createdBy:currentUser().id};if(id)state.services[state.services.findIndex(x=>x.id===id)]={...serviceById(id),...d};else state.services.push(d);saveState();closeModal();renderServices();toast(id?'Сервис обновлён':'Сервис создан')}function deleteService(id){const s=serviceById(id);if(!s||!canManageService(s))return;state.hosts.forEach(h=>h.attachments=h.attachments.filter(a=>a.serviceId!==id));state.collections.forEach(c=>c.serviceIds=c.serviceIds.filter(x=>x!==id));state.services=state.services.filter(x=>x.id!==id);saveState();renderAll();toast('Сервис удалён')}
+function renderTemplates(){page('templates','🧩 Шаблоны сервисов','Публичная библиотека шаблонов.',``, `<div class="panel"><div class="info"><b>Публичные шаблоны:</b> видны всем; редактировать может группа-владелец.</div><div class="content">${state.templates.map(t=>`<div class="card"><div class="card-main"><span class="icon">${esc(t.icon)}</span><div><div class="card-title">${esc(t.name)}</div><div class="meta">${esc(t.type)} · порт ${t.defaultPort}</div><div class="pill-row"><span class="badge b-blue">👥 ${esc(groupById(t.ownerGroupId)?.name||'')}</span><span class="badge b-violet">🌐 Публичный</span></div></div></div><button class="xs" onclick="createServiceFromTemplate(${q(t.id)})">➕ Создать сервис</button></div>`).join('')}</div></div>`)}function createServiceFromTemplate(id){const t=templateById(id);if(!t)return;openServiceModal('',{...t,name:t.name.replace(/^Шаблон\s*[«\"]?(.+?)[»\"]?$/,'$1')})}
+function collectionHostCount(c){return state.hosts.filter(h=>(h.collectionLinks||[]).some(l=>l.collectionId===c.id)).length}function renderCollections(){page('collections','📦 Коллекции','Живые групповые конфигурации: состав автоматически поддерживается на привязанных хостах.',`<button onclick="openCollectionModal()">➕ Создать коллекцию</button>`,`<div class="panel"><div class="info"><b>Коллекция — desired state.</b> Добавление сервиса автоматически применяет его ко всем Host; при удалении можно снять его или оставить самостоятельным. Дубли Host+Service не создаются.</div><div class="content">${visibleCollections().map(c=>`<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(c.name)}</div><div class="meta">${esc(c.description)}</div><div class="pill-row"><span class="badge b-blue">👥 ${esc(groupById(c.ownerGroupId)?.name||'')}</span><span class="badge">${c.serviceIds.length} сервисов</span><span class="badge b-violet">🖥️ ${collectionHostCount(c)} хостов</span>${c.serviceIds.map(id=>serviceById(id)).filter(Boolean).map(s=>`<span class="badge b-green">${esc(s.icon)} ${esc(s.name)}</span>`).join('')}</div></div></div>${canManageCollection(c)?`<button class="xs outline" onclick="openCollectionModal(${q(c.id)})">✏️ Редактировать</button>`:''}</div>`).join('')}</div></div>`)}
+function openCollectionModal(id=''){const c=id?collectionById(id):null,group=c?.ownerGroupId||manageableGroups()[0]?.id||'';collectionDraft=c?{id:c.id,name:c.name,description:c.description,ownerGroupId:c.ownerGroupId,serviceIds:[...c.serviceIds]}:{id:null,name:'',description:'',ownerGroupId:group,serviceIds:[]};const sv=state.services.filter(s=>s.ownerGroupId===group&&canManageService(s));openModal(c?'Редактировать коллекцию':'Создать коллекцию',c?`Привязано хостов: ${collectionHostCount(c)}`:'',`<div class="field"><label>Название</label><input id="col-name" class="wide" value="${esc(collectionDraft.name)}"></div><div class="field"><label>Описание</label><textarea id="col-desc" class="wide">${esc(collectionDraft.description)}</textarea></div>${!c?`<div class="field"><label>Группа-владелец</label><select id="col-owner" class="wide">${manageableGroups().map(g=>`<option value="${esc(g.id)}" ${g.id===group?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div>`:''}<h3>Сервисы</h3><div class="service-picker">${sv.map(s=>`<label class="card"><div class="card-main"><input class="checkbox" type="checkbox" ${collectionDraft.serviceIds.includes(s.id)?'checked':''} onchange="this.checked?collectionDraft.serviceIds.push(${q(s.id)}):collectionDraft.serviceIds=collectionDraft.serviceIds.filter(x=>x!==${q(s.id)})"><span class="icon">${esc(s.icon)}</span><div class="card-title">${esc(s.name)}</div></div></label>`).join('')}</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollection()">Сохранить</button>`)}function saveCollection(){collectionDraft.serviceIds=[...new Set(collectionDraft.serviceIds)];const old=collectionDraft.id?collectionById(collectionDraft.id):null,newIds=[...collectionDraft.serviceIds];if(old){const added=newIds.filter(x=>!old.serviceIds.includes(x)),removed=old.serviceIds.filter(x=>!newIds.includes(x));old.name=$('col-name').value.trim();old.description=$('col-desc').value.trim();old.serviceIds=newIds;added.forEach(sid=>syncAddedCollectionService(old,sid));if(removed.length){closeModal();return openCollectionRemovalDecision(old,removed)}}else{state.collections.push({id:uid('col'),name:$('col-name').value.trim(),description:$('col-desc').value.trim(),ownerGroupId:$('col-owner').value,createdBy:currentUser().id,serviceIds:newIds})}saveState();closeModal();renderAll();toast('Коллекция сохранена')}
+function syncAddedCollectionService(c,sid){state.hosts.filter(h=>(h.collectionLinks||[]).some(l=>l.collectionId===c.id)).forEach(h=>{let a=findAttachment(h,sid,c.ownerGroupId);if(a){if(!(a.collectionIds||[]).includes(c.id))a.collectionIds.push(c.id)}else h.attachments.push({id:uid('att'),serviceId:sid,attachedByGroupId:c.ownerGroupId,attachedByUserId:currentUser().id,attachedAt:now(),portOverride:null,direct:false,collectionIds:[c.id]})})}
+function openCollectionRemovalDecision(c,ids){openModal('Как удалить сервисы из коллекции?',`${c.name} · сервисов: ${ids.length}`,`<div class="box amber-box">Выберите судьбу сервисов на привязанных Host.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="outline" onclick="applyCollectionRemoval(${q(c.id)},${JSON.stringify(ids).replace(/"/g,'&quot;')},'keep')">Оставить на хостах</button><button class="danger" onclick="applyCollectionRemoval(${q(c.id)},${JSON.stringify(ids).replace(/"/g,'&quot;')},'delete')">Снять с хостов</button>`,true)}function applyCollectionRemoval(cid,ids,mode){const c=collectionById(cid);state.hosts.filter(h=>(h.collectionLinks||[]).some(l=>l.collectionId===cid)).forEach(h=>ids.forEach(sid=>{const a=findAttachment(h,sid,c.ownerGroupId);if(!a)return;a.collectionIds=(a.collectionIds||[]).filter(x=>x!==cid);if(mode==='keep')a.direct=true;if(!a.direct&&!a.collectionIds.length)h.attachments=h.attachments.filter(x=>x.id!==a.id)}));saveState();closeModal();renderAll();toast(mode==='keep'?'Удалено из коллекции, на хостах оставлено':'Удалено из коллекции и снято с хостов')}
+function applicableCollections(){return visibleCollections().filter(c=>canManageCollection(c))}function openAttachCollectionModal(hid){renderAttachCollectionModal([hid])}function openBulkCollectionModal(){renderAttachCollectionModal([...selectedHostIds])}function renderAttachCollectionModal(ids){const hs=ids.map(id=>state.hosts.find(h=>h.id===id)).filter(Boolean);openModal('Подключить коллекцию',hs.length>1?`Выбрано хостов: ${hs.length}`:hs[0]?.name||'',`<div class="box blue-box"><b>Коллекция остаётся привязанной к Host.</b> Состав автоматически поддерживается.</div>${applicableCollections().map(c=>`<div class="card"><div class="card-main"><span class="icon">📦</span><div><div class="card-title">${esc(c.name)}</div><div class="meta">${c.serviceIds.length} сервисов</div></div></div><button onclick="applyCollectionToHosts(${q(c.id)},${JSON.stringify(ids).replace(/"/g,'&quot;')})">Привязать</button></div>`).join('')}`,`<button class="ghost" onclick="closeModal()">Закрыть</button>`,true)}function applyCollectionToHosts(cid,ids){const c=collectionById(cid);ids.forEach(id=>{const h=state.hosts.find(x=>x.id===id);if(!h)return;if(!(h.collectionLinks||[]).some(l=>l.collectionId===cid))h.collectionLinks.push({collectionId:cid,attachedByGroupId:c.ownerGroupId,attachedByUserId:currentUser().id,attachedAt:now()});c.serviceIds.forEach(sid=>syncAddedCollectionService(c,sid))});saveState();closeModal();renderAll();toast('Коллекция привязана')}
+function requestUnlinkCollection(hid,cid){openModal('Отвязать коллекцию','Выберите судьбу сервисов',`<div class="box amber-box">Коллекция перестанет управлять этим Host.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="outline" onclick="unlinkCollection(${q(hid)},${q(cid)},'keep')">Оставить сервисы самостоятельными</button><button class="danger" onclick="unlinkCollection(${q(hid)},${q(cid)},'delete')">Снять сервисы коллекции</button>`,true)}function unlinkCollection(hid,cid,mode){const h=state.hosts.find(x=>x.id===hid);h.collectionLinks=h.collectionLinks.filter(l=>l.collectionId!==cid);h.attachments.forEach(a=>{if(!(a.collectionIds||[]).includes(cid))return;a.collectionIds=a.collectionIds.filter(x=>x!==cid);if(mode==='keep')a.direct=true});h.attachments=h.attachments.filter(a=>a.direct||a.collectionIds.length);saveState();openHostDetails(hid);renderHosts();toast('Коллекция отвязана')}
+function renderAccess(){const rules=[['Идентичность Host','Устойчивый идентификатор — сгенерированный Host ID.'],['Создать manual Host','Пользователь с permission «Постановка на мониторинг» выбирает группу создателя; сервисы необязательны.'],['Коллекции','Коллекция — desired state. Один сервис на Host не дублируется; причины direct и collectionIds хранятся одновременно.'],['Удаление сервиса из коллекции','Можно снять управляемое подключение либо оставить сервис на Host самостоятельным.'],['Редактировать manual Host','Создатель и его одногрупники с permission.'],['Удалить пустой manual Host','Создатель и его одногрупники могут удалить только при отсутствии attachment; admin может удалить любой Host.']];page('access','👥 Доступ','Демонстрационная модель пользователей, групп и прав.','',`<div class="panel"><div class="content">${state.users.map(u=>`<div class="card"><div class="card-main"><span class="avatar">${esc(u.initials)}</span><div><div class="card-title">${esc(u.name)} ${u.id===currentUser().id?'<span class="badge b-blue">текущий</span>':''}</div><div class="pill-row">${u.groups.map(g=>`<span class="badge b-blue">${esc(groupById(g)?.name||g)}</span>`).join('')}</div></div></div><button class="xs outline" onclick="switchUser(${q(u.id)})">Переключиться</button></div>`).join('')}<h3>Правила</h3><div class="box"><table style="min-width:0">${rules.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')}</table></div></div></div>`)}
 
-    <!-- Add Object Modal -->
-    <div class="modal" id="addModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Добавить объект</h2>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="error-message" id="errorMessage"></div>
-            <div class="success-message" id="successMessage"></div>
+/* Реестр объектов мониторинга */
+const registry={
+ search:'',type:'all',source:'all',environment:'all',relation:'all',cardTab:'overview',
+ objects:[
+  {id:'OBJ-H-100',type:'Host',name:'web-prod-01',source:'Galaxy/HOSTOS',externalId:'srv-1001',lifecycle:'active',lastSync:'01.09.2026, 14:15',values:{fqdn:'web-prod-01.example.internal',ip:'10.0.1.50',environment:'prod',owner:'Linux Platform',informationSystemId:'IS-101'},raw:{name:'web-prod-01',fqdn:'web-prod-01.example.internal',ip:'10.0.1.50',environment:'prod',owner:'Linux Platform',informationSystemId:'IS-101'},manual:{},relations:[{dir:'out',type:'Относится к',object:'Payments',objectType:'InformationSystem',rule:'Host → ИС по systemId'}]},
+  {id:'OBJ-H-101',type:'Host',name:'db-analytics',source:'Galaxy/HOSTOS',externalId:'srv-1002',lifecycle:'active',lastSync:'01.09.2026, 14:15',identityNote:'Объект был создан вручную, затем Galaxy external_id srv-1002 был привязан к тому же object_id. Идентичность объекта сохранилась.',values:{fqdn:'db-analytics.internal.example.com',ip:'10.0.3.17',environment:'test',owner:'DB Team',informationSystemId:'IS-202'},raw:{name:'db-analytics',fqdn:'db-analytics.internal.example.com',ip:'10.0.3.17',environment:'prod',owner:'DB Team',informationSystemId:'IS-202'},manual:{environment:'test'},relations:[{dir:'out',type:'Относится к',object:'Analytics Platform',objectType:'InformationSystem',rule:'Host → ИС по systemId'},{dir:'in',type:'Размещён на',object:'orders',objectType:'Database',rule:'Database → Host'}]},
+  {id:'OBJ-H-102',type:'Host',name:'cache-01',source:'Manual',externalId:'',lifecycle:'active',lastSync:'',values:{ip:'192.168.1.10',environment:'stage',owner:'Linux Platform'},raw:{},manual:{name:'cache-01',ip:'192.168.1.10',environment:'stage',owner:'Linux Platform'},relations:[]},
+  {id:'OBJ-IS-200',type:'InformationSystem',name:'Payments',source:'Manual',externalId:'IS-101',lifecycle:'active',lastSync:'',values:{externalId:'IS-101',criticality:'Высокая',owner:'Payments Team'},raw:{},manual:{name:'Payments',externalId:'IS-101',criticality:'Высокая',owner:'Payments Team'},relations:[{dir:'in',type:'Относится к',object:'web-prod-01',objectType:'Host',rule:'Host → ИС по systemId'}]},
+  {id:'OBJ-IS-201',type:'InformationSystem',name:'Analytics Platform',source:'Manual',externalId:'IS-202',lifecycle:'active',lastSync:'',values:{externalId:'IS-202',criticality:'Средняя',owner:'Data Platform'},raw:{},manual:{name:'Analytics Platform',externalId:'IS-202',criticality:'Средняя',owner:'Data Platform'},relations:[{dir:'in',type:'Относится к',object:'db-analytics',objectType:'Host',rule:'Host → ИС по systemId'}]},
+  {id:'OBJ-DB-300',type:'Database',name:'orders',source:'Manual',externalId:'',lifecycle:'active',lastSync:'',values:{hostName:'db-analytics',engine:'PostgreSQL',environment:'prod'},raw:{},manual:{name:'orders',hostName:'db-analytics',engine:'PostgreSQL',environment:'prod'},relations:[{dir:'out',type:'Размещён на',object:'db-analytics',objectType:'Host',rule:'Database → Host'}]}
+ ]
+};
+const objectTypes={Host:[{id:'name',label:'Имя'},{id:'fqdn',label:'FQDN'},{id:'ip',label:'IP'},{id:'environment',label:'Окружение'},{id:'owner',label:'Ответственный'},{id:'informationSystemId',label:'ID информационной системы'}],InformationSystem:[{id:'name',label:'Имя'},{id:'externalId',label:'External ID'},{id:'criticality',label:'Критичность'},{id:'owner',label:'Ответственный'}],Database:[{id:'name',label:'Имя'},{id:'hostName',label:'Host name'},{id:'engine',label:'СУБД'},{id:'environment',label:'Окружение'}],Application:[{id:'name',label:'Имя'},{id:'databaseName',label:'Database name'},{id:'informationSystemId',label:'ID информационной системы'},{id:'owner',label:'Ответственный'}]};
+let relationTypes=[{id:'belongs',name:'Относится к',reverse:'Содержит',system:true,active:true},{id:'hosted',name:'Размещён на',reverse:'Размещает',system:true,active:true},{id:'runs',name:'Работает на',reverse:'Запускает',system:true,active:true},{id:'uses',name:'Использует',reverse:'Используется',system:true,active:true},{id:'depends',name:'Зависит от',reverse:'Имеет зависимость',system:true,active:true},{id:'partof',name:'Является частью',reverse:'Состоит из',system:true,active:true}];
+let relationRules=[{id:'RR-001',name:'Host → ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',multiplicity:'one',active:true,formed:1180,missing:61,ambiguous:13},{id:'RR-002',name:'Database → Host по имени хоста',sourceType:'Database',sourceAttr:'hostName',operator:'=',targetType:'Host',targetAttr:'name',relationTypeId:'hosted',multiplicity:'one',active:true,formed:322,missing:8,ambiguous:2},{id:'RR-003',name:'Application → Database',sourceType:'Application',sourceAttr:'databaseName',operator:'=',targetType:'Database',targetAttr:'name',relationTypeId:'uses',multiplicity:'many',active:false,formed:0,missing:0,ambiguous:0}];
+let adminTab='data',registrySettingsTab='objects';
 
-            <!-- Tabs -->
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab('manual')">✏️ Вручную</button>
-                <button class="tab" onclick="switchTab('catalog')">📚 Из справочника</button>
-                <button class="tab" onclick="switchTab('import')">📁 Импорт файла</button>
-            </div>
+const registryCmdbSource={id:'galaxy-main',name:'Galaxy / CMDB Main'};
+let registryCmdbCollections=[
+ {id:'HOSTOS',name:'HOSTOS',description:'Хосты и основные инфраструктурные атрибуты ОС',available:12483,selected:true,status:'synced',lastSync:'01.09.2026, 14:15'},
+ {id:'UABD',name:'UABD',description:'Установленные экземпляры ПО и БД с контекстом размещения',available:8421,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'USP',name:'USP',description:'Установленное программное обеспечение',available:15234,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'PhyServer',name:'PhyServer',description:'Физические серверы',available:3188,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'Storage',name:'Storage',description:'Системы хранения данных',available:426,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'SANSW',name:'SANSW',description:'SAN-коммутаторы',available:212,selected:false,status:'not_selected',lastSync:'—'},
+ {id:'IT System',name:'IT System',description:'Информационные системы',available:687,selected:false,status:'not_selected',lastSync:'—'}
+];
 
-            <!-- Tab 1: Manual -->
-            <div class="tab-content active" id="tab-manual">
-                <form onsubmit="addObject(event)">
-                    <div class="form-group">
-                        <label for="objectType">Тип объекта</label>
-                        <select id="objectType" required>
-                            <option value="">Выберите тип</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="objectName">Имя объекта</label>
-                        <input type="text" id="objectName" required placeholder="Например: web-server-01">
-                    </div>
-                    <button type="submit" class="submit-btn">Добавить</button>
-                </form>
-            </div>
+const registryCmdbCollectionFields={
+ HOSTOS:['external_id','name','domain_name','fqdn','altname','ip','hostcienvtype','hostgroup','hoststatus','osver','vendor','model','sn','osname','network_segment','owner','smid','datacenter','itsm_name','criticality','itsysrisid','smitgroup','cluster'],
+ UABD:['external_id','name','hstname','hstcienvtype','hsthostipaddress','fqdn','owner','version','dbtype','itsysrisid','smitgroup'],
+ USP:['external_id','name','hstname','hstcienvtype','hsthostipaddress','fqdn','owner','version','vendor','smitgroup'],
+ PhyServer:['external_id','name','serial_number','model','vendor','datacenter','ip','owner'],
+ Storage:['external_id','name','vendor','model','serial_number','datacenter','ip','owner'],
+ SANSW:['external_id','name','vendor','model','serial_number','datacenter','ip','owner'],
+ 'IT System':['external_id','name','criticality','owner','description','smitgroup']
+};
 
-            <!-- Tab 2: Catalog -->
-            <div class="tab-content" id="tab-catalog">
-                <div class="catalog-select-all">
-                    <label>
-                        <input type="checkbox" id="catalogSelectAll" onchange="toggleSelectAllCatalog()">
-                        Выбрать все доступные
-                    </label>
-                    <span class="catalog-counter" id="catalogCounter">0 выбрано</span>
-                </div>
-                <div class="catalog-list" id="catalogList"></div>
-                <button type="button" class="submit-btn" onclick="addFromCatalog()">Добавить выбранные</button>
-            </div>
+let registryMappingEditor={type:'Host',collection:'HOSTOS'};
+let registryMappings={
+ 'Host|HOSTOS':{
+   objectNameField:'name',
+   externalIdField:'external_id',
+   attrs:{
+     fqdn:'fqdn',
+     ip:'ip',
+     environment:'hostcienvtype',
+     owner:'owner',
+     informationSystemId:'itsysrisid'
+   },
+   updatedAt:'01.09.2026, 14:15'
+ }
+};
 
-            <!-- Tab 3: Import -->
-            <div class="tab-content" id="tab-import">
-                <div class="file-format-hint">
-                    <strong>Формат JSON файла:</strong><br>
-                    Массив объектов: <code>[{"name": "host-01", "type": "Сервер"}, ...]</code><br>
-                    Поле <code>type</code> должно совпадать с существующим типом объекта.
-                </div>
-                <div class="file-upload-area" id="fileUploadArea" onclick="document.getElementById('fileInput').click()">
-                    <div class="file-upload-icon">📄</div>
-                    <div class="file-upload-text">Нажмите или перетащите JSON-файл сюда</div>
-                    <div class="file-upload-hint">Поддерживается только формат .json</div>
-                </div>
-                <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFileSelect(event)">
-                <div class="file-info" id="fileInfo">
-                    <div class="file-info-name" id="fileName"></div>
-                    <div class="file-info-stats" id="fileStats"></div>
-                </div>
-                <button type="button" class="submit-btn" id="importBtn" onclick="importFromFile()" disabled>Импортировать</button>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        // Встроенный справочник хостов
-        const CATALOG = [
-            // Серверы
-            { name: 'web-server-01', typeName: 'Сервер' },
-            { name: 'web-server-02', typeName: 'Сервер' },
-            { name: 'app-server-01', typeName: 'Сервер' },
-            { name: 'app-server-02', typeName: 'Сервер' },
-            { name: 'proxy-server-01', typeName: 'Сервер' },
-            { name: 'backup-server-01', typeName: 'Сервер' },
-            { name: 'monitoring-server', typeName: 'Сервер' },
-            { name: 'ci-runner-01', typeName: 'Сервер' },
-            { name: 'ci-runner-02', typeName: 'Сервер' },
-            // Базы данных
-            { name: 'db-primary', typeName: 'База данных' },
-            { name: 'db-replica-01', typeName: 'База данных' },
-            { name: 'db-replica-02', typeName: 'База данных' },
-            { name: 'db-analytics', typeName: 'База данных' },
-            { name: 'cache-redis-01', typeName: 'База данных' },
-            { name: 'cache-redis-02', typeName: 'База данных' },
-            // Сетевые устройства
-            { name: 'router-core', typeName: 'Сетевое устройство' },
-            { name: 'router-edge-01', typeName: 'Сетевое устройство' },
-            { name: 'switch-l3-01', typeName: 'Сетевое устройство' },
-            { name: 'switch-l3-02', typeName: 'Сетевое устройство' },
-            { name: 'firewall-01', typeName: 'Сетевое устройство' },
-            { name: 'load-balancer-01', typeName: 'Сетевое устройство' },
-            // Хранилища
-            { name: 'storage-nas-01', typeName: 'Хранилище' },
-            { name: 'storage-nas-02', typeName: 'Хранилище' },
-            { name: 'storage-san-01', typeName: 'Хранилище' },
-            { name: 'storage-backup-01', typeName: 'Хранилище' },
-            { name: 'storage-archive', typeName: 'Хранилище' }
-        ];
+function registryAttrLabel(type,id){return(objectTypes[type]||[]).find(a=>a.id===id)?.label||id}
+function registryEffectiveValue(o,id){return id==='name'?o.name:o.values?.[id]}
+function registryIsOverride(o,id){return o.manual?.[id]!==undefined&&o.raw?.[id]!==undefined&&String(o.manual[id])!==String(o.raw[id])}
+function registryEndpoint(o){if(o.type!=='Host')return'—';return o.values?.fqdn||o.values?.ip||'—'}
+function registrySourceKind(o){return o.source==='Manual'?'manual':'external'}
+function registryRelationNames(){return[...new Set(registry.objects.flatMap(o=>(o.relations||[]).map(r=>r.type)))].sort((a,b)=>a.localeCompare(b,'ru'))}
+function registryEnvironments(){return[...new Set(registry.objects.map(o=>o.values?.environment).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'))}
+function registryObjectByRelation(type,name){return registry.objects.find(o=>o.type===type&&o.name===name)}
 
-        // Переменные для импорта
-        let pendingImportData = null;
+function renderRegistry(){
+ const qv=registry.search.toLowerCase();
+ const arr=registry.objects.filter(o=>{
+  const bag=[o.name,o.type,registryEndpoint(o),o.values?.environment,o.source,o.externalId,...Object.values(o.values||{}),(o.relations||[]).map(r=>r.object).join(' ')].join(' ').toLowerCase();
+  return(registry.type==='all'||o.type===registry.type)&&(registry.source==='all'||registrySourceKind(o)===registry.source)&&(registry.environment==='all'||o.values?.environment===registry.environment)&&(registry.relation==='all'||(o.relations||[]).some(r=>r.type===registry.relation))&&(!qv||bag.includes(qv));
+ });
+ const envs=registryEnvironments(),rels=registryRelationNames();
+ $('registry-main').innerHTML=`<div class="page-head"><div><h1 class="title">Реестр объектов мониторинга</h1><div class="sub">Пользовательский раздел: поиск объектов, effective-атрибуты и навигация по связям.</div></div></div><div class="panel"><div class="info"><b>Раздел доступен для просмотра и навигации.</b> Создание объектов и изменение Manual/Override выполняются администратором в «Администрирование → Настройки реестра объектов мониторинга → Объекты».</div><div class="toolbar"><div class="registry-filters"><input id="reg-search" class="input" value="${esc(registry.search)}" placeholder="Имя, IP/FQDN, External ID…"><select id="reg-type"><option value="all">Все типы</option>${Object.keys(objectTypes).map(t=>`<option value="${t}" ${registry.type===t?'selected':''}>${t}</option>`).join('')}</select><select id="reg-source"><option value="all">Все источники</option><option value="external" ${registry.source==='external'?'selected':''}>Внешний источник</option><option value="manual" ${registry.source==='manual'?'selected':''}>Manual</option></select><select id="reg-env"><option value="all">Все окружения</option>${envs.map(v=>`<option value="${esc(v)}" ${registry.environment===v?'selected':''}>${esc(v)}</option>`).join('')}</select><select id="reg-rel"><option value="all">Любые связи</option>${rels.map(v=>`<option value="${esc(v)}" ${registry.relation===v?'selected':''}>Связь: ${esc(v)}</option>`).join('')}</select><button class="sm outline" onclick="resetRegistryFilters()">Сбросить</button></div></div><div class="stats"><div class="stat"><label>Всего объектов</label><b>${registry.objects.length}</b></div><div class="stat"><label>После фильтра</label><b>${arr.length}</b></div><div class="stat"><label>С внешним источником</label><b>${registry.objects.filter(o=>o.source!=='Manual').length}</b></div><div class="stat"><label>С ручным override</label><b>${registry.objects.filter(o=>Object.keys(o.manual||{}).some(k=>registryIsOverride(o,k))).length}</b></div></div><div class="table-wrap"><table><thead><tr><th>Имя</th><th>Тип</th><th>IP / FQDN</th><th>Окружение</th><th>Источник</th><th>Связи</th><th>Состояние</th></tr></thead><tbody>${arr.length?arr.map(o=>`<tr class="data-row" onclick="openRegistryObject(${q(o.id)},'overview')"><td><div class="registry-object-name">${esc(o.name)}</div></td><td><span class="badge b-blue">${esc(o.type)}</span></td><td class="mono">${esc(registryEndpoint(o))}</td><td>${o.values?.environment?`<span class="badge">${esc(o.values.environment)}</span>${registryIsOverride(o,'environment')?' <span class="badge b-amber">Переопределено</span>':''}`:'<span class="muted">—</span>'}</td><td>${o.source==='Manual'?'<span class="badge">✍️ Manual</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</td><td><span class="badge b-green">🔗 ${(o.relations||[]).length}</span></td><td><span class="badge ${o.lifecycle==='active'?'b-green':'b-amber'}">${o.lifecycle==='active'?'Активен':'Архив'}</span></td></tr>`).join(''):`<tr><td colspan="7" class="empty">Объекты не найдены</td></tr>`}</tbody></table></div></div>`;
+ $('reg-search').oninput=e=>{registry.search=e.target.value;renderRegistry()};$('reg-type').onchange=e=>{registry.type=e.target.value;renderRegistry()};$('reg-source').onchange=e=>{registry.source=e.target.value;renderRegistry()};$('reg-env').onchange=e=>{registry.environment=e.target.value;renderRegistry()};$('reg-rel').onchange=e=>{registry.relation=e.target.value;renderRegistry()};
+}
+function resetRegistryFilters(){registry.search='';registry.type='all';registry.source='all';registry.environment='all';registry.relation='all';renderRegistry()}
 
-        // Инициализация данных
-        function initData() {
-            if (!localStorage.getItem('users')) {
-                localStorage.setItem('users', JSON.stringify([
-                    { id: 1, username: 'admin_user', isAdmin: true },
-                    { id: 2, username: 'regular_user', isAdmin: false }
-                ]));
-            }
+function registryCardTabs(id,tab){return`<div class="registry-card-tabs"><button class="${tab==='overview'?'active':''}" onclick="openRegistryObject(${q(id)},'overview')">Обзор</button><button class="${tab==='attributes'?'active':''}" onclick="openRegistryObject(${q(id)},'attributes')">Атрибуты</button><button class="${tab==='relations'?'active':''}" onclick="openRegistryObject(${q(id)},'relations')">Связи</button><button class="${tab==='sources'?'active':''}" onclick="openRegistryObject(${q(id)},'sources')">Источники</button></div>`}
+function openRegistryObject(id,tab='overview'){
+ const o=registry.objects.find(x=>x.id===id);if(!o)return;registry.cardTab=tab;
+ let body=registryCardTabs(id,tab);
+ if(tab==='overview')body+=renderRegistryOverview(o);
+ if(tab==='attributes')body+=renderRegistryAttributes(o,false);
+ if(tab==='relations')body+=renderRegistryRelations(o);
+ if(tab==='sources')body+=renderRegistrySources(o);
+ openModal(`${o.type}: ${o.name}`,`${o.id}${o.externalId?' · External ID: '+o.externalId:''}`,body,`<button onclick="closeModal()">Закрыть</button>`);
+}
+function renderRegistryOverview(o){
+ const key=(objectTypes[o.type]||[]).filter(a=>a.id!=='name').slice(0,6);
+ return`<div class="box blue-box"><b>${esc(o.name)}</b> · <span class="mono">${esc(o.id)}</span><br><span class="hint">object_id — постоянная идентичность объекта MARS.</span></div><div class="registry-summary"><div class="box"><b>Тип</b><br><span class="badge b-blue">${esc(o.type)}</span></div><div class="box"><b>Источник объекта</b><br>${o.source==='Manual'?'<span class="badge">✍️ Manual</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</div><div class="box"><b>Связи</b><br><span class="badge b-green">🔗 ${(o.relations||[]).length}</span></div></div><h3>Ключевые effective-значения</h3><div class="grid3cards">${key.map(a=>{const v=registryEffectiveValue(o,a.id);return`<div class="box"><b>${esc(a.label)}</b><br><span class="effective-main">${esc(v||'—')}</span>${registryIsOverride(o,a.id)?'<div class="effective-note"><span class="badge b-amber">Переопределено вручную</span> · Galaxy: '+esc(o.raw[a.id])+'</div>':''}</div>`}).join('')}</div>${(o.relations||[]).length?`<h3>Контекст по связям</h3>${renderRelationCards(o.relations.slice(0,3))}`:''}`;
+}
+function renderRegistryAttributes(o,adminMode=false){const attrs=objectTypes[o.type]||[];return`<div class="table-wrap" style="max-height:none"><table><thead><tr><th>Атрибут</th><th>Effective value</th><th>Источник effective</th><th>${adminMode?'Управление':'Исходное значение'}</th></tr></thead><tbody>${attrs.map(a=>{const eff=registryEffectiveValue(o,a.id),m=o.manual?.[a.id],x=o.raw?.[a.id],ov=registryIsOverride(o,a.id),hasExternal=x!==undefined;let src=ov?'<span class="badge b-amber">Переопределено вручную</span>':m!==undefined?'<span class="badge">Manual</span>':hasExternal?`<span class="badge b-violet">${esc(o.source)}</span>`:'<span class="muted">—</span>';let last=adminMode?renderRegistryAttrAdminActions(o,a,m,x,ov):hasExternal?`<span class="mono">${esc(x)}</span>${ov?`<div class="cell-sub">Manual: ${esc(m)}</div>`:''}`:'<span class="muted">—</span>';return`<tr><td><b>${esc(a.label)}</b><div class="cell-sub mono">${esc(a.id)}</div></td><td><span class="effective-main">${esc(eff||'—')}</span></td><td>${src}</td><td>${last}</td></tr>`}).join('')}</tbody></table></div>`}
+function renderRegistryAttrAdminActions(o,a,m,x,ov){
+ if(x!==undefined){return`<div class="registry-attr-actions">${ov?`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">Изменить override</button><button class="xs danger" onclick="removeRegistryOverride(${q(o.id)},${q(a.id)})">Удалить override</button>`:`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">Переопределить вручную</button>`}</div>`}
+ return`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">${m!==undefined?'Изменить Manual':'Задать вручную'}</button>`;
+}
+function renderRegistryRelations(o){const out=(o.relations||[]).filter(r=>r.dir==='out'),inn=(o.relations||[]).filter(r=>r.dir==='in');return`<div class="box blue-box"><b>Связи навигационные.</b> Нажмите на связанный объект, чтобы открыть его карточку.</div><h3>Исходящие связи</h3>${out.length?renderRelationCards(out):'<div class="empty">Исходящих связей нет</div>'}<h3>Входящие связи</h3>${inn.length?renderRelationCards(inn):'<div class="empty">Входящих связей нет</div>'}`}
+function renderRelationCards(list){return list.map(r=>{const target=registryObjectByRelation(r.objectType,r.object);return`<div class="card registry-relation" ${target?`onclick="openRegistryObject(${q(target.id)},'overview')"`:''}><div class="card-main"><span class="icon">${r.dir==='out'?'➡️':'⬅️'}</span><div><div class="card-title">${esc(r.object)}</div><div class="meta"><span class="badge b-blue">${esc(r.objectType)}</span> · <b>${esc(r.type)}</b><br>Правило: ${esc(r.rule)}</div></div></div>${target?'<button class="xs outline">Открыть</button>':'<span class="badge b-amber">Объект не найден</span>'}</div>`}).join('')}
+function renderRegistrySources(o){const attrs=objectTypes[o.type]||[];const ext=attrs.filter(a=>o.raw?.[a.id]!==undefined),man=attrs.filter(a=>o.manual?.[a.id]!==undefined);return`${o.identityNote?`<div class="box blue-box"><b>Идентичность сохранена:</b> ${esc(o.identityNote)}</div>`:''}<div class="registry-summary"><div class="box"><b>Основной источник</b><br>${o.source==='Manual'?'<span class="badge">Manual</span>':`<span class="badge b-violet">${esc(o.source)}</span>`}</div><div class="box"><b>External ID</b><br><span class="mono">${esc(o.externalId||'—')}</span></div><div class="box"><b>Последняя синхронизация</b><br>${esc(o.lastSync||'—')}</div></div><h3>Внешние значения</h3>${ext.length?ext.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.raw[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">не effective</span>':''}</div></div>`).join(''):'<div class="empty">Внешний источник не подключён</div>'}<h3>Ручные значения</h3>${man.length?man.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.manual[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">Override / Effective</span>':' <span class="badge">Manual</span>'}</div></div>`).join(''):'<div class="empty">Ручных значений нет</div>'}`}
 
-            if (!localStorage.getItem('objectTypes')) {
-                localStorage.setItem('objectTypes', JSON.stringify([
-                    { id: 1, name: 'Сервер' },
-                    { id: 2, name: 'База данных' },
-                    { id: 3, name: 'Сетевое устройство' },
-                    { id: 4, name: 'Хранилище' }
-                ]));
-            }
+/* Администрирование */
+function renderAdmin(){
+ if(!isAdmin()){$('admin-main').innerHTML=`<div class="page-head"><div><h1 class="title">⚙️ Администрирование</h1><div class="sub">Административные настройки MARS.</div></div></div><div class="panel"><div class="content"><div class="box red-box"><b>Доступ только для администратора MARS.</b><br>Текущий пользователь: ${esc(currentUser().name)}.</div></div></div>`;return}
+ const content=adminTab==='data'?renderDataAdmin():renderRegistrySettings();$('admin-main').innerHTML=`<div class="page-head"><div><h1 class="title">⚙️ Администрирование</h1><div class="sub">Административные настройки MARS.</div></div></div><div class="panel"><div class="inner-tabs"><button class="${adminTab==='data'?'active':''}" onclick="adminTab='data';renderAdmin()">Сбор данных</button><button class="${adminTab==='registry'?'active':''}" onclick="adminTab='registry';renderAdmin()">Настройки реестра объектов мониторинга</button></div>${content}</div>`
+}
+function renderDataAdmin(){return`<div class="info"><b>Сбор данных — административная часть постановки на мониторинг.</b> Пользовательская механика раздела «Постановка на мониторинг» остаётся отдельно и не меняется.</div><div class="content"><div class="grid3cards"><div class="card"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">Источники инфраструктурных данных</div><div class="meta">CMDB Main</div></div></div></div><div class="card"><div class="card-main"><span class="icon">🌐</span><div><div class="card-title">Группы прокси</div><div class="meta">Production DMZ · Analytics · K8s</div></div></div></div><div class="card"><div class="card-main"><span class="icon">🔄</span><div><div class="card-title">Синхронизация справочника</div><div class="meta">Параметры получения данных для постановки на мониторинг.</div></div></div></div></div><div class="readonly-note" style="margin-top:14px">Этот подраздел не изменяет сценарии Хосты / Сервисы / Шаблоны / Коллекции в пользовательской «Постановке на мониторинг».</div></div>`}
+function renderRegistrySettings(){let c='';if(registrySettingsTab==='objects')c=renderAdminObjects();if(registrySettingsTab==='types')c=renderTypeSettings();if(registrySettingsTab==='mapping')c=renderMappingSettings();if(registrySettingsTab==='reltypes')c=renderRelationTypeSettings();if(registrySettingsTab==='rules')c=renderRuleSettings();return`<div class="info"><b>Здесь администратор управляет объектами и внутренней моделью реестра MARS.</b></div><div class="inner-tabs"><button class="${registrySettingsTab==='objects'?'active':''}" onclick="registrySettingsTab='objects';renderAdmin()">Объекты</button><button class="${registrySettingsTab==='types'?'active':''}" onclick="registrySettingsTab='types';renderAdmin()">Типы объектов</button><button class="${registrySettingsTab==='mapping'?'active':''}" onclick="registrySettingsTab='mapping';renderAdmin()">Источники и mapping</button><button class="${registrySettingsTab==='reltypes'?'active':''}" onclick="registrySettingsTab='reltypes';renderAdmin()">Типы связей</button><button class="${registrySettingsTab==='rules'?'active':''}" onclick="registrySettingsTab='rules';renderAdmin()">Правила связей</button></div>${c}`}
+function renderAdminObjects(){return`<div class="toolbar admin-object-toolbar"><div><b>Ручное управление объектами</b><div class="hint">Создание объектов и ручные переопределения доступны только MARS Admin.</div></div><button onclick="openAdminRegistryObjectCreate()">➕ Создать объект</button></div><div class="content admin-object-list">${registry.objects.map(o=>`<div class="card"><div class="card-main"><span class="icon">${o.type==='Host'?'🖥️':o.type==='Database'?'🗄️':'📦'}</span><div><div class="card-title">${esc(o.name)}</div><div class="meta"><span class="badge b-blue">${esc(o.type)}</span> · <span class="mono">${esc(o.id)}</span> · ${o.source==='Manual'?'<span class="badge">Manual</span>':`<span class="badge b-violet">${esc(o.source)}</span>`}${Object.keys(o.manual||{}).some(k=>registryIsOverride(o,k))?' · <span class="badge b-amber">Есть override</span>':''}</div></div></div><div class="actions"><button class="xs outline" onclick="openRegistryObject(${q(o.id)},'overview')">Просмотр</button><button class="xs" onclick="openAdminRegistryObject(${q(o.id)})">Управление</button></div></div>`).join('')}</div>`}
+function openAdminRegistryObjectCreate(){const type=Object.keys(objectTypes)[0];openModal('Создать объект мониторинга','Только MARS Admin. Объект создаётся с источником Manual.',`<div class="row"><div class="field"><label>Тип объекта *</label><select id="aro-type" class="wide">${Object.keys(objectTypes).map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div><div class="field"><label>Имя *</label><input id="aro-name" class="wide"></div></div><div id="aro-attrs"></div><div class="box blue-box"><b>Manual ≠ Override.</b> Для нового ручного объекта значения имеют источник Manual. Override возникает только если для этого же объекта позже появляется внешнее значение того же атрибута и ручное значение его переопределяет.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveAdminRegistryObject()">Создать</button>`);const render=()=>{$('aro-attrs').innerHTML=`<h3>Атрибуты</h3>${(objectTypes[$('aro-type').value]||[]).filter(a=>a.id!=='name').map(a=>`<div class="field"><label>${esc(a.label)}</label><input class="wide" data-aro-attr="${esc(a.id)}"></div>`).join('')}`};$('aro-type').onchange=render;render()}
+function saveAdminRegistryObject(){if(!isAdmin())return toast('Недостаточно прав');const type=$('aro-type').value,name=$('aro-name').value.trim();if(!name)return toast('Введите имя');const existing=registry.objects.find(o=>o.type===type&&o.name.toLowerCase()===name.toLowerCase());if(existing){closeModal();openAdminRegistryObject(existing.id);return toast('Объект с таким name + type уже существует')};const values={},manual={name};document.querySelectorAll('[data-aro-attr]').forEach(i=>{const v=i.value.trim();if(v){values[i.dataset.aroAttr]=v;manual[i.dataset.aroAttr]=v}});const prefix=type==='Host'?'H':type==='InformationSystem'?'IS':type==='Database'?'DB':'APP';registry.objects.push({id:'OBJ-'+prefix+'-'+(100+registry.objects.length),type,name,source:'Manual',externalId:'',lifecycle:'active',lastSync:'',values,raw:{},manual,relations:[]});closeModal();renderAdmin();toast('Объект создан')}
+function openAdminRegistryObject(id){const o=registry.objects.find(x=>x.id===id);if(!o)return;openModal(`Управление: ${o.name}`,`${o.type} · ${o.id}`,`<div class="box blue-box"><b>Effective value</b> используется в реестре, событиях и последующей маршрутизации. Внешнее значение продолжает храниться и синхронизироваться даже при Manual override.</div>${renderRegistryAttributes(o,true)}<div class="separator"></div><h3>Источники</h3>${renderRegistrySources(o)}`,`<button class="ghost" onclick="closeModal()">Закрыть</button><button class="outline" onclick="openRegistryObject(${q(o.id)},'overview')">Открыть карточку</button>`)}
+function openRegistryValueEdit(id,attr){if(!isAdmin())return toast('Недостаточно прав');const o=registry.objects.find(x=>x.id===id),a=(objectTypes[o.type]||[]).find(x=>x.id===attr);if(!o||!a)return;const current=registryEffectiveValue(o,attr)||'';const external=o.raw?.[attr];const title=external!==undefined?(registryIsOverride(o,attr)?'Изменить ручное переопределение':'Переопределить вручную'):'Изменить ручное значение';openModal(title,`${o.type}: ${o.name} · ${a.label}`,`${external!==undefined?`<div class="box"><b>Значение внешнего источника:</b> <span class="mono">${esc(external)}</span><div class="hint">Оно сохранится и продолжит обновляться после создания override.</div></div>`:''}<div class="field"><label>Ручное значение</label><input id="aro-value" class="wide" value="${esc(o.manual?.[attr]!==undefined?o.manual[attr]:current)}"></div>`,`<button class="ghost" onclick="openAdminRegistryObject(${q(id)})">Отмена</button><button onclick="saveRegistryManualValue(${q(id)},${q(attr)})">Сохранить</button>`,true)}
+function saveRegistryManualValue(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin())return;const v=$('aro-value').value.trim();if(!v)return toast('Введите значение');o.manual=o.manual||{};o.manual[attr]=v;if(attr==='name')o.name=v;else o.values[attr]=v;openAdminRegistryObject(id);toast(o.raw?.[attr]!==undefined?'Manual override сохранён':'Manual-значение сохранено')}
+function removeRegistryOverride(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin()||o.raw?.[attr]===undefined)return;o.manual&&delete o.manual[attr];if(attr==='name')o.name=o.raw[attr];else o.values[attr]=o.raw[attr];openAdminRegistryObject(id);toast('Override удалён; effective снова берётся из внешнего источника')}
+function renderTypeSettings(){return`<div class="content">${Object.entries(objectTypes).map(([t,a])=>`<div class="card"><div class="card-main"><span class="icon">🧩</span><div><div class="card-title">${t}</div><div class="pill-row" style="margin-top:8px">${a.map(x=>`<span class="badge">${x.label} · <span class="mono">${x.id}</span></span>`).join('')}</div></div></div></div>`).join('')}</div>`}
+function registrySelectedCmdbCollections(){return registryCmdbCollections.filter(c=>c.selected)}
+function toggleRegistryCmdbCollection(id,checked){
+ const c=registryCmdbCollections.find(x=>x.id===id);if(!c)return;
+ c.selected=!!checked;
+ if(!c.selected){c.status='not_selected';c.lastSync='—'}
+ else if(c.status==='not_selected')c.status='pending';
+ if(registryMappingEditor.collection===id&&!c.selected){
+   const allowed=registryAllowedCollectionsForType(registryMappingEditor.type);
+   registryMappingEditor.collection=allowed[0]?.id||''
+ }
+ renderAdmin()
+}
+function toggleAllRegistryCmdbCollections(checked){
+ registryCmdbCollections.forEach(c=>{c.selected=!!checked;if(!checked){c.status='not_selected';c.lastSync='—'}else if(c.status==='not_selected')c.status='pending'});
+ const allowed=registryAllowedCollectionsForType(registryMappingEditor.type);
+ if(!allowed.some(c=>c.id===registryMappingEditor.collection))registryMappingEditor.collection=allowed[0]?.id||'';
+ renderAdmin()
+}
+function syncRegistryCmdbCollections(){
+ const selected=registrySelectedCmdbCollections();if(!selected.length)return toast('Выберите хотя бы одну коллекцию для синхронизации');
+ const ts=now();selected.forEach(c=>{c.status='synced';c.lastSync=ts});
+ renderAdmin();toast(`Синхронизировано коллекций: ${selected.length}`)
+}
+function registryCmdbCollectionStatus(c){
+ if(!c.selected)return'<span class="badge">Не выбрана</span>';
+ if(c.status==='synced')return'<span class="badge b-green">● Синхронизируется</span>';
+ return'<span class="badge b-amber">Ожидает синхронизации</span>'
+}
+function registryAllowedCollectionsForType(type){
+ const selected=registrySelectedCmdbCollections();
+ if(type==='Host')return selected.filter(c=>c.id==='HOSTOS');
+ return selected
+}
+function registryEnsureMapping(type,collection){
+ if(!type||!collection)return null;
+ const key=`${type}|${collection}`;
+ if(!registryMappings[key])registryMappings[key]={objectNameField:'',externalIdField:'',attrs:{},updatedAt:'—'};
+ return registryMappings[key]
+}
+function registryMappingFieldOptions(collection,value,required=false){
+ const fields=registryCmdbCollectionFields[collection]||[];
+ return`${required?'':'<option value="">— Не синхронизировать —</option>'}${fields.map(f=>`<option value="${esc(f)}" ${f===value?'selected':''}>${esc(f)}</option>`).join('')}`
+}
+function setRegistryMappingType(type){
+ registryMappingEditor.type=type;
+ const allowed=registryAllowedCollectionsForType(type);
+ if(!allowed.some(c=>c.id===registryMappingEditor.collection))registryMappingEditor.collection=allowed[0]?.id||'';
+ renderAdmin()
+}
+function setRegistryMappingCollection(collection){registryMappingEditor.collection=collection;renderAdmin()}
+function setRegistryMappingIdentity(kind,value){const m=registryEnsureMapping(registryMappingEditor.type,registryMappingEditor.collection);if(!m)return;m[kind]=value}
+function setRegistryMappingAttribute(attr,value){const m=registryEnsureMapping(registryMappingEditor.type,registryMappingEditor.collection);if(!m)return;if(value)m.attrs[attr]=value;else delete m.attrs[attr]}
+function saveRegistryMapping(){
+ const type=registryMappingEditor.type,collection=registryMappingEditor.collection;
+ const m=registryEnsureMapping(type,collection);if(!m)return toast('Сначала выберите тип и коллекцию');
+ if(!m.objectNameField)return toast('Выберите поле внешнего источника для имени объекта');
+ if(!m.externalIdField)return toast('Выберите поле External ID');
+ m.updatedAt=now();renderAdmin();toast(`Mapping ${type} ← ${collection} сохранён`)
+}
+function renderMappingSettings(){
+ const selected=registrySelectedCmdbCollections(),allSelected=selected.length===registryCmdbCollections.length;
+ const type=registryMappingEditor.type;
+ const allowedCollections=registryAllowedCollectionsForType(type);
+ if(allowedCollections.length&&!allowedCollections.some(c=>c.id===registryMappingEditor.collection))registryMappingEditor.collection=allowedCollections[0].id;
+ const collection=registryMappingEditor.collection;
+ const mapping=registryEnsureMapping(type,collection);
+ const attrs=(objectTypes[type]||[]).filter(a=>a.id!=='name');
+ const mappedCount=mapping?Object.keys(mapping.attrs||{}).filter(a=>mapping.attrs[a]).length:0;
+ return`<div class="info"><b>Выбор коллекций Galaxy / CMDB.</b> Администратор выбирает, какие предоставляемые внешним источником коллекции MARS должен регулярно получать и синхронизировать. Выбор коллекции сам по себе не определяет тип объекта MARS — соответствие типов и атрибутов задаётся ниже в mapping.</div>
+ <div class="toolbar">
+   <div><div><b>Источник:</b> ${esc(registryCmdbSource.name)}</div><div class="hint">Доступно коллекций: ${registryCmdbCollections.length} · выбрано для синхронизации: <b>${selected.length}</b></div></div>
+   <div class="actions"><label class="badge" style="padding:7px 10px;cursor:pointer"><input class="checkbox" type="checkbox" ${allSelected?'checked':''} onchange="toggleAllRegistryCmdbCollections(this.checked)"> Выбрать все</label><button class="sm outline" onclick="syncRegistryCmdbCollections()" ${selected.length?'':'disabled'}>🔄 Синхронизировать выбранные</button></div>
+ </div>
+ <div class="table-wrap"><table><thead><tr><th style="width:52px">Синхр.</th><th>Коллекция Galaxy / CMDB</th><th>Описание</th><th>Объектов доступно</th><th>Состояние</th><th>Последняя синхронизация</th></tr></thead><tbody>
+ ${registryCmdbCollections.map(c=>`<tr><td><input class="checkbox" type="checkbox" ${c.selected?'checked':''} onchange="toggleRegistryCmdbCollection(${q(c.id)},this.checked)"></td><td><div class="cell-title">${esc(c.name)}</div><div class="cell-sub mono">${esc(c.id)}</div></td><td>${esc(c.description)}</td><td><b>${c.available.toLocaleString('ru-RU')}</b></td><td>${registryCmdbCollectionStatus(c)}</td><td>${esc(c.lastSync)}</td></tr>`).join('')}
+ </tbody></table></div>
+ <div class="content"><div class="box blue-box"><b>Текущий scope для Host:</b> тип <span class="mono">Host</span> может получать внешние значения только из <span class="mono">Galaxy/HOSTOS</span>. UABD/USP и другие коллекции не используются для наполнения Host. При этом они могут синхронизироваться для других типов объектов и будущих связей.</div></div>
+ <div class="toolbar"><div><b>Mapping атрибутов MARS</b><div class="hint">Выберите тип объекта MARS и синхронизируемую коллекцию, затем сопоставьте внутренние атрибуты с полями внешнего источника.</div></div><div class="actions"><span class="muted">Замаплено атрибутов: <b>${mappedCount}</b> / ${attrs.length}</span></div></div>
+ <div class="content">
+   <div class="row">
+     <div class="field"><label>Тип объекта MARS</label><select class="wide" onchange="setRegistryMappingType(this.value)">${Object.keys(objectTypes).map(t=>`<option value="${esc(t)}" ${t===type?'selected':''}>${esc(t)}</option>`).join('')}</select></div>
+     <div class="field"><label>Коллекция Galaxy / CMDB</label><select class="wide" onchange="setRegistryMappingCollection(this.value)" ${allowedCollections.length?'':'disabled'}>${allowedCollections.length?allowedCollections.map(c=>`<option value="${esc(c.id)}" ${c.id===collection?'selected':''}>${esc(c.name)}</option>`).join(''):'<option>Нет доступных выбранных коллекций</option>'}</select><div class="hint">${type==='Host'?'Для Host в текущем scope доступна только HOSTOS.':'Показываются только коллекции, отмеченные выше для синхронизации.'}</div></div>
+   </div>
+   ${!collection||!mapping?`<div class="empty">Выберите подходящую коллекцию выше, чтобы настроить mapping.</div>`:`
+   <div class="box"><b>Создание и идентификация объекта</b><div class="hint">Эти поля используются не как обычные атрибуты, а для создания объекта MARS и устойчивой привязки внешней записи к <span class="mono">object_id</span>.</div>
+     <div class="row" style="margin-top:12px">
+       <div class="field"><label>Имя объекта MARS *</label><select class="wide mono" onchange="setRegistryMappingIdentity('objectNameField',this.value)">${registryMappingFieldOptions(collection,mapping.objectNameField,true)}</select><div class="hint">${esc(type)}.name ← ${esc(collection)}.${esc(mapping.objectNameField||'—')}</div></div>
+       <div class="field"><label>External ID *</label><select class="wide mono" onchange="setRegistryMappingIdentity('externalIdField',this.value)">${registryMappingFieldOptions(collection,mapping.externalIdField,true)}</select><div class="hint">После первой привязки: External ID → постоянный MARS object_id.</div></div>
+     </div>
+   </div>
+   <div class="box" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap"><div><b>Атрибуты объекта ${esc(type)}</b><div class="hint">Строки формируются из атрибутов типа MARS. Чтобы добавить новый атрибут, сначала добавьте его во вкладке «Типы объектов».</div></div><span class="badge b-blue">${esc(collection)}</span></div></div>
+   <div class="table-wrap"><table><thead><tr><th>Атрибут MARS</th><th>Поле ${esc(collection)}</th><th>Результат</th></tr></thead><tbody>
+     ${attrs.map(a=>{const field=mapping.attrs?.[a.id]||'';return`<tr><td><div class="cell-title">${esc(a.label)}</div><div class="cell-sub mono">${esc(type)}.${esc(a.id)}</div></td><td><select class="wide mono" onchange="setRegistryMappingAttribute(${q(a.id)},this.value)">${registryMappingFieldOptions(collection,field,false)}</select></td><td>${field?`<span class="mono">${esc(type)}.${esc(a.id)}</span> ← <span class="badge b-violet">${esc(collection)}.${esc(field)}</span>`:`<span class="badge">Не синхронизируется</span><div class="cell-sub">Атрибут остаётся доступен для Manual-значения.</div>`}</td></tr>`}).join('')}
+   </tbody></table></div>
+   <div class="toolbar" style="margin:14px -18px -16px;border-top:1px solid var(--line);border-bottom:0"><div class="hint">Последнее сохранение mapping: <b>${esc(mapping.updatedAt||'—')}</b></div><div class="actions"><button onclick="saveRegistryMapping()">Сохранить mapping</button></div></div>
+   `}
+ </div>`
+}
+function renderRelationTypeSettings(){return`<div class="toolbar"><span class="muted">Системные + пользовательские типы</span><button onclick="openRelationTypeCreate()">➕ Добавить тип связи</button></div><div class="content">${relationTypes.map(t=>`<div class="card"><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${t.name}</div><div class="meta">Обратное название: <b>${t.reverse}</b></div><div class="pill-row"><span class="badge ${t.system?'b-violet':'b-blue'}">${t.system?'Системный':'Пользовательский'}</span><span class="badge ${t.active?'b-green':'b-amber'}">${t.active?'Активен':'Выключен'}</span></div></div></div></div>`).join('')}</div>`}
+function openRelationTypeCreate(){openModal('Добавить тип связи','Тип выбирается правилами из справочника.',`<div class="row"><div class="field"><label>Прямое название *</label><input id="rt-name" class="wide" placeholder="Например: Резервирует"></div><div class="field"><label>Обратное название *</label><input id="rt-rev" class="wide" placeholder="Например: Резервируется"></div></div><div class="box blue-box">Database <b>размещена на</b> Host<br>Host <b>размещает</b> Database</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType()">Добавить</button>`,true)}
+function saveRelationType(){const n=$('rt-name').value.trim(),r=$('rt-rev').value.trim();if(!n||!r)return toast('Заполните оба названия');relationTypes.push({id:uid('rt'),name:n,reverse:r,system:false,active:true});closeModal();renderAdmin();toast('Тип связи создан')}
+function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = одно правило формирования связи</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие</th><th>Направление</th><th>Множественность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${r.name}</b><div class="cell-sub mono">${r.id}</div></td><td><span class="badge b-violet">${relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—'}</span></td><td class="mono">${r.sourceType}.${r.sourceAttr} ${r.operator} ${r.targetType}.${r.targetAttr}</td><td><b>${r.sourceType}</b> → <b>${r.targetType}</b></td><td>${r.multiplicity==='one'?'<span class="badge b-blue">Один</span>':'<span class="badge b-green">Несколько</span>'}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
+function typeOptions(sel){return Object.keys(objectTypes).map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}
+function attrOptions(t,sel){return objectTypes[t].map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label} · ${a.id}</option>`).join('')}
+function openRelationRule(id=''){const r=id?relationRules.find(x=>x.id===id):{name:'Host относится к ИТ-системе',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',multiplicity:'one',active:true};openModal(id?'Редактировать правило связи':'Добавить правило связи','Одна настройка = одно правило.',`<div class="field"><label>Название</label><input id="rr-name" class="wide" value="${esc(r.name)}"></div><div class="separator"></div><h3>1. Какие объекты связываем</h3><div class="rule-flow"><div><div class="field"><label>Исходный тип</label><select id="rr-st" class="wide">${typeOptions(r.sourceType)}</select></div><div class="field"><label>Исходный атрибут</label><select id="rr-sa" class="wide">${attrOptions(r.sourceType,r.sourceAttr)}</select></div></div><div class="field"><label>Оператор</label><select id="rr-op" class="wide"><option>=</option><option ${r.operator==='IN'?'selected':''}>IN</option></select></div><div><div class="field"><label>Целевой тип</label><select id="rr-tt" class="wide">${typeOptions(r.targetType)}</select></div><div class="field"><label>Целевой атрибут</label><select id="rr-ta" class="wide">${attrOptions(r.targetType,r.targetAttr)}</select></div></div></div><div class="separator"></div><h3>2. Семантика связи</h3><div class="row"><div class="field"><label>Тип связи</label><select id="rr-rel" class="wide">${relationTypes.filter(t=>t.active).map(t=>`<option value="${t.id}" ${t.id===r.relationTypeId?'selected':''}>${t.name}</option>`).join('')}</select></div><div class="box" style="margin:0"><b>Направление:</b> Исходный → Целевой<div class="hint">Parent/Child не используется.</div></div></div><div id="rr-preview" class="rule-preview"></div><div class="separator"></div><h3>3. Множественность</h3><div class="row"><label class="card"><div class="card-main"><input class="checkbox" type="radio" name="rr-mult" value="one" ${r.multiplicity==='one'?'checked':''}><div><b>Только один</b><div class="meta">0 — нет связи; 1 — связь; &gt;1 — неоднозначность</div></div></div></label><label class="card"><div class="card-main"><input class="checkbox" type="radio" name="rr-mult" value="many" ${r.multiplicity==='many'?'checked':''}><div><b>Один или несколько</b><div class="meta">0 — нет связей; N — N связей</div></div></div></label></div><div class="separator"></div><h3>4. Проверка</h3><button class="outline" onclick="testRelationRule()">▶ Проверить на данных реестра</button><div id="rr-test"></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationRule(${q(id)})">Сохранить</button>`);const upd=()=>{$('rr-preview').innerHTML=`<div class="rule-preview-line"><span class="rule-node">${$('rr-st').value}</span><span class="rule-arrow">── ${relationTypes.find(t=>t.id===$('rr-rel').value)?.name||''} ──►</span><span class="rule-node">${$('rr-tt').value}</span></div><div class="rule-code">${$('rr-st').value}.${$('rr-sa').value} ${$('rr-op').value} ${$('rr-tt').value}.${$('rr-ta').value}</div>`};$('rr-st').onchange=()=>{$('rr-sa').innerHTML=attrOptions($('rr-st').value,'');upd()};$('rr-tt').onchange=()=>{$('rr-ta').innerHTML=attrOptions($('rr-tt').value,'');upd()};['rr-sa','rr-ta','rr-op','rr-rel'].forEach(x=>$(x).onchange=upd);upd()}
+function testRelationRule(){$('rr-test').innerHTML=`<div class="stats" style="padding:12px 0;background:#fff"><div class="stat"><label>Связь сформирована</label><b>1 180</b></div><div class="stat"><label>Цель не найдена</label><b>61</b></div><div class="stat"><label>Неоднозначно</label><b>13</b></div><div class="stat"><label>Всего проверено</label><b>1 254</b></div></div>`}
+function saveRelationRule(id){const old=id?relationRules.find(x=>x.id===id):null,d={id:old?.id||uid('RR'),name:$('rr-name').value.trim()||'Без названия',sourceType:$('rr-st').value,sourceAttr:$('rr-sa').value,operator:$('rr-op').value,targetType:$('rr-tt').value,targetAttr:$('rr-ta').value,relationTypeId:$('rr-rel').value,multiplicity:document.querySelector('input[name="rr-mult"]:checked').value,active:true,formed:old?.formed||0,missing:old?.missing||0,ambiguous:old?.ambiguous||0};if(old)relationRules[relationRules.indexOf(old)]=d;else relationRules.push(d);closeModal();renderAdmin();toast(old?'Правило обновлено':'Правило создано')}
 
-            if (!localStorage.getItem('objects')) {
-                localStorage.setItem('objects', JSON.stringify([
-                    { id: 1, name: 'web-server-01', typeId: 1, status: 'Active' },
-                    { id: 2, name: 'db-primary', typeId: 2, status: 'Active' },
-                    { id: 3, name: 'router-core', typeId: 3, status: 'Warning' },
-                    { id: 4, name: 'storage-nas-01', typeId: 4, status: 'Error' }
-                ]));
-            }
-        }
-
-        // Авторизация
-        let currentUser = null;
-
-        function login(username) {
-            const users = JSON.parse(localStorage.getItem('users'));
-            currentUser = users.find(u => u.username === username);
-            
-            if (currentUser) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('dashboard').classList.add('active');
-                document.getElementById('currentUserDisplay').textContent = 
-                    `👤 ${currentUser.username} (${currentUser.isAdmin ? 'Администратор' : 'Пользователь'})`;
-                
-                document.getElementById('addBtn').style.display = currentUser.isAdmin ? 'block' : 'none';
-                
-                renderObjects();
-                populateTypeFilters();
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('loginScreen').style.display = 'block';
-            document.getElementById('dashboard').classList.remove('active');
-        }
-
-        // Рендеринг объектов
-        function renderObjects() {
-            const objects = JSON.parse(localStorage.getItem('objects'));
-            const types = JSON.parse(localStorage.getItem('objectTypes'));
-            const typeFilter = document.getElementById('typeFilter').value;
-            const statusFilter = document.getElementById('statusFilter').value;
-            
-            let filtered = objects;
-            
-            if (typeFilter) {
-                filtered = filtered.filter(obj => obj.typeId == typeFilter);
-            }
-            
-            if (statusFilter) {
-                filtered = filtered.filter(obj => obj.status === statusFilter);
-            }
-
-            const grid = document.getElementById('objectsGrid');
-            
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="empty-state">
-                        <h3>Объекты не найдены</h3>
-                        <p>Нет объектов, соответствующих выбранным фильтрам</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = filtered.map(obj => {
-                const type = types.find(t => t.id === obj.typeId);
-                const statusClass = `status-${obj.status.toLowerCase()}`;
-                const statusText = {
-                    'Active': 'Активен',
-                    'Warning': 'Внимание',
-                    'Error': 'Ошибка',
-                    'Archived': 'Архив'
-                }[obj.status];
-
-                return `
-                    <div class="object-card">
-                        <div class="object-header">
-                            <div>
-                                <div class="object-name">${obj.name}</div>
-                                <div class="object-type">${type ? type.name : 'Неизвестный тип'}</div>
-                            </div>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
-                        </div>
-                        <div class="object-actions">
-                            ${obj.status !== 'Archived' ? 
-                                `<button class="action-btn archive-btn" onclick="archiveObject(${obj.id})">В архив</button>` : 
-                                ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Заполнение фильтров типов
-        function populateTypeFilters() {
-            const types = JSON.parse(localStorage.getItem('objectTypes'));
-            const filterSelect = document.getElementById('typeFilter');
-            const modalSelect = document.getElementById('objectType');
-            
-            filterSelect.innerHTML = '<option value="">Все типы</option>';
-            modalSelect.innerHTML = '<option value="">Выберите тип</option>';
-            
-            types.forEach(type => {
-                filterSelect.innerHTML += `<option value="${type.id}">${type.name}</option>`;
-                modalSelect.innerHTML += `<option value="${type.id}">${type.name}</option>`;
-            });
-        }
-
-        // Переключение вкладок
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            
-            hideMessages();
-            
-            if (tabName === 'catalog') {
-                renderCatalog();
-            } else if (tabName === 'import') {
-                resetImport();
-            }
-        }
-
-        // Модальное окно
-        function openModal() {
-            if (!currentUser || !currentUser.isAdmin) {
-                alert('Только администраторы могут добавлять объекты');
-                return;
-            }
-            document.getElementById('addModal').classList.add('active');
-            hideMessages();
-            resetImport();
-        }
-
-        function closeModal() {
-            document.getElementById('addModal').classList.remove('active');
-            document.getElementById('objectType').value = '';
-            document.getElementById('objectName').value = '';
-            hideMessages();
-            resetImport();
-        }
-
-        function hideMessages() {
-            document.getElementById('errorMessage').classList.remove('show');
-            document.getElementById('successMessage').classList.remove('show');
-        }
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            document.getElementById('successMessage').classList.remove('show');
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.classList.add('show');
-            document.getElementById('errorMessage').classList.remove('show');
-        }
-
-        // Добавление объекта вручную
-        function addObject(event) {
-            event.preventDefault();
-            
-            if (!currentUser || !currentUser.isAdmin) {
-                showError('Только администраторы могут добавлять объекты');
-                return;
-            }
-
-            const typeId = parseInt(document.getElementById('objectType').value);
-            const name = document.getElementById('objectName').value.trim();
-            
-            if (!typeId || !name) {
-                showError('Заполните все поля');
-                return;
-            }
-
-            const objects = JSON.parse(localStorage.getItem('objects'));
-            
-            const exists = objects.some(obj => obj.typeId === typeId && obj.name === name);
-            if (exists) {
-                const types = JSON.parse(localStorage.getItem('objectTypes'));
-                const typeName = types.find(t => t.id === typeId).name;
-                showError(`Объект с именем "${name}" уже существует в типе "${typeName}"`);
-                return;
-            }
-
-            const newObject = {
-                id: Date.now(),
-                name: name,
-                typeId: typeId,
-                status: 'Active'
-            };
-
-            objects.push(newObject);
-            localStorage.setItem('objects', JSON.stringify(objects));
-            
-            closeModal();
-            renderObjects();
-        }
-
-        // === СПРАВОЧНИК ===
-        function renderCatalog() {
-            const types = JSON.parse(localStorage.getItem('objectTypes'));
-            const objects = JSON.parse(localStorage.getItem('objects'));
-            const catalogList = document.getElementById('catalogList');
-            
-            // Группируем по типу
-            const grouped = {};
-            types.forEach(t => { grouped[t.name] = []; });
-            
-            CATALOG.forEach(item => {
-                if (grouped[item.typeName]) {
-                    grouped[item.typeName].push(item);
-                }
-            });
-
-            let html = '';
-            Object.keys(grouped).forEach(typeName => {
-                const items = grouped[typeName];
-                if (items.length === 0) return;
-                
-                html += `<div class="catalog-group">`;
-                html += `<div class="catalog-group-title">${typeName} (${items.length})</div>`;
-                
-                items.forEach(item => {
-                    const type = types.find(t => t.name === item.typeName);
-                    const alreadyExists = objects.some(o => o.typeId === type.id && o.name === item.name);
-                    
-                    if (alreadyExists) {
-                        html += `
-                            <div class="catalog-item disabled">
-                                <input type="checkbox" disabled>
-                                <span class="catalog-item-label">${item.name} <small style="color:#999">(уже добавлен)</small></span>
-                            </div>
-                        `;
-                    } else {
-                        html += `
-                            <div class="catalog-item">
-                                <input type="checkbox" class="catalog-checkbox" 
-                                    data-name="${item.name}" 
-                                    data-type-id="${type.id}"
-                                    onchange="updateCatalogCounter()">
-                                <span class="catalog-item-label">${item.name}</span>
-                            </div>
-                        `;
-                    }
-                });
-                
-                html += `</div>`;
-            });
-
-            catalogList.innerHTML = html;
-            updateCatalogCounter();
-        }
-
-        function toggleSelectAllCatalog() {
-            const selectAll = document.getElementById('catalogSelectAll').checked;
-            document.querySelectorAll('.catalog-checkbox').forEach(cb => {
-                cb.checked = selectAll;
-            });
-            updateCatalogCounter();
-        }
-
-        function updateCatalogCounter() {
-            const checked = document.querySelectorAll('.catalog-checkbox:checked').length;
-            const total = document.querySelectorAll('.catalog-checkbox').length;
-            document.getElementById('catalogCounter').textContent = `${checked} из ${total} выбрано`;
-        }
-
-        function addFromCatalog() {
-            if (!currentUser || !currentUser.isAdmin) {
-                showError('Только администраторы могут добавлять объекты');
-                return;
-            }
-
-            const checkboxes = document.querySelectorAll('.catalog-checkbox:checked');
-            if (checkboxes.length === 0) {
-                showError('Выберите хотя бы один объект из справочника');
-                return;
-            }
-
-            const objects = JSON.parse(localStorage.getItem('objects'));
-            const types = JSON.parse(localStorage.getItem('objectTypes'));
-            let addedCount = 0;
-            let skippedCount = 0;
-            const timestamp = Date.now();
-
-            checkboxes.forEach((cb, index) => {
-                const name = cb.dataset.name;
-                const typeId = parseInt(cb.dataset.typeId);
-                
-                // Повторная проверка уникальности
-                const exists = objects.some(o => o.typeId === typeId && o.name === name);
-                if (!exists) {
-                    objects.push({
-                        id: timestamp + index,
-                        name: name,
-                        typeId: typeId,
-                        status: 'Active'
-                    });
-                    addedCount++;
-                } else {
-                    skippedCount++;
-                }
-            });
-
-            localStorage.setItem('objects', JSON.stringify(objects));
-            
-            let message = `✅ Успешно добавлено: ${addedCount}`;
-            if (skippedCount > 0) {
-                message += `. Пропущено (дубликаты): ${skippedCount}`;
-            }
-            showSuccess(message);
-            
-            renderObjects();
-            renderCatalog();
-            document.getElementById('catalogSelectAll').checked = false;
-        }
-
-        // === ИМПОРТ ФАЙЛА ===
-        function resetImport() {
-            pendingImportData = null;
-            document.getElementById('fileInput').value = '';
-            document.getElementById('fileInfo').classList.remove('show');
-            document.getElementById('importBtn').disabled = true;
-            const area = document.getElementById('fileUploadArea');
-            area.innerHTML = `
-                <div class="file-upload-icon">📄</div>
-                <div class="file-upload-text">Нажмите или перетащите JSON-файл сюда</div>
-                <div class="file-upload-hint">Поддерживается только формат .json</div>
-            `;
-        }
-
-        // Drag & Drop
-        const fileUploadArea = document.getElementById('fileUploadArea');
-        
-        fileUploadArea.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            fileUploadArea.classList.add('dragover');
-        });
-        
-        fileUploadArea.addEventListener('dragleave', () => {
-            fileUploadArea.classList.remove('dragover');
-        });
-        
-        fileUploadArea.addEventListener('drop', (e) => {
-            e.preventDefault();
-            fileUploadArea.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) processFile(file);
-        });
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) processFile(file);
-        }
-
-        function processFile(file) {
-            hideMessages();
-            
-            if (!file.name.toLowerCase().endsWith('.json')) {
-                showError('Поддерживаются только файлы с расширением .json');
-                resetImport();
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    
-                    if (!Array.isArray(data)) {
-                        showError('Файл должен содержать JSON-массив объектов');
-                        return;
-                    }
-
-                    const types = JSON.parse(localStorage.getItem('objectTypes'));
-                    const typeNames = types.map(t => t.name);
-                    
-                    // Валидация каждой записи
-                    let validCount = 0;
-                    let invalidCount = 0;
-                    let duplicateCount = 0;
-                    const validItems = [];
-                    const existingObjects = JSON.parse(localStorage.getItem('objects'));
-                    const errors = [];
-
-                    data.forEach((item, index) => {
-                        if (!item.name || typeof item.name !== 'string') {
-                            invalidCount++;
-                            errors.push(`Строка ${index + 1}: отсутствует или некорректное поле "name"`);
-                            return;
-                        }
-                        if (!item.type || typeof item.type !== 'string') {
-                            invalidCount++;
-                            errors.push(`Строка ${index + 1}: отсутствует или некорректное поле "type"`);
-                            return;
-                        }
-                        if (!typeNames.includes(item.type)) {
-                            invalidCount++;
-                            errors.push(`Строка ${index + 1}: неизвестный тип "${item.type}"`);
-                            return;
-                        }
-                        
-                        const type = types.find(t => t.name === item.type);
-                        const name = item.name.trim();
-                        
-                        // Проверка на дубликат в существующих объектах
-                        if (existingObjects.some(o => o.typeId === type.id && o.name === name)) {
-                            duplicateCount++;
-                            return;
-                        }
-                        
-                        // Проверка на дубликат внутри самого файла
-                        if (validItems.some(v => v.typeId === type.id && v.name === name)) {
-                            duplicateCount++;
-                            return;
-                        }
-                        
-                        validItems.push({ name, typeId: type.id });
-                        validCount++;
-                    });
-
-                    pendingImportData = validItems;
-
-                    // Обновляем UI
-                    document.getElementById('fileName').textContent = `📄 ${file.name}`;
-                    document.getElementById('fileStats').innerHTML = 
-                        `Всего записей: <strong>${data.length}</strong> | ` +
-                        `Готовы к импорту: <strong style="color:#2e7d32">${validCount}</strong> | ` +
-                        `Некорректных: <strong style="color:#c62828">${invalidCount}</strong> | ` +
-                        `Дубликатов: <strong style="color:#f57c00">${duplicateCount}</strong>`;
-                    document.getElementById('fileInfo').classList.add('show');
-                    document.getElementById('importBtn').disabled = validCount === 0;
-
-                    // Обновляем область загрузки
-                    fileUploadArea.innerHTML = `
-                        <div class="file-upload-icon">✅</div>
-                        <div class="file-upload-text">${file.name}</div>
-                        <div class="file-upload-hint">Нажмите, чтобы выбрать другой файл</div>
-                    `;
-
-                    if (errors.length > 0) {
-                        showError(`Найдены ошибки в файле:\n${errors.slice(0, 5).join('\n')}${errors.length > 5 ? '\n...' : ''}`);
-                    }
-
-                } catch (err) {
-                    showError(`Ошибка парсинга JSON: ${err.message}`);
-                    resetImport();
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function importFromFile() {
-            if (!currentUser || !currentUser.isAdmin) {
-                showError('Только администраторы могут добавлять объекты');
-                return;
-            }
-
-            if (!pendingImportData || pendingImportData.length === 0) {
-                showError('Нет данных для импорта');
-                return;
-            }
-
-            const objects = JSON.parse(localStorage.getItem('objects'));
-            const timestamp = Date.now();
-            let addedCount = 0;
-
-            pendingImportData.forEach((item, index) => {
-                // Финальная проверка уникальности
-                const exists = objects.some(o => o.typeId === item.typeId && o.name === item.name);
-                if (!exists) {
-                    objects.push({
-                        id: timestamp + index,
-                        name: item.name,
-                        typeId: item.typeId,
-                        status: 'Active'
-                    });
-                    addedCount++;
-                }
-            });
-
-            localStorage.setItem('objects', JSON.stringify(objects));
-            
-            showSuccess(`✅ Успешно импортировано: ${addedCount} объектов`);
-            renderObjects();
-            
-            // Сбрасываем состояние импорта
-            setTimeout(() => {
-                resetImport();
-            }, 2000);
-        }
-
-        // Архивирование объекта
-        function archiveObject(id) {
-            if (!confirm('Перевести объект в архив? Он перестанет мониториться, но останется в системе.')) {
-                return;
-            }
-
-            const objects = JSON.parse(localStorage.getItem('objects'));
-            const obj = objects.find(o => o.id === id);
-            
-            if (obj) {
-                obj.status = 'Archived';
-                localStorage.setItem('objects', JSON.stringify(objects));
-                renderObjects();
-            }
-        }
-
-        // Закрытие модального окна по клику вне его
-        document.getElementById('addModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
-            }
-        });
-
-        // Инициализация при загрузке
-        initData();
-    </script>
+document.querySelectorAll('.product-tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.product-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.app-section').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('product-'+b.dataset.product).classList.add('active');if(b.dataset.product==='registry')renderRegistry();if(b.dataset.product==='admin')renderAdmin()});
+loadState();renderAll();renderRegistry();renderAdmin();
+</script>
 </body>
 </html>
