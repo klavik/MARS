@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.6.2 — прототип</title>
+<title>MARS v0.6.3 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -78,7 +78,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.6.2</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.6.3</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -253,7 +253,7 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=6;
-const MARS_MOCKUP_VERSION='0.6.2';
+const MARS_MOCKUP_VERSION='0.6.3';
 const PROTOTYPE_HELP_VERSION=`04.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
@@ -420,7 +420,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.6.2.',
+   body:'Текущая версия интерактивного прототипа: v0.6.3.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -506,12 +506,12 @@ const PROTOTYPE_HELP={
  'sync.sourceType':{
    title:'Тип источника',
    body:'Определяет вид интеграции и модель данных внешнего источника. Тип выбирается при добавлении нового источника.',
-   constraints:['Сейчас доступен один тип — Galaxy / CMDB.','При появлении нового типа он автоматически появляется в форме «Добавить источник».','Набор параметров синхронизации может отличаться для разных типов источников.','Тип источника не является типом объекта MARS.']
+   constraints:['В одной установке MARS может быть настроен не более чем один источник каждого типа.','Сейчас доступен один тип — Galaxy / CMDB, поэтому второй Galaxy / CMDB добавить нельзя.','При появлении нового типа он автоматически появляется в форме «Добавить источник», если источник такого типа ещё не создан.','Набор параметров синхронизации может отличаться для разных типов источников.','Тип источника не является типом объекта MARS.']
  },
  'sync.source':{
    title:'Источник',
    body:'Конкретный настроенный экземпляр внешней интеграции.',
-   constraints:['Источники создаются и удаляются администратором.','Каждый источник имеет собственные параметры синхронизации и собственный выбор коллекций.','Удаление источника блокируется, если его конфигурация используется типами объектов.']
+   constraints:['Источники создаются и удаляются администратором.','Для каждого типа источника допускается только один экземпляр.','Каждый источник имеет собственные параметры синхронизации и собственный выбор коллекций.','Удаление источника блокируется, если его конфигурация используется типами объектов.']
  },
  'sync.frequency':{
    title:'Частота синхронизации',
@@ -1046,6 +1046,15 @@ function toggleAllRegistryCmdbCollections(checked){
 }
 
 function registrySourcesForType(typeId){return registrySources.filter(s=>s.typeId===typeId)}
+function registryAvailableSourceTypes(){
+ return registrySourceTypes.filter(t=>!registrySources.some(s=>s.typeId===t.id))
+}
+function registryCanAddSource(){return registryAvailableSourceTypes().length>0}
+function registryDuplicateSourceTypes(){
+ const counts={};
+ registrySources.forEach(s=>counts[s.typeId]=(counts[s.typeId]||0)+1);
+ return Object.keys(counts).filter(typeId=>counts[typeId]>1)
+}
 function registrySelectedSource(){return registrySources.find(s=>s.id===registrySyncSelection.sourceId)||registrySources[0]||null}
 function registrySourceType(source){return registrySourceTypes.find(t=>t.id===source?.typeId)}
 function setRegistrySource(sourceId){
@@ -1054,16 +1063,23 @@ function setRegistrySource(sourceId){
  saveRegistryPrototypeState();renderAdmin()
 }
 function openRegistrySourceCreate(){
- openModal('Добавить источник','Создайте новый экземпляр внешнего источника. Тип определяет доступную модель синхронизации.',`
+ const availableTypes=registryAvailableSourceTypes();
+ if(!availableTypes.length)return toast('Источник каждого доступного типа уже настроен');
+ openModal('Добавить источник','Создайте новый внешний источник. Для каждого типа источника в MARS допускается только один экземпляр.',`
    <div class="field"><label>Тип источника ${tip('sync.sourceType')}</label>
-     <select id="rss-type" class="wide">${registrySourceTypes.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('')}</select>
+     <select id="rss-type" class="wide">${availableTypes.map(t=>`<option value="${esc(t.id)}">${esc(t.name)}</option>`).join('')}</select>
+     <div class="hint">Отображаются только типы, для которых источник ещё не создан.</div>
    </div>
-   <div class="field"><label>Название источника *</label><input id="rss-name" class="wide" placeholder="Например: Galaxy / CMDB Backup"></div>
+   <div class="field"><label>Название источника *</label><input id="rss-name" class="wide" placeholder="Например: Galaxy / CMDB"></div>
  `,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRegistrySourceCreate()">Добавить источник</button>`,true)
 }
 function saveRegistrySourceCreate(){
  const typeId=$('rss-type').value,name=$('rss-name').value.trim();
  if(!name)return toast('Введите название источника');
+ if(registrySources.some(s=>s.typeId===typeId)){
+   const typeName=registrySourceTypes.find(t=>t.id===typeId)?.name||typeId;
+   return toast(`Источник типа ${typeName} уже настроен. Для одного типа допускается только один источник.`)
+ }
  const id=uid('source').toLowerCase();
  registrySources.push({id,typeId,name});
  registrySourceSyncSettings[id]=registrySyncSettingsFor(id);
@@ -1073,7 +1089,6 @@ function saveRegistrySourceCreate(){
  saveRegistryPrototypeState();closeModal();renderAdmin();toast(`Источник ${name} добавлен`)
 }
 function canDeleteRegistrySource(sourceId){
- if(registrySources.length<=1)return{ok:false,reason:'Должен остаться хотя бы один источник в прототипе'};
  const used=Object.entries(registryCollectionAssignments).filter(([type])=>registryAssignedSource(type)===sourceId&&registryAssignedCollection(type));
  if(used.length)return{ok:false,reason:`Источник используется типами MARS: ${used.map(([t])=>t).join(', ')}`};
  return{ok:true}
@@ -1166,11 +1181,17 @@ function renderSyncSettings(){
  const selected=registrySelectedCmdbCollections(),allSelected=selected.length===registryCmdbCollections.length;
  const isGalaxy=selectedType?.id==='galaxy-cmdb'&&selectedSource;
 
- return`<div class="info"><b>Источники и синхронизация. ${tip('sync.section')}</b> Здесь добавляются внешние источники и настраиваются параметры получения данных. Тип источника выбирается при его создании. Mapping внешних полей на атрибуты MARS настраивается внутри «Типы объектов».</div>
+ const duplicateTypes=registryDuplicateSourceTypes();
+ return`<div class="info"><b>Источники и синхронизация. ${tip('sync.section')}</b> Здесь добавляются внешние источники и настраиваются параметры получения данных. Тип источника выбирается при его создании; источник каждого типа может быть только один. Mapping внешних полей на атрибуты MARS настраивается внутри «Типы объектов».</div>
+ ${duplicateTypes.length?`<div class="content"><div class="box red-box"><b>Конфликт конфигурации:</b> в данных предыдущей версии сохранено несколько источников одного типа. Новые источники такого типа добавить нельзя. Удалите лишний источник после снятия его использования типами объектов.</div></div>`:''}
 
  <div class="toolbar">
-   <div><b>Источники</b><div class="hint">Каждая строка — отдельный настроенный экземпляр внешнего источника.</div></div>
-   <button onclick="openRegistrySourceCreate()">➕ Добавить источник</button>
+   <div><b>Источники ${tip('sync.source')}</b><div class="hint">Для каждого типа внешнего источника можно настроить не более одного экземпляра.</div></div>
+   <div class="actions">
+     ${registryCanAddSource()
+       ?`<button onclick="openRegistrySourceCreate()">➕ Добавить источник</button>`
+       :`<button disabled title="Для всех доступных типов источник уже настроен">➕ Добавить источник</button>`}
+   </div>
  </div>
  <div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип</th><th>Статус</th><th>Выбрано коллекций</th><th>Последняя синхронизация</th><th></th></tr></thead><tbody>
  ${registrySources.map(s=>{
@@ -1186,6 +1207,7 @@ function renderSyncSettings(){
    </tr>`
  }).join('')}
  </tbody></table></div>
+ ${!registryCanAddSource()?`<div class="content"><div class="box blue-box"><b>Ограничение:</b> источник каждого типа может быть только один. Кнопка «Добавить источник» станет доступна, когда в MARS появится новый тип источника или будет удалён существующий источник.</div></div>`:''}
 
  ${selectedSource?`
  <div class="toolbar">
