@@ -219,7 +219,99 @@ function openAdminRegistryObject(id){const o=registry.objects.find(x=>x.id===id)
 function openRegistryValueEdit(id,attr){if(!isAdmin())return toast('Недостаточно прав');const o=registry.objects.find(x=>x.id===id),a=(objectTypes[o.type]||[]).find(x=>x.id===attr);if(!o||!a)return;const current=registryEffectiveValue(o,attr)||'';const external=o.raw?.[attr];const title=external!==undefined?(registryIsOverride(o,attr)?'Изменить ручное переопределение':'Переопределить вручную'):'Изменить ручное значение';openModal(title,`${o.type}: ${o.name} · ${a.label}`,`${external!==undefined?`<div class="box"><b>Значение внешнего источника:</b> <span class="mono">${esc(external)}</span><div class="hint">Оно сохранится и продолжит обновляться после создания override.</div></div>`:''}<div class="field"><label>Ручное значение</label><input id="aro-value" class="wide" value="${esc(o.manual?.[attr]!==undefined?o.manual[attr]:current)}"></div>`,`<button class="ghost" onclick="openAdminRegistryObject(${q(id)})">Отмена</button><button onclick="saveRegistryManualValue(${q(id)},${q(attr)})">Сохранить</button>`,true)}
 function saveRegistryManualValue(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin())return;const v=$('aro-value').value.trim();if(!v)return toast('Введите значение');o.manual=o.manual||{};o.manual[attr]=v;if(attr==='name')o.name=v;else o.values[attr]=v;openAdminRegistryObject(id);toast(o.raw?.[attr]!==undefined?'Manual override сохранён':'Manual-значение сохранено')}
 function removeRegistryOverride(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin()||o.raw?.[attr]===undefined)return;o.manual&&delete o.manual[attr];if(attr==='name')o.name=o.raw[attr];else o.values[attr]=o.raw[attr];openAdminRegistryObject(id);toast('Override удалён; effective снова берётся из внешнего источника')}
-function renderTypeSettings(){return`<div class="content">${Object.entries(objectTypes).map(([t,a])=>`<div class="card"><div class="card-main"><span class="icon">🧩</span><div><div class="card-title">${t}</div><div class="pill-row" style="margin-top:8px">${a.map(x=>`<span class="badge">${x.label} · <span class="mono">${x.id}</span></span>`).join('')}</div></div></div></div>`).join('')}</div>`}
+function renderTypeSettings(){
+ return`<div class="toolbar">
+   <div><b>Типы объектов MARS</b><div class="hint">Типы и их атрибуты являются внутренней моделью реестра MARS.</div></div>
+   <button onclick="openObjectTypeCreate()">➕ Добавить тип объекта</button>
+ </div>
+ <div class="content">${Object.entries(objectTypes).map(([t,a])=>`<div class="card">
+   <div class="card-main"><span class="icon">🧩</span><div>
+     <div class="card-title">${esc(t)}</div>
+     <div class="meta">${a.length} атрибутов${registryAssignedCollection(t)?` · <span class="badge b-violet">Galaxy: ${esc(registryAssignedCollection(t))}</span>`:''}</div>
+     <div class="pill-row" style="margin-top:8px">${a.map(x=>`<span class="badge">${esc(x.label)} · <span class="mono">${esc(x.id)}</span></span>`).join('')}</div>
+   </div></div>
+   <div class="actions"><button class="xs outline" onclick="openObjectTypeAttributes(${q(t)})">Атрибуты</button></div>
+ </div>`).join('')}</div>`
+}
+function openObjectTypeCreate(){
+ if(!isAdmin())return toast('Недостаточно прав');
+ openModal('Добавить тип объекта','Новый тип становится частью внутренней модели реестра MARS.',`
+   <div class="field"><label>ID типа *</label><input id="ot-id" class="wide" placeholder="Например: Cluster"><div class="hint">Уникальный идентификатор типа. Используется в объектах, mapping и правилах связей.</div></div>
+   <div class="box blue-box"><b>После создания</b> тип автоматически получит обязательный атрибут <span class="mono">name</span>. Остальные атрибуты добавляются отдельно.</div>
+ `,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveObjectType()">Создать</button>`,true)
+}
+function saveObjectType(){
+ if(!isAdmin())return toast('Недостаточно прав');
+ const id=$('ot-id').value.trim();
+ if(!id)return toast('Введите ID типа');
+ if(/\s/.test(id))return toast('ID типа не должен содержать пробелы');
+ if(objectTypes[id])return toast('Тип с таким ID уже существует');
+ objectTypes[id]=[{id:'name',label:'Имя'}];
+ registryCollectionAssignments[id]='';
+ closeModal();renderAdmin();toast(`Тип ${id} создан`)
+}
+function openObjectTypeAttributes(type){
+ if(!isAdmin())return toast('Недостаточно прав');
+ const attrs=objectTypes[type];if(!attrs)return;
+ const usedInRules=new Set(relationRules.flatMap(r=>[
+   r.sourceType===type?r.sourceAttr:null,
+   r.targetType===type?r.targetAttr:null
+ ].filter(Boolean)));
+ const assigned=registryAssignedCollection(type);
+ const mapping=assigned?registryMappings[`${type}|${assigned}`]:null;
+ const mapped=new Set(mapping?Object.keys(mapping.attrs||{}):[]);
+ openModal(`Атрибуты типа: ${type}`,'Управление внутренними атрибутами типа объекта MARS.',`
+   ${assigned?`<div class="box blue-box"><b>Связанная коллекция:</b> ${esc(assigned)}. Новый атрибут автоматически появится в редакторе mapping как «Не синхронизировать».</div>`:''}
+   <div class="table-wrap" style="max-height:360px"><table><thead><tr><th>Атрибут</th><th>ID</th><th>Использование</th><th></th></tr></thead><tbody>
+   ${attrs.map(a=>{
+     const protectedAttr=a.id==='name';
+     const usages=[];
+     if(protectedAttr)usages.push('системный');
+     if(usedInRules.has(a.id))usages.push('правило связи');
+     if(mapped.has(a.id))usages.push('mapping');
+     const canDelete=!protectedAttr&&!usedInRules.has(a.id)&&!mapped.has(a.id);
+     return`<tr>
+       <td><b>${esc(a.label)}</b></td>
+       <td class="mono">${esc(a.id)}</td>
+       <td>${usages.length?usages.map(u=>`<span class="badge ${u==='системный'?'b-violet':''}">${esc(u)}</span>`).join(' '):'<span class="muted">—</span>'}</td>
+       <td>${canDelete?`<button class="xs danger" onclick="deleteObjectTypeAttribute(${q(type)},${q(a.id)})">Удалить</button>`:''}</td>
+     </tr>`
+   }).join('')}
+   </tbody></table></div>
+   <div class="separator"></div>
+   <h3>Добавить атрибут</h3>
+   <div class="row">
+     <div class="field"><label>ID атрибута *</label><input id="ota-id" class="wide" placeholder="Например: datacenter"></div>
+     <div class="field"><label>Название *</label><input id="ota-label" class="wide" placeholder="Например: Дата-центр"></div>
+   </div>
+ `,`<button class="ghost" onclick="closeModal()">Закрыть</button><button onclick="saveObjectTypeAttribute(${q(type)})">Добавить атрибут</button>`)
+}
+function saveObjectTypeAttribute(type){
+ if(!isAdmin())return toast('Недостаточно прав');
+ const attrs=objectTypes[type];if(!attrs)return;
+ const id=$('ota-id').value.trim(),label=$('ota-label').value.trim();
+ if(!id||!label)return toast('Заполните ID и название атрибута');
+ if(/\s/.test(id))return toast('ID атрибута не должен содержать пробелы');
+ if(attrs.some(a=>a.id===id))return toast('Атрибут с таким ID уже существует');
+ attrs.push({id,label});
+ openObjectTypeAttributes(type);toast('Атрибут добавлен')
+}
+function deleteObjectTypeAttribute(type,attr){
+ if(!isAdmin())return toast('Недостаточно прав');
+ if(attr==='name')return toast('Атрибут name удалить нельзя');
+ const used=relationRules.some(r=>(r.sourceType===type&&r.sourceAttr===attr)||(r.targetType===type&&r.targetAttr===attr));
+ if(used)return toast('Атрибут используется в правиле связи');
+ const collection=registryAssignedCollection(type);
+ const mapping=collection?registryMappings[`${type}|${collection}`]:null;
+ if(mapping?.attrs?.[attr])return toast('Сначала удалите mapping этого атрибута');
+ objectTypes[type]=objectTypes[type].filter(a=>a.id!==attr);
+ registry.objects.filter(o=>o.type===type).forEach(o=>{
+   if(o.values)delete o.values[attr];
+   if(o.raw)delete o.raw[attr];
+   if(o.manual)delete o.manual[attr]
+ });
+ openObjectTypeAttributes(type);toast('Атрибут удалён')
+}
 function registrySelectedCmdbCollections(){return registryCmdbCollections.filter(c=>c.selected)}
 function registryAssignedCollection(type){return registryCollectionAssignments[type]||''}
 function registryTypeForCollection(collection){
