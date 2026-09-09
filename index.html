@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.6.4 — прототип</title>
+<title>MARS v0.7.0 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -85,7 +85,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.6.4</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.7.0</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -168,8 +168,19 @@ const registry={
  ]
 };
 const objectTypes={Host:[{id:'name',label:'Имя'},{id:'fqdn',label:'FQDN'},{id:'ip',label:'IP'},{id:'environment',label:'Окружение'},{id:'owner',label:'Ответственный'},{id:'informationSystemId',label:'ID информационной системы'}],InformationSystem:[{id:'name',label:'Имя'},{id:'externalId',label:'External ID'},{id:'criticality',label:'Критичность'},{id:'owner',label:'Ответственный'}],Database:[{id:'name',label:'Имя'},{id:'hostName',label:'Host name'},{id:'engine',label:'СУБД'},{id:'environment',label:'Окружение'}],Application:[{id:'name',label:'Имя'},{id:'databaseName',label:'Database name'},{id:'informationSystemId',label:'ID информационной системы'},{id:'owner',label:'Ответственный'}]};
-let relationTypes=[{id:'belongs',name:'Относится к',reverse:'Содержит',system:true,active:true},{id:'hosted',name:'Размещён на',reverse:'Размещает',system:true,active:true},{id:'runs',name:'Работает на',reverse:'Запускает',system:true,active:true},{id:'uses',name:'Использует',reverse:'Используется',system:true,active:true},{id:'depends',name:'Зависит от',reverse:'Имеет зависимость',system:true,active:true},{id:'partof',name:'Является частью',reverse:'Состоит из',system:true,active:true}];
-let relationRules=[{id:'RR-001',name:'Host → ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',multiplicity:'one',active:true,formed:1180,missing:61,ambiguous:13},{id:'RR-002',name:'Database → Host по имени хоста',sourceType:'Database',sourceAttr:'hostName',operator:'=',targetType:'Host',targetAttr:'name',relationTypeId:'hosted',multiplicity:'one',active:true,formed:322,missing:8,ambiguous:2},{id:'RR-003',name:'Application → Database',sourceType:'Application',sourceAttr:'databaseName',operator:'=',targetType:'Database',targetAttr:'name',relationTypeId:'uses',multiplicity:'many',active:false,formed:0,missing:0,ambiguous:0}];
+let relationTypes=[
+ {id:'belongs',name:'Относится к',system:true},
+ {id:'hosted',name:'Размещён на',system:true},
+ {id:'runs',name:'Работает на',system:true},
+ {id:'uses',name:'Использует',system:true},
+ {id:'depends',name:'Зависит от',system:true},
+ {id:'partof',name:'Является частью',system:true}
+];
+let relationRules=[
+ {id:'RR-001',name:'Host ↔ ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',cardinality:'N:1',active:true,formed:1180,missing:61,ambiguous:13},
+ {id:'RR-002',name:'Database ↔ Host по имени хоста',sourceType:'Database',sourceAttr:'hostName',operator:'=',targetType:'Host',targetAttr:'name',relationTypeId:'hosted',cardinality:'N:1',active:true,formed:322,missing:8,ambiguous:2},
+ {id:'RR-003',name:'Application ↔ Database',sourceType:'Application',sourceAttr:'databaseName',operator:'=',targetType:'Database',targetAttr:'name',relationTypeId:'uses',cardinality:'N:M',active:false,formed:0,missing:0,ambiguous:0}
+];
 let adminTab='data',registrySettingsTab='objects';
 let activeProduct='monitoring',lastMainProduct='monitoring';
 
@@ -259,8 +270,8 @@ let registryMappings={
    Оно намеренно не смешивается с STORE_KEY раздела "Постановка на мониторинг".
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
-const REGISTRY_STORE_VERSION=6;
-const MARS_MOCKUP_VERSION='0.6.4';
+const REGISTRY_STORE_VERSION=7;
+const MARS_MOCKUP_VERSION='0.7.0';
 const PROTOTYPE_HELP_VERSION=`04.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
@@ -375,8 +386,17 @@ function applyRegistryPrototypeState(s){
    Object.keys(objectTypes).forEach(k=>delete objectTypes[k]);
    Object.entries(s.objectTypes).forEach(([k,v])=>objectTypes[k]=v)
  }
- if(Array.isArray(s.relationTypes))relationTypes=s.relationTypes;
- if(Array.isArray(s.relationRules))relationRules=s.relationRules;
+ if(Array.isArray(s.relationTypes)){
+   relationTypes=s.relationTypes.map(t=>({id:t.id,name:t.name,system:!!t.system,description:t.description||''}))
+ }
+ if(Array.isArray(s.relationRules)){
+   relationRules=s.relationRules.map(r=>{
+     const cardinality=r.cardinality||(r.multiplicity==='one'?'N:1':'N:M');
+     const copy={...r,cardinality};
+     delete copy.multiplicity;
+     return copy
+   })
+ }
  if(Array.isArray(s.sources))registrySources=s.sources;
  if(s.sourceSyncSettings&&typeof s.sourceSyncSettings==='object')registrySourceSyncSettings=s.sourceSyncSettings;
  if(s.sourceCollections&&typeof s.sourceCollections==='object')registrySourceCollections=s.sourceCollections;
@@ -394,6 +414,16 @@ function applyRegistryPrototypeState(s){
  if(!registrySources.some(x=>x.id===registrySyncSelection.sourceId))registrySyncSelection.sourceId=registrySources[0]?.id||'';
  refreshSelectedSourceCollections()
 }
+function normalizeRelationModel(){
+ relationTypes=relationTypes.map(t=>({id:t.id,name:t.name,system:!!t.system,description:t.description||''}));
+ relationRules=relationRules.map(r=>{
+   const x={...r,cardinality:r.cardinality||(r.multiplicity==='one'?'N:1':'N:M')};
+   delete x.multiplicity;
+   return x
+ });
+ // dir remains tolerated in old persisted demo relations, but is no longer semantically used.
+}
+
 function saveRegistryPrototypeState(){
  try{
    localStorage.setItem(REGISTRY_STORE_KEY,JSON.stringify(registrySerializableState()));
@@ -427,7 +457,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.6.4.',
+   body:'Текущая версия интерактивного прототипа: v0.7.0.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -537,18 +567,18 @@ const PROTOTYPE_HELP={
  },
  'relations.types':{
    title:'Типы связей',
-   body:'Справочник семантики связей между объектами: например «размещён на / размещает» или «использует / используется».',
-   constraints:['Правило связи выбирает тип из этого справочника, а не вводит произвольный текст.','Системные и пользовательские типы могут сосуществовать.']
+   body:'Административный справочник пользовательских названий связей между объектами.',
+   constraints:['У типа связи одно название. Обратного названия нет.','Название задаёт администратор; MARS не интерпретирует его грамматику или направление.','RelationType не имеет признака active: если тип существует, его можно выбирать в правилах.','Если нужно временно остановить построение связей, отключается конкретное правило.']
  },
  'relations.rules':{
    title:'Правила связей',
-   body:'Логика автоматического формирования конкретных связей между объектами на основании сравнения их атрибутов.',
-   constraints:['Одна настройка = одно правило.','Направление всегда Source → Target; Parent/Child в конфигурации не используется.','Тип связи задаёт смысл, а правило — условие поиска связанных объектов.']
+   body:'Правило сравнивает атрибуты двух групп объектов и при совпадении формирует ненаправленную фактическую связь.',
+   constraints:['Исходная и целевая стороны нужны только для алгоритма поиска и трактовки кардинальности.','Фактическая связь не имеет направления и доступна для обхода с обоих объектов.','Одинаковая пара object_id + relationType считается одной связью независимо от порядка объектов.','Тип связи задаёт пользовательский label, а правило — условие формирования.','Признак active остаётся у правила и включает/выключает его исполнение.']
  },
- 'relations.multiplicity':{
-   title:'Множественность правила связи',
-   body:'Определяет, сколько целевых объектов допустимо найти для одного исходного объекта.',
-   constraints:['«Только один»: 0 — связи нет, 1 — связь, больше 1 — неоднозначность.','«Один или несколько»: N найденных объектов создают N связей.']
+ 'relations.cardinality':{
+   title:'Кардинальность правила',
+   body:'Ограничивает допустимое количество связанных объектов с каждой стороны правила.',
+   constraints:['1:1 — каждому Source соответствует максимум один Target и каждому Target максимум один Source.','N:1 — нескольким Source может соответствовать один Target, но каждому Source максимум один Target.','1:N — одному Source могут соответствовать несколько Target, но каждому Target максимум один Source.','N:M — количество связей с обеих сторон не ограничивается.','Нарушение кардинальности считается конфликтом результата правила, а не дополнительной допустимой связью.']
  },
  'persistence':{
    title:'Сохранение данных прототипа',
@@ -622,8 +652,11 @@ function renderRegistryAttrAdminActions(o,a,m,x,ov){
  if(x!==undefined){return`<div class="registry-attr-actions">${ov?`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">Изменить override</button><button class="xs danger" onclick="removeRegistryOverride(${q(o.id)},${q(a.id)})">Удалить override</button>`:`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">Переопределить вручную ${tip('registry.override')}</button>`}</div>`}
  return`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">${m!==undefined?'Изменить Manual':'Задать вручную'}</button>`;
 }
-function renderRegistryRelations(o){const out=(o.relations||[]).filter(r=>r.dir==='out'),inn=(o.relations||[]).filter(r=>r.dir==='in');return`<div class="box blue-box"><b>Связи навигационные.</b> Нажмите на связанный объект, чтобы открыть его карточку.</div><h3>Исходящие связи</h3>${out.length?renderRelationCards(out):'<div class="empty">Исходящих связей нет</div>'}<h3>Входящие связи</h3>${inn.length?renderRelationCards(inn):'<div class="empty">Входящих связей нет</div>'}`}
-function renderRelationCards(list){return list.map(r=>{const target=registryObjectByRelation(r.objectType,r.object);return`<div class="card registry-relation" ${target?`onclick="openRegistryObject(${q(target.id)},'overview')"`:''}><div class="card-main"><span class="icon">${r.dir==='out'?'➡️':'⬅️'}</span><div><div class="card-title">${esc(r.object)}</div><div class="meta"><span class="badge b-blue">${esc(r.objectType)}</span> · <b>${esc(r.type)}</b><br>Правило: ${esc(r.rule)}</div></div></div>${target?'<button class="xs outline">Открыть</button>':'<span class="badge b-amber">Объект не найден</span>'}</div>`}).join('')}
+function renderRegistryRelations(o){
+ const rels=o.relations||[];
+ return`<div class="box blue-box"><b>Связи ненаправленные.</b> ${tip('relations.rules')} Название типа связи показывается одинаково с обеих сторон. Нажмите на связанный объект, чтобы открыть его карточку.</div><h3>Связи</h3>${rels.length?renderRelationCards(rels):'<div class="empty">Связей нет</div>'}`
+}
+function renderRelationCards(list){return list.map(r=>{const target=registryObjectByRelation(r.objectType,r.object);return`<div class="card registry-relation" ${target?`onclick="openRegistryObject(${q(target.id)},'overview')"`:''}><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${esc(r.object)}</div><div class="meta"><span class="badge b-blue">${esc(r.objectType)}</span> · <b>${esc(r.type)}</b><br>Правило: ${esc(r.rule)}</div></div></div>${target?'<button class="xs outline">Открыть</button>':'<span class="badge b-amber">Объект не найден</span>'}</div>`}).join('')}
 function renderRegistrySources(o){const attrs=objectTypes[o.type]||[];const ext=attrs.filter(a=>o.raw?.[a.id]!==undefined),man=attrs.filter(a=>o.manual?.[a.id]!==undefined);return`${o.identityNote?`<div class="box blue-box"><b>Идентичность сохранена:</b> ${esc(o.identityNote)}</div>`:''}<div class="registry-summary"><div class="box"><b>Основной источник</b><br>${o.source==='Manual'?'<span class="badge">Manual</span>':`<span class="badge b-violet">${esc(o.source)}</span>`}</div><div class="box"><b>External ID</b><br><span class="mono">${esc(o.externalId||'—')}</span></div><div class="box"><b>Последняя синхронизация</b><br>${esc(o.lastSync||'—')}</div></div><h3>Внешние значения</h3>${ext.length?ext.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.raw[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">не effective</span>':''}</div></div>`).join(''):'<div class="empty">Внешний источник не подключён</div>'}<h3>Ручные значения</h3>${man.length?man.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.manual[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">Override / Effective</span>':' <span class="badge">Manual</span>'}</div></div>`).join(''):'<div class="empty">Ручных значений нет</div>'}`}
 
 /* Администрирование */
@@ -1292,15 +1325,95 @@ function renderSyncSettings(){
  `<div class="content"><div class="empty">Для типа источника <b>${esc(selectedType?.name||'—')}</b> в текущем прототипе пока не определён специализированный набор параметров синхронизации.</div></div>`}
  `:`<div class="content"><div class="empty">Добавьте источник, чтобы настроить синхронизацию.</div></div>`}`
 }
-function renderRelationTypeSettings(){return`<div class="toolbar"><span class="muted">Системные + пользовательские типы ${tip('relations.types')}</span><button onclick="openRelationTypeCreate()">➕ Добавить тип связи</button></div><div class="content">${relationTypes.map(t=>`<div class="card"><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${t.name}</div><div class="meta">Обратное название: <b>${t.reverse}</b></div><div class="pill-row"><span class="badge ${t.system?'b-violet':'b-blue'}">${t.system?'Системный':'Пользовательский'}</span><span class="badge ${t.active?'b-green':'b-amber'}">${t.active?'Активен':'Выключен'}</span></div></div></div></div>`).join('')}</div>`}
-function openRelationTypeCreate(){openModal('Добавить тип связи','Тип выбирается правилами из справочника.',`<div class="row"><div class="field"><label>Прямое название *</label><input id="rt-name" class="wide" placeholder="Например: Резервирует"></div><div class="field"><label>Обратное название *</label><input id="rt-rev" class="wide" placeholder="Например: Резервируется"></div></div><div class="box blue-box">Database <b>размещена на</b> Host<br>Host <b>размещает</b> Database</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType()">Добавить</button>`,true)}
-function saveRelationType(){const n=$('rt-name').value.trim(),r=$('rt-rev').value.trim();if(!n||!r)return toast('Заполните оба названия');relationTypes.push({id:uid('rt'),name:n,reverse:r,system:false,active:true});saveRegistryPrototypeState();closeModal();renderAdmin();toast('Тип связи создан')}
-function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = одно правило формирования связи ${tip('relations.rules')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие</th><th>Направление</th><th>Множественность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${r.name}</b><div class="cell-sub mono">${r.id}</div></td><td><span class="badge b-violet">${relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—'}</span></td><td class="mono">${r.sourceType}.${r.sourceAttr} ${r.operator} ${r.targetType}.${r.targetAttr}</td><td><b>${r.sourceType}</b> → <b>${r.targetType}</b></td><td>${r.multiplicity==='one'?'<span class="badge b-blue">Один</span>':'<span class="badge b-green">Несколько</span>'}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
+function relationTypeUsageCount(id){return relationRules.filter(r=>r.relationTypeId===id).length}
+function renderRelationTypeSettings(){return`<div class="toolbar"><span class="muted">Справочник названий связей ${tip('relations.types')}</span><button onclick="openRelationTypeCreate()">➕ Добавить тип связи</button></div><div class="content">${relationTypes.map(t=>{const used=relationTypeUsageCount(t.id);return`<div class="card"><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${esc(t.name)}</div><div class="meta">Одно название используется при просмотре связи с любой стороны.</div><div class="pill-row"><span class="badge ${t.system?'b-violet':'b-blue'}">${t.system?'Системный':'Пользовательский'}</span>${used?`<span class="badge">Правил: ${used}</span>`:'<span class="badge">Не используется</span>'}</div></div></div><div class="actions">${!t.system&&!used?`<button class="xs danger" onclick="deleteRelationType(${q(t.id)})">Удалить</button>`:''}</div></div>`}).join('')}</div>`}
+function openRelationTypeCreate(){openModal('Добавить тип связи','Тип связи — это одно пользовательское название факта связи. Направление и обратное название не задаются.',`<div class="field"><label>Название *</label><input id="rt-name" class="wide" placeholder="Например: Размещён на"></div><div class="box blue-box"><b>Фактическая связь ненаправленная.</b><br>Если пользователь назвал тип «Размещён на», MARS показывает именно это название при просмотре связи с обеих сторон.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType()">Добавить</button>`,true)}
+function saveRelationType(){const n=$('rt-name').value.trim();if(!n)return toast('Введите название');if(relationTypes.some(t=>t.name.toLowerCase()===n.toLowerCase()))return toast('Тип связи с таким названием уже существует');relationTypes.push({id:uid('rt'),name:n,system:false});saveRegistryPrototypeState();closeModal();renderAdmin();toast('Тип связи создан')}
+function deleteRelationType(id){const t=relationTypes.find(x=>x.id===id);if(!t)return;if(t.system)return toast('Системный тип связи удалить нельзя');if(relationTypeUsageCount(id))return toast('Тип связи используется правилами');relationTypes=relationTypes.filter(x=>x.id!==id);saveRegistryPrototypeState();renderAdmin();toast('Тип связи удалён')}
+function cardinalityBadge(c){
+ const cls=c==='1:1'?'b-violet':c==='N:1'?'b-blue':c==='1:N'?'b-amber':'b-green';
+ return`<span class="badge ${cls}">${esc(c||'N:M')}</span>`
+}
+function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = одно правило формирования ненаправленной связи ${tip('relations.rules')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие сопоставления</th><th>Кардинальность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${esc(r.name)}</b><div class="cell-sub mono">${esc(r.id)}</div></td><td><span class="badge b-violet">${esc(relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—')}</span></td><td class="mono">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</td><td>${cardinalityBadge(r.cardinality)}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ конфликт: ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
 function typeOptions(sel){return Object.keys(objectTypes).map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}
 function attrOptions(t,sel){return objectTypes[t].map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label} · ${a.id}</option>`).join('')}
-function openRelationRule(id=''){const r=id?relationRules.find(x=>x.id===id):{name:'Host относится к ИТ-системе',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',multiplicity:'one',active:true};openModal(id?'Редактировать правило связи':'Добавить правило связи','Одна настройка = одно правило.',`<div class="field"><label>Название</label><input id="rr-name" class="wide" value="${esc(r.name)}"></div><div class="separator"></div><h3>1. Какие объекты связываем</h3><div class="rule-flow"><div><div class="field"><label>Исходный тип</label><select id="rr-st" class="wide">${typeOptions(r.sourceType)}</select></div><div class="field"><label>Исходный атрибут</label><select id="rr-sa" class="wide">${attrOptions(r.sourceType,r.sourceAttr)}</select></div></div><div class="field"><label>Оператор</label><select id="rr-op" class="wide"><option>=</option><option ${r.operator==='IN'?'selected':''}>IN</option></select></div><div><div class="field"><label>Целевой тип</label><select id="rr-tt" class="wide">${typeOptions(r.targetType)}</select></div><div class="field"><label>Целевой атрибут</label><select id="rr-ta" class="wide">${attrOptions(r.targetType,r.targetAttr)}</select></div></div></div><div class="separator"></div><h3>2. Семантика связи</h3><div class="row"><div class="field"><label>Тип связи</label><select id="rr-rel" class="wide">${relationTypes.filter(t=>t.active).map(t=>`<option value="${t.id}" ${t.id===r.relationTypeId?'selected':''}>${t.name}</option>`).join('')}</select></div><div class="box" style="margin:0"><b>Направление:</b> Исходный → Целевой<div class="hint">Parent/Child не используется.</div></div></div><div id="rr-preview" class="rule-preview"></div><div class="separator"></div><h3>3. Множественность ${tip('relations.multiplicity')}</h3><div class="row"><label class="card"><div class="card-main"><input class="checkbox" type="radio" name="rr-mult" value="one" ${r.multiplicity==='one'?'checked':''}><div><b>Только один</b><div class="meta">0 — нет связи; 1 — связь; &gt;1 — неоднозначность</div></div></div></label><label class="card"><div class="card-main"><input class="checkbox" type="radio" name="rr-mult" value="many" ${r.multiplicity==='many'?'checked':''}><div><b>Один или несколько</b><div class="meta">0 — нет связей; N — N связей</div></div></div></label></div><div class="separator"></div><h3>4. Проверка</h3><button class="outline" onclick="testRelationRule()">▶ Проверить на данных реестра</button><div id="rr-test"></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationRule(${q(id)})">Сохранить</button>`);const upd=()=>{$('rr-preview').innerHTML=`<div class="rule-preview-line"><span class="rule-node">${$('rr-st').value}</span><span class="rule-arrow">── ${relationTypes.find(t=>t.id===$('rr-rel').value)?.name||''} ──►</span><span class="rule-node">${$('rr-tt').value}</span></div><div class="rule-code">${$('rr-st').value}.${$('rr-sa').value} ${$('rr-op').value} ${$('rr-tt').value}.${$('rr-ta').value}</div>`};$('rr-st').onchange=()=>{$('rr-sa').innerHTML=attrOptions($('rr-st').value,'');upd()};$('rr-tt').onchange=()=>{$('rr-ta').innerHTML=attrOptions($('rr-tt').value,'');upd()};['rr-sa','rr-ta','rr-op','rr-rel'].forEach(x=>$(x).onchange=upd);upd()}
-function testRelationRule(){$('rr-test').innerHTML=`<div class="stats" style="padding:12px 0;background:#fff"><div class="stat"><label>Связь сформирована</label><b>1 180</b></div><div class="stat"><label>Цель не найдена</label><b>61</b></div><div class="stat"><label>Неоднозначно</label><b>13</b></div><div class="stat"><label>Всего проверено</label><b>1 254</b></div></div>`}
-function saveRelationRule(id){const old=id?relationRules.find(x=>x.id===id):null,d={id:old?.id||uid('RR'),name:$('rr-name').value.trim()||'Без названия',sourceType:$('rr-st').value,sourceAttr:$('rr-sa').value,operator:$('rr-op').value,targetType:$('rr-tt').value,targetAttr:$('rr-ta').value,relationTypeId:$('rr-rel').value,multiplicity:document.querySelector('input[name="rr-mult"]:checked').value,active:true,formed:old?.formed||0,missing:old?.missing||0,ambiguous:old?.ambiguous||0};if(old)relationRules[relationRules.indexOf(old)]=d;else relationRules.push(d);saveRegistryPrototypeState();closeModal();renderAdmin();toast(old?'Правило обновлено':'Правило создано')}
+function relationCardinalityOptions(value){
+ const cards=[
+  ['1:1','1 : 1','Каждому Source максимум один Target; каждому Target максимум один Source'],
+  ['N:1','N : 1','Несколько Source могут быть связаны с одним Target; каждому Source максимум один Target'],
+  ['1:N','1 : N','Один Source может быть связан с несколькими Target; каждому Target максимум один Source'],
+  ['N:M','N : M','Количество связанных объектов с обеих сторон не ограничивается']
+ ];
+ return`<div class="grid2cards">${cards.map(([v,title,desc])=>`<label class="card" style="cursor:pointer"><div class="card-main"><input class="checkbox" type="radio" name="rr-cardinality" value="${v}" ${value===v?'checked':''}><div><b>${title}</b><div class="meta">${desc}</div></div></div></label>`).join('')}</div>`
+}
+function openRelationRule(id=''){
+ const r=id?relationRules.find(x=>x.id===id):{name:'Host ↔ ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',cardinality:'N:1',active:true};
+ openModal(id?'Редактировать правило связи':'Добавить правило связи','Source и Target нужны только для поиска соответствий и трактовки кардинальности. Созданная связь направления не имеет.',`
+ <div class="field"><label>Название</label><input id="rr-name" class="wide" value="${esc(r.name)}"></div>
+ <div class="separator"></div>
+ <h3>1. Условие сопоставления ${tip('relations.rules')}</h3>
+ <div class="rule-flow">
+   <div>
+     <div class="field"><label>Исходный тип (Source)</label><select id="rr-st" class="wide">${typeOptions(r.sourceType)}</select></div>
+     <div class="field"><label>Исходный атрибут</label><select id="rr-sa" class="wide">${attrOptions(r.sourceType,r.sourceAttr)}</select></div>
+   </div>
+   <div class="field"><label>Оператор</label><select id="rr-op" class="wide"><option>=</option><option ${r.operator==='IN'?'selected':''}>IN</option></select></div>
+   <div>
+     <div class="field"><label>Целевой тип (Target)</label><select id="rr-tt" class="wide">${typeOptions(r.targetType)}</select></div>
+     <div class="field"><label>Целевой атрибут</label><select id="rr-ta" class="wide">${attrOptions(r.targetType,r.targetAttr)}</select></div>
+   </div>
+ </div>
+
+ <div class="separator"></div>
+ <h3>2. Тип фактической связи</h3>
+ <div class="field"><label>Тип связи ${tip('relations.types')}</label><select id="rr-rel" class="wide">${relationTypes.map(t=>`<option value="${t.id}" ${t.id===r.relationTypeId?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
+ <div id="rr-preview" class="rule-preview"></div>
+ <div class="hint">Стрелка намеренно отсутствует: результат правила — ненаправленная связь между двумя object_id.</div>
+
+ <div class="separator"></div>
+ <h3>3. Кардинальность ${tip('relations.cardinality')}</h3>
+ ${relationCardinalityOptions(r.cardinality||'N:M')}
+
+ <div class="separator"></div>
+ <h3>4. Исполнение правила</h3>
+ <label class="card" style="cursor:pointer"><div class="card-main"><input id="rr-active" class="checkbox" type="checkbox" ${r.active?'checked':''}><div><b>Правило активно</b><div class="meta">Если выключено, правило сохраняется, но не участвует в построении связей.</div></div></div></label>
+
+ <div class="separator"></div>
+ <h3>5. Проверка</h3>
+ <button class="outline" onclick="testRelationRule()">▶ Проверить на данных реестра</button>
+ <div id="rr-test"></div>
+ `,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationRule(${q(id)})">Сохранить</button>`);
+
+ const upd=()=>{$('rr-preview').innerHTML=`<div class="rule-preview-line"><span class="rule-node">${esc($('rr-st').value)}</span><span class="rule-arrow">── ${esc(relationTypes.find(t=>t.id===$('rr-rel').value)?.name||'Связь')} ──</span><span class="rule-node">${esc($('rr-tt').value)}</span></div><div class="rule-code">${esc($('rr-st').value)}.${esc($('rr-sa').value)} ${esc($('rr-op').value)} ${esc($('rr-tt').value)}.${esc($('rr-ta').value)}</div>`};
+ $('rr-st').onchange=()=>{$('rr-sa').innerHTML=attrOptions($('rr-st').value,'');upd()};
+ $('rr-tt').onchange=()=>{$('rr-ta').innerHTML=attrOptions($('rr-tt').value,'');upd()};
+ ['rr-sa','rr-ta','rr-op','rr-rel'].forEach(x=>$(x).onchange=upd);
+ upd()
+}
+function testRelationRule(){
+ const c=document.querySelector('input[name="rr-cardinality"]:checked')?.value||'N:M';
+ $('rr-test').innerHTML=`<div class="stats" style="padding:12px 0;background:#fff"><div class="stat"><label>Связь сформирована</label><b>1 180</b></div><div class="stat"><label>Соответствие не найдено</label><b>61</b></div><div class="stat"><label>Конфликт кардинальности</label><b>${c==='N:M'?'0':'13'}</b></div><div class="stat"><label>Всего проверено</label><b>1 254</b></div></div>`
+}
+function saveRelationRule(id){
+ const old=id?relationRules.find(x=>x.id===id):null;
+ const d={
+   id:old?.id||uid('RR'),
+   name:$('rr-name').value.trim()||'Без названия',
+   sourceType:$('rr-st').value,
+   sourceAttr:$('rr-sa').value,
+   operator:$('rr-op').value,
+   targetType:$('rr-tt').value,
+   targetAttr:$('rr-ta').value,
+   relationTypeId:$('rr-rel').value,
+   cardinality:document.querySelector('input[name="rr-cardinality"]:checked')?.value||'N:M',
+   active:$('rr-active').checked,
+   formed:old?.formed||0,
+   missing:old?.missing||0,
+   ambiguous:old?.ambiguous||0
+ };
+ if(old)relationRules[relationRules.indexOf(old)]=d;else relationRules.push(d);
+ saveRegistryPrototypeState();closeModal();renderAdmin();toast(old?'Правило обновлено':'Правило создано')
+}
 
 function renderProductSidebar(){
  const menu=$('sidebar-menu'),ctx=$('sidebar-context'),foot=$('sidebar-foot');if(!menu)return;
@@ -1356,7 +1469,7 @@ function openAdminSection(tab){
 }
 function returnToMainMenu(){openProduct(lastMainProduct||'monitoring')}
 
-loadState();loadRegistryPrototypeState();refreshSelectedSourceCollections();ensureAllRegistrySourceRaw();renderAll();renderRegistry();renderAdmin();renderProductSidebar();
+loadState();loadRegistryPrototypeState();normalizeRelationModel();refreshSelectedSourceCollections();ensureAllRegistrySourceRaw();renderAll();renderRegistry();renderAdmin();renderProductSidebar();
 saveRegistryPrototypeState();
 window.addEventListener('beforeunload',saveRegistryPrototypeState);
 document.addEventListener('change',()=>setTimeout(saveRegistryPrototypeState,0));
