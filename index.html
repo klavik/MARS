@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.6.3 — прототип</title>
+<title>MARS v0.6.4 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -12,6 +12,13 @@
 .sidebar-menu{padding:14px 10px;display:flex;flex-direction:column;gap:5px;flex:1;overflow:auto}.sidebar-label{padding:8px 10px 5px;color:#64748b;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
 .sidebar-item{width:100%;display:flex;align-items:center;gap:10px;text-align:left;border:0;background:transparent;color:#cbd5e1;border-radius:9px;padding:10px 11px;font-weight:800;line-height:1.25}.sidebar-item:hover{background:#1e293b;color:#fff}.sidebar-item.active{background:var(--blue);color:#fff}.sidebar-item .si-icon{width:22px;text-align:center;flex:0 0 22px}.sidebar-item .si-text{min-width:0;white-space:normal}.sidebar-back{margin-bottom:8px;background:#1e293b;color:#fff;border:1px solid #334155}.sidebar-back:hover{background:#334155}.sidebar-sep{height:1px;background:#1e293b;margin:8px 4px}
 .sidebar-foot{padding:12px 14px 16px;border-top:1px solid #1e293b;color:#94a3b8;font-size:12px;line-height:1.4}
+.sidebar-user-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}
+.sidebar-user-label{font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
+.sidebar-user-control{display:grid;grid-template-columns:34px minmax(0,1fr);gap:8px;align-items:center}
+.sidebar-user-avatar{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#2563eb;color:#fff;font-size:12px;font-weight:900}
+.sidebar-user-select{width:100%;min-width:0;background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:8px;padding:7px 8px;font-size:12px;font-weight:750}
+.sidebar-user-select:focus{border-color:#60a5fa;box-shadow:0 0 0 3px rgba(96,165,250,.14)}
+.sidebar-user-role{margin-top:5px;padding-left:42px;color:#94a3b8;font-size:11px}
 .app-section{display:none;margin-left:260px;min-height:100vh}.app-section.active{display:block}
 nav.app-nav{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}.nav{max-width:1440px;margin:auto;padding:0 24px;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.brand{font-weight:900;font-size:20px;white-space:nowrap}.tabs{display:flex;gap:2px;flex-wrap:wrap}.tab{padding:21px 13px 18px;cursor:pointer;font-size:14px;color:var(--muted);border-bottom:3px solid transparent}.tab.active{color:var(--blue);border-color:var(--blue);font-weight:800}.user{display:flex;align-items:center;gap:10px}.avatar{width:33px;height:33px;background:var(--blue);color:#fff;border-radius:50%;display:grid;place-items:center;font-weight:800}
 main{max-width:1440px;margin:auto;padding:24px}.section{display:none}.section.active{display:block}.page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px}.title{margin:0;font-size:25px;font-weight:900}.sub{color:var(--muted);font-size:14px;margin-top:5px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -69,7 +76,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 
 @media(max-width:900px){
  .product-sidebar{position:static;width:100%;min-height:auto;border-right:0;border-bottom:1px solid #1e293b}
- .sidebar-head{padding:12px 14px 8px}.sidebar-menu{padding:8px;display:grid;grid-template-columns:1fr;gap:4px}.sidebar-foot{display:none}
+ .sidebar-head{padding:12px 14px 8px}.sidebar-menu{padding:8px;display:grid;grid-template-columns:1fr;gap:4px}.sidebar-foot{display:block;padding:9px 12px 11px}
  .app-section{margin-left:0}.sidebar-label{display:none}
  main{padding:14px}.row,.row3,.stats,.rule-flow,.grid3cards{grid-template-columns:1fr}.input{width:100%}.nav{padding:0 14px}.tab{padding:10px}.page-head{gap:10px}
 }
@@ -78,7 +85,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.6.3</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.6.4</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -123,7 +130,7 @@ function reconcileCollections(n){n.hosts.forEach(h=>{const linked=new Set((h.col
 function loadState(){try{state=localStorage.getItem(STORE_KEY)?normalizeState(JSON.parse(localStorage.getItem(STORE_KEY))):demoState()}catch(e){state=demoState()}saveState()}function saveState(){localStorage.setItem(STORE_KEY,JSON.stringify(state))}function resetDemo(){localStorage.removeItem(STORE_KEY);state=normalizeState(demoState());selectedHostIds.clear();showHostsWithoutServices=false;saveState();renderAll();toast('Демо-данные сброшены')}
 function currentUser(){return state.users.find(u=>u.id===state.currentUserId)||state.users[0]}function userById(id){return state.users.find(u=>u.id===id)}function groupById(id){return state.groups.find(g=>g.id===id)}function serviceById(id){return state.services.find(s=>s.id===id)}function templateById(id){return state.templates.find(t=>t.id===id)}function collectionById(id){return state.collections.find(c=>c.id===id)}function isAdmin(){return !!currentUser().isAdmin}function userGroupIds(){return new Set(currentUser().groups||[])}function hasMonitoringPermission(gid){return isAdmin()||!!currentUser().permissions?.[gid]?.includes('monitoring.manage')}function canManageService(s){return !!s&&hasMonitoringPermission(s.ownerGroupId)}function canManageTemplate(t){return !!t&&hasMonitoringPermission(t.ownerGroupId)}function canManageCollection(c){return !!c&&hasMonitoringPermission(c.ownerGroupId)}function visibleCollections(){return isAdmin()?state.collections:state.collections.filter(c=>userGroupIds().has(c.ownerGroupId))}function canAttachService(s){return canManageService(s)}function canDetach(a){return !!a&&hasMonitoringPermission(a.attachedByGroupId)}function isManualHost(h){return !!h&&h.sourceType!=='catalog'}function isCreatorGroupUser(h){return !!h?.ownerGroupId&&(isAdmin()||(userGroupIds().has(h.ownerGroupId)&&hasMonitoringPermission(h.ownerGroupId)))}function canEditHost(h){return !!h&&isManualHost(h)&&(isAdmin()||isCreatorGroupUser(h))}function canCloneHost(h){return canEditHost(h)}function canDeleteHost(h){return !!h&&(isAdmin()||(isManualHost(h)&&isCreatorGroupUser(h)&&h.attachments.length===0))}function hostDeleteReason(h){if(!h)return'Хост не найден';if(isAdmin())return'';if(!isManualHost(h))return'Хосты из справочника обычный пользователь удалить не может.';if(!isCreatorGroupUser(h))return'Удалить ручной хост могут создатель и его одногрупники с permission «Постановка на мониторинг».';if(h.attachments.length)return`Сначала отсоедините все сервисы. На хосте осталось подключений: ${h.attachments.length}.`;return''}
 function sourceLabel(h){return h.sourceType==='catalog'?'Справочник':h.sourceType==='manual-prefill'?'Ручной · prefill':'Ручной'}function sourceBadge(h){return h.sourceType==='catalog'?'<span class="badge b-violet">📚 Справочник</span>':h.sourceType==='manual-prefill'?'<span class="badge b-amber">📋 Ручной · prefill</span>':'<span class="badge b-blue">✍️ Ручной</span>'}function addressBadge(h){return h.addressType==='fqdn'?'<span class="badge b-green">FQDN</span>':'<span class="badge b-blue">IP</span>'}function proxyName(id){return state.proxyGroups.find(x=>x.id===id)?.name||id}function findAttachment(h,sid,gid){return(h.attachments||[]).find(a=>a.serviceId===sid&&a.attachedByGroupId===gid)}function hasDirectService(h,sid,gid){return !!findAttachment(h,sid,gid)?.direct}function ownAttachments(h){return(h.attachments||[]).filter(a=>isAdmin()||userGroupIds().has(a.attachedByGroupId))}function isOwnedForUser(h){return isManualHost(h)&&h.ownerGroupId&&(isAdmin()||userGroupIds().has(h.ownerGroupId))}function visibleHostCollections(h){return(h.collectionLinks||[]).filter(l=>isAdmin()||userGroupIds().has(l.attachedByGroupId)).map(l=>collectionById(l.collectionId)).filter(Boolean)}
-function switchSection(sec){activeSection=sec;document.querySelectorAll('#product-monitoring .section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('#product-monitoring .tab').forEach(s=>s.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}function switchUser(id){state.currentUserId=id;selectedHostIds.clear();saveState();renderAll();renderProductSidebar()}function renderAll(){renderUserSwitcher();renderHosts();renderServices();renderTemplates();renderCollections();renderAccess()}function renderUserSwitcher(){$('current-user').innerHTML=state.users.map(u=>`<option value="${esc(u.id)}" ${u.id===state.currentUserId?'selected':''}>${esc(u.name)}${u.isAdmin?' · admin':''}</option>`).join('');$('avatar').textContent=currentUser().initials||'U'}function page(sec,title,sub,actions,body){$('section-'+sec).innerHTML=`<div class="page-head"><div><h1 class="title">${title}</h1><div class="sub">${sub||''}</div></div><div class="actions">${actions||''}</div></div>${body}`}
+function switchSection(sec){activeSection=sec;document.querySelectorAll('#product-monitoring .section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('#product-monitoring .tab').forEach(s=>s.classList.remove('active'));$('section-'+sec).classList.add('active');$('nav-'+sec).classList.add('active');renderAll()}function switchUser(id){state.currentUserId=id;selectedHostIds.clear();saveState();renderAll();renderRegistry();renderAdmin();renderProductSidebar()}function renderAll(){renderUserSwitcher();renderHosts();renderServices();renderTemplates();renderCollections();renderAccess()}function renderUserSwitcher(){$('current-user').innerHTML=state.users.map(u=>`<option value="${esc(u.id)}" ${u.id===state.currentUserId?'selected':''}>${esc(u.name)}${u.isAdmin?' · admin':''}</option>`).join('');$('avatar').textContent=currentUser().initials||'U'}function page(sec,title,sub,actions,body){$('section-'+sec).innerHTML=`<div class="page-head"><div><h1 class="title">${title}</h1><div class="sub">${sub||''}</div></div><div class="actions">${actions||''}</div></div>${body}`}
 function connectedHosts(){return state.hosts.filter(h=>ownAttachments(h).length||(isOwnedForUser(h)&&h.attachments.length)||(showHostsWithoutServices&&isOwnedForUser(h)&&!h.attachments.length))}function catalogHosts(){return state.hosts.filter(h=>h.sourceType==='catalog')}
 function renderHosts(){const arr=hostView==='catalog'?catalogHosts():connectedHosts();const without=state.hosts.filter(h=>isOwnedForUser(h)&&!h.attachments.length).length;const canCreate=isAdmin()||[...userGroupIds()].some(hasMonitoringPermission);page('hosts',hostView==='catalog'?'Хосты из справочника':'Подключённые хосты',hostView==='catalog'?'Синхронизируемые хосты внешнего справочника.':'Хосты с мониторингом ваших групп и ручные Host вашей группы.',`<button class="outline" onclick="resetDemo()">↺ Сбросить демо</button>`,`<div class="panel"><div class="host-switch"><button class="${hostView==='connected'?'active':''}" onclick="hostView='connected';renderHosts()">🔗 Подключённые хосты</button><button class="${hostView==='catalog'?'active':''}" onclick="hostView='catalog';renderHosts()">📚 Хосты из справочника</button></div><div class="info">${hostView==='connected'?'<b>Механика сохранена:</b> ручной Host может существовать без сервисов; коллекции являются desired-state и не создают дублей Host-Service.':'<b>Каталог:</b> поля справочных Host обновляются синхронизацией.'}</div><div class="toolbar"><div class="actions">${hostView==='connected'?`<label class="badge ${showHostsWithoutServices?'b-amber':''}" style="cursor:pointer"><input class="checkbox" type="checkbox" ${showHostsWithoutServices?'checked':''} onchange="showHostsWithoutServices=this.checked;renderHosts()"> Показывать хосты без сервисов${without?` · ${without}`:''}</label>`:''}</div><div class="actions">${selectedHostIds.size?`<span class="muted">Выбрано: <b>${selectedHostIds.size}</b></span><button class="sm outline" onclick="openBulkAttachModal()">＋ Сервис</button><button class="sm outline" onclick="openBulkCollectionModal()">📦 Коллекция</button>`:''}${hostView==='connected'?`<button ${canCreate?'':'disabled'} onclick="openHostCreateModal()">➕ Создать хост</button>`:'<button class="outline" onclick="syncCatalogHosts()">🔄 Синхронизировать</button>'}</div></div>${renderHostTable(arr)}</div>`) }
 function renderHostTable(arr){return`<div class="table-wrap"><table><thead><tr><th></th><th>Host ID</th><th>Имя</th><th>IP / FQDN</th><th>Источник</th><th>CMDB / External ID</th><th>Группа прокси</th><th>Коллекции</th><th>Сервисы моих групп</th><th>Действия</th></tr></thead><tbody>${arr.length?arr.map(h=>`<tr class="data-row" onclick="openHostDetails(${q(h.id)})"><td onclick="event.stopPropagation()"><input class="checkbox" type="checkbox" ${selectedHostIds.has(h.id)?'checked':''} onchange="this.checked?selectedHostIds.add(${q(h.id)}):selectedHostIds.delete(${q(h.id)});renderHosts()"></td><td class="mono"><b>${esc(h.id)}</b></td><td><b>${esc(h.name)}</b></td><td>${addressBadge(h)} <span class="mono">${esc(h.address)}</span></td><td>${sourceBadge(h)}</td><td class="mono">${esc(h.catalogBinding?.externalId||'—')}</td><td>${esc(proxyName(h.proxyGroup))}</td><td><div class="pill-row">${visibleHostCollections(h).map(c=>`<span class="badge b-green">📦 ${esc(c.name)}</span>`).join('')||'<span class="muted">—</span>'}</div></td><td><div class="pill-row">${ownAttachments(h).map(a=>{const s=serviceById(a.serviceId);return`<span class="badge b-blue">${esc(s?.icon||'🔌')} ${esc(s?.name||'')}</span>`}).join('')||'<span class="muted">—</span>'}</div></td><td onclick="event.stopPropagation()"><div class="actions"><button class="xs outline" onclick="openHostDetails(${q(h.id)})">Детали</button>${state.services.some(canAttachService)?`<button class="xs" onclick="openAttachModal(${q(h.id)})">＋ Сервис</button>`:''}${canCloneHost(h)?`<button class="xs outline" onclick="openCloneHost(${q(h.id)})">⧉</button>`:''}${canDeleteHost(h)?`<button class="xs danger" onclick="openDeleteHostModal(${q(h.id)})">🗑️</button>`:''}</div></td></tr>`).join(''):`<tr><td colspan="10" class="empty">Хосты не найдены</td></tr>`}</tbody></table></div>`}
@@ -253,7 +260,7 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=6;
-const MARS_MOCKUP_VERSION='0.6.3';
+const MARS_MOCKUP_VERSION='0.6.4';
 const PROTOTYPE_HELP_VERSION=`04.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
@@ -420,7 +427,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.6.3.',
+   body:'Текущая версия интерактивного прототипа: v0.6.4.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -437,6 +444,11 @@ const PROTOTYPE_HELP={
    title:'Администрирование',
    body:'Административные настройки MARS. При входе сайдпанель меняет состав и показывает административные разделы.',
    constraints:['Доступ только MARS Admin.','Возврат «Основное меню» возвращает в последний пользовательский раздел.']
+ },
+ 'nav.user':{
+   title:'Текущий пользователь',
+   body:'Переключатель демонстрационного пользователя доступен постоянно в сайдпанели, независимо от открытого раздела.',
+   constraints:['Смена пользователя немедленно пересчитывает доступные действия и права во всех разделах.','Если в Администрировании выбрать пользователя без роли MARS Admin, административный контент становится недоступен; при переключении обратно на MARS Admin доступ восстанавливается.','Выбранный пользователь сохраняется в локальном состоянии прототипа после обновления страницы.']
  },
  'admin.data':{
    title:'Сбор данных',
@@ -1310,7 +1322,18 @@ function renderProductSidebar(){
  }
  if(foot){
    const u=currentUser();
-   foot.innerHTML=`Текущий пользователь<br><b style="color:#e2e8f0">${esc(u.name)}</b>${u.isAdmin?' · admin':''}`;
+   foot.innerHTML=`
+     <div class="sidebar-user-head">
+       <span class="sidebar-user-label">Текущий пользователь</span>
+       ${tip('nav.user')}
+     </div>
+     <div class="sidebar-user-control">
+       <div class="sidebar-user-avatar">${esc(u.initials||'U')}</div>
+       <select class="sidebar-user-select" onchange="switchUser(this.value)" aria-label="Текущий пользователь">
+         ${state.users.map(x=>`<option value="${esc(x.id)}" ${x.id===u.id?'selected':''}>${esc(x.name)}${x.isAdmin?' · admin':''}</option>`).join('')}
+       </select>
+     </div>
+     <div class="sidebar-user-role">${u.isAdmin?'MARS Admin':'Пользователь'}</div>`;
  }
 }
 function activateProductSection(product){
