@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.7.2 — прототип</title>
+<title>MARS v0.7.3 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -85,7 +85,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.7.2</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.7.3</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -271,8 +271,8 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=7;
-const MARS_MOCKUP_VERSION='0.7.2';
-const PROTOTYPE_HELP_VERSION=`04.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
+const MARS_MOCKUP_VERSION='0.7.3';
+const PROTOTYPE_HELP_VERSION=`09.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
 function registryCurrentCollectionForType(type){return registryAssignedCollection(type)}
@@ -457,7 +457,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.7.2.',
+   body:'Текущая версия интерактивного прототипа: v0.7.3.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -573,7 +573,12 @@ const PROTOTYPE_HELP={
  'relations.rules':{
    title:'Правила связей',
    body:'Правило сравнивает атрибуты двух групп объектов и при совпадении формирует ненаправленную фактическую связь.',
-   constraints:['Исходная и целевая стороны нужны только для алгоритма поиска и трактовки кардинальности.','Фактическая связь не имеет направления и доступна для обхода с обоих объектов.','Одинаковая пара object_id + relationType считается одной связью независимо от порядка объектов.','Тип связи задаёт пользовательский label, а правило — условие формирования.','Признак active остаётся у правила и включает/выключает его исполнение.']
+   constraints:['Исходная и целевая стороны нужны только для алгоритма поиска и трактовки кардинальности.','Фактическая связь не имеет направления и доступна для обхода с обоих объектов.','Одинаковая пара object_id + relationType считается одной связью независимо от порядка объектов.','Тип связи задаёт пользовательский label, а правило — условие формирования.','Признак active остаётся у правила и включает/выключает его исполнение.','Для симметричного оператора = нельзя создать второе правило с тем же типом связи и теми же двумя endpoint-атрибутами, даже если Source и Target поменяны местами.','Кардинальность не делает такое правило новым: N:1 в обратной записи соответствует 1:N.']
+ },
+ 'relations.uniqueness':{
+   title:'Проверка эквивалентных правил',
+   body:'MARS не позволяет создавать несколько правил, которые описывают один и тот же способ построения одного типа ненаправленной связи.',
+   constraints:['Для оператора = порядок Source и Target не влияет на уникальность правила.','N:1 при перестановке сторон эквивалентно 1:N; 1:1 эквивалентно 1:1; N:M эквивалентно N:M.','Кардинальность не входит в ключ уникальности: если нужно изменить её, редактируется существующее правило.','Другой тип связи или другая пара атрибутов считаются другим правилом.','Для несимметричного оператора IN зеркальное условие автоматически эквивалентным не считается.']
  },
  'relations.cardinality':{
    title:'Кардинальность правила',
@@ -1390,7 +1395,78 @@ function cardinalityBadge(value){
  const cls=c==='1:1'?'b-violet':c==='N:1'?'b-blue':c==='1:N'?'b-amber':'b-green';
  return`<span class="badge ${cls}">${esc(c)}</span>`
 }
-function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = одно правило формирования ненаправленной связи ${tip('relations.rules')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие сопоставления</th><th>Кардинальность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${esc(r.name)}</b><div class="cell-sub mono">${esc(r.id)}</div></td><td><span class="badge b-violet">${esc(relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—')}</span></td><td class="mono">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</td><td>${cardinalityBadge(r.cardinality)}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ конфликт: ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
+function inverseCardinality(value){
+ const c=value||'N:M';
+ if(c==='N:1')return'1:N';
+ if(c==='1:N')return'N:1';
+ return c
+}
+function relationRuleEndpoint(type,attr){return`${type}.${attr}`}
+function relationRuleDraftFromForm(){
+ return{
+   sourceType:$('rr-st')?.value||'',
+   sourceAttr:$('rr-sa')?.value||'',
+   operator:$('rr-op')?.value||'=',
+   targetType:$('rr-tt')?.value||'',
+   targetAttr:$('rr-ta')?.value||'',
+   relationTypeId:$('rr-rel')?.value||'',
+   cardinality:document.querySelector('input[name="rr-cardinality"]:checked')?.value||'N:M'
+ }
+}
+function findEquivalentRelationRule(candidate,excludeId=''){
+ const cLeft=relationRuleEndpoint(candidate.sourceType,candidate.sourceAttr);
+ const cRight=relationRuleEndpoint(candidate.targetType,candidate.targetAttr);
+
+ for(const r of relationRules){
+   if(r.id===excludeId||r.relationTypeId!==candidate.relationTypeId||r.operator!==candidate.operator)continue;
+   const rLeft=relationRuleEndpoint(r.sourceType,r.sourceAttr);
+   const rRight=relationRuleEndpoint(r.targetType,r.targetAttr);
+
+   if(rLeft===cLeft&&rRight===cRight){
+     return{rule:r,mode:'same',expectedCardinality:r.cardinality||'N:M'}
+   }
+
+   // "=" is symmetric: A=B and B=A describe the same matching condition.
+   if(candidate.operator==='='&&rLeft===cRight&&rRight===cLeft){
+     return{rule:r,mode:'inverse',expectedCardinality:inverseCardinality(r.cardinality||'N:M')}
+   }
+ }
+ return null
+}
+function openExistingRelationRule(id){
+ closeModal();
+ setTimeout(()=>openRelationRule(id),0)
+}
+function renderRelationRuleDuplicateWarning(currentId=''){
+ const el=$('rr-duplicate');if(!el)return null;
+ const draft=relationRuleDraftFromForm();
+ const duplicate=findEquivalentRelationRule(draft,currentId);
+ if(!duplicate){
+   el.innerHTML='';
+   return null
+ }
+
+ const r=duplicate.rule;
+ const relationName=relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—';
+ const attempted=draft.cardinality;
+ const existingShown=duplicate.mode==='inverse'?inverseCardinality(r.cardinality||'N:M'):(r.cardinality||'N:M');
+ const orientationText=duplicate.mode==='inverse'
+   ?'Source и Target поменяны местами, но для оператора = это то же условие.'
+   :'Условие сопоставления совпадает с существующим правилом.';
+ const cardinalityText=attempted===existingShown
+   ?`Кардинальность также эквивалентна: ${attempted}.`
+   :`Кардинальность отличается (${attempted} вместо ${existingShown}), но это не создаёт новое правило — измените существующее.`;
+
+ el.innerHTML=`<div class="box amber-box">
+   <b>Эквивалентное правило уже существует. ${tip('relations.uniqueness')}</b>
+   <div class="hint" style="margin-top:6px">${esc(orientationText)} ${esc(cardinalityText)}</div>
+   <div class="rule-code" style="margin-top:8px">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</div>
+   <div class="pill-row" style="margin-top:8px"><span class="badge b-violet">${esc(relationName)}</span>${cardinalityBadge(r.cardinality||'N:M')}<span class="badge mono">${esc(r.id)}</span></div>
+   <div class="actions" style="margin-top:10px"><button class="sm outline" onclick="openExistingRelationRule(${q(r.id)})">Открыть существующее правило</button></div>
+ </div>`;
+ return duplicate
+}
+function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = один уникальный способ формирования ненаправленной связи ${tip('relations.rules')} ${tip('relations.uniqueness')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие сопоставления</th><th>Кардинальность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${esc(r.name)}</b><div class="cell-sub mono">${esc(r.id)}</div></td><td><span class="badge b-violet">${esc(relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—')}</span></td><td class="mono">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</td><td>${cardinalityBadge(r.cardinality)}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ конфликт: ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
 function typeOptions(sel){return Object.keys(objectTypes).map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}
 function attrOptions(t,sel){return objectTypes[t].map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label} · ${a.id}</option>`).join('')}
 function relationCardinalityOptions(value){
@@ -1425,6 +1501,7 @@ function openRelationRule(id=''){
  <div class="field"><label>Тип связи ${tip('relations.types')}</label><select id="rr-rel" class="wide">${relationTypes.map(t=>`<option value="${t.id}" ${t.id===r.relationTypeId?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div>
  <div id="rr-preview" class="rule-preview"></div>
  <div class="hint">Стрелка намеренно отсутствует: результат правила — ненаправленная связь между двумя object_id.</div>
+ <div id="rr-duplicate" style="margin-top:10px"></div>
 
  <div class="separator"></div>
  <h3>3. Кардинальность ${tip('relations.cardinality')}</h3>
@@ -1440,10 +1517,14 @@ function openRelationRule(id=''){
  <div id="rr-test"></div>
  `,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationRule(${q(id)})">Сохранить</button>`);
 
- const upd=()=>{$('rr-preview').innerHTML=`<div class="rule-preview-line"><span class="rule-node">${esc($('rr-st').value)}</span><span class="rule-arrow">── ${esc(relationTypes.find(t=>t.id===$('rr-rel').value)?.name||'Связь')} ──</span><span class="rule-node">${esc($('rr-tt').value)}</span></div><div class="rule-code">${esc($('rr-st').value)}.${esc($('rr-sa').value)} ${esc($('rr-op').value)} ${esc($('rr-tt').value)}.${esc($('rr-ta').value)}</div>`};
+ const upd=()=>{
+   $('rr-preview').innerHTML=`<div class="rule-preview-line"><span class="rule-node">${esc($('rr-st').value)}</span><span class="rule-arrow">── ${esc(relationTypes.find(t=>t.id===$('rr-rel').value)?.name||'Связь')} ──</span><span class="rule-node">${esc($('rr-tt').value)}</span></div><div class="rule-code">${esc($('rr-st').value)}.${esc($('rr-sa').value)} ${esc($('rr-op').value)} ${esc($('rr-tt').value)}.${esc($('rr-ta').value)}</div>`;
+   renderRelationRuleDuplicateWarning(id)
+ };
  $('rr-st').onchange=()=>{$('rr-sa').innerHTML=attrOptions($('rr-st').value,'');upd()};
  $('rr-tt').onchange=()=>{$('rr-ta').innerHTML=attrOptions($('rr-tt').value,'');upd()};
  ['rr-sa','rr-ta','rr-op','rr-rel'].forEach(x=>$(x).onchange=upd);
+ document.querySelectorAll('input[name="rr-cardinality"]').forEach(x=>x.onchange=upd);
  upd()
 }
 function testRelationRule(){
@@ -1467,6 +1548,12 @@ function saveRelationRule(id){
    missing:old?.missing||0,
    ambiguous:old?.ambiguous||0
  };
+ const duplicate=findEquivalentRelationRule(d,id);
+ if(duplicate){
+   renderRelationRuleDuplicateWarning(id);
+   const mode=duplicate.mode==='inverse'?'обратное представление существующего':'эквивалентное существующему';
+   return toast(`Правило не сохранено: ${mode}. Откройте существующее правило.`)
+ }
  if(old)relationRules[relationRules.indexOf(old)]=d;else relationRules.push(d);
  saveRegistryPrototypeState();closeModal();renderAdmin();toast(old?'Правило обновлено':'Правило создано')
 }
