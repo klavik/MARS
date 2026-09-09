@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.7.0 — прототип</title>
+<title>MARS v0.7.1 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -85,7 +85,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.7.0</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.7.1</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -169,12 +169,12 @@ const registry={
 };
 const objectTypes={Host:[{id:'name',label:'Имя'},{id:'fqdn',label:'FQDN'},{id:'ip',label:'IP'},{id:'environment',label:'Окружение'},{id:'owner',label:'Ответственный'},{id:'informationSystemId',label:'ID информационной системы'}],InformationSystem:[{id:'name',label:'Имя'},{id:'externalId',label:'External ID'},{id:'criticality',label:'Критичность'},{id:'owner',label:'Ответственный'}],Database:[{id:'name',label:'Имя'},{id:'hostName',label:'Host name'},{id:'engine',label:'СУБД'},{id:'environment',label:'Окружение'}],Application:[{id:'name',label:'Имя'},{id:'databaseName',label:'Database name'},{id:'informationSystemId',label:'ID информационной системы'},{id:'owner',label:'Ответственный'}]};
 let relationTypes=[
- {id:'belongs',name:'Относится к',system:true},
- {id:'hosted',name:'Размещён на',system:true},
- {id:'runs',name:'Работает на',system:true},
- {id:'uses',name:'Использует',system:true},
- {id:'depends',name:'Зависит от',system:true},
- {id:'partof',name:'Является частью',system:true}
+ {id:'belongs',name:'Относится к',description:''},
+ {id:'hosted',name:'Размещён на',description:''},
+ {id:'runs',name:'Работает на',description:''},
+ {id:'uses',name:'Использует',description:''},
+ {id:'depends',name:'Зависит от',description:''},
+ {id:'partof',name:'Является частью',description:''}
 ];
 let relationRules=[
  {id:'RR-001',name:'Host ↔ ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',cardinality:'N:1',active:true,formed:1180,missing:61,ambiguous:13},
@@ -271,7 +271,7 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=7;
-const MARS_MOCKUP_VERSION='0.7.0';
+const MARS_MOCKUP_VERSION='0.7.1';
 const PROTOTYPE_HELP_VERSION=`04.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
@@ -387,7 +387,7 @@ function applyRegistryPrototypeState(s){
    Object.entries(s.objectTypes).forEach(([k,v])=>objectTypes[k]=v)
  }
  if(Array.isArray(s.relationTypes)){
-   relationTypes=s.relationTypes.map(t=>({id:t.id,name:t.name,system:!!t.system,description:t.description||''}))
+   relationTypes=s.relationTypes.map(t=>({id:t.id,name:t.name,description:t.description||''}))
  }
  if(Array.isArray(s.relationRules)){
    relationRules=s.relationRules.map(r=>{
@@ -415,7 +415,7 @@ function applyRegistryPrototypeState(s){
  refreshSelectedSourceCollections()
 }
 function normalizeRelationModel(){
- relationTypes=relationTypes.map(t=>({id:t.id,name:t.name,system:!!t.system,description:t.description||''}));
+ relationTypes=relationTypes.map(t=>({id:t.id,name:t.name,description:t.description||''}));
  relationRules=relationRules.map(r=>{
    const x={...r,cardinality:r.cardinality||(r.multiplicity==='one'?'N:1':'N:M')};
    delete x.multiplicity;
@@ -457,7 +457,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.7.0.',
+   body:'Текущая версия интерактивного прототипа: v0.7.1.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -567,8 +567,8 @@ const PROTOTYPE_HELP={
  },
  'relations.types':{
    title:'Типы связей',
-   body:'Административный справочник пользовательских названий связей между объектами.',
-   constraints:['У типа связи одно название. Обратного названия нет.','Название задаёт администратор; MARS не интерпретирует его грамматику или направление.','RelationType не имеет признака active: если тип существует, его можно выбирать в правилах.','Если нужно временно остановить построение связей, отключается конкретное правило.']
+   body:'Административный справочник названий связей между объектами. Все типы связей управляются одинаково.',
+   constraints:['Разделения на системные и пользовательские типы нет.','Любой существующий тип связи можно отредактировать.','У типа связи одно название. Обратного названия и направления нет.','Название задаёт администратор; MARS не интерпретирует его грамматику или направление.','RelationType не имеет признака active: если тип существует, его можно выбирать в правилах.','Удалить тип связи можно только если он не используется правилами.']
  },
  'relations.rules':{
    title:'Правила связей',
@@ -1326,13 +1326,64 @@ function renderSyncSettings(){
  `:`<div class="content"><div class="empty">Добавьте источник, чтобы настроить синхронизацию.</div></div>`}`
 }
 function relationTypeUsageCount(id){return relationRules.filter(r=>r.relationTypeId===id).length}
-function renderRelationTypeSettings(){return`<div class="toolbar"><span class="muted">Справочник названий связей ${tip('relations.types')}</span><button onclick="openRelationTypeCreate()">➕ Добавить тип связи</button></div><div class="content">${relationTypes.map(t=>{const used=relationTypeUsageCount(t.id);return`<div class="card"><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${esc(t.name)}</div><div class="meta">Одно название используется при просмотре связи с любой стороны.</div><div class="pill-row"><span class="badge ${t.system?'b-violet':'b-blue'}">${t.system?'Системный':'Пользовательский'}</span>${used?`<span class="badge">Правил: ${used}</span>`:'<span class="badge">Не используется</span>'}</div></div></div><div class="actions">${!t.system&&!used?`<button class="xs danger" onclick="deleteRelationType(${q(t.id)})">Удалить</button>`:''}</div></div>`}).join('')}</div>`}
-function openRelationTypeCreate(){openModal('Добавить тип связи','Тип связи — это одно пользовательское название факта связи. Направление и обратное название не задаются.',`<div class="field"><label>Название *</label><input id="rt-name" class="wide" placeholder="Например: Размещён на"></div><div class="box blue-box"><b>Фактическая связь ненаправленная.</b><br>Если пользователь назвал тип «Размещён на», MARS показывает именно это название при просмотре связи с обеих сторон.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType()">Добавить</button>`,true)}
-function saveRelationType(){const n=$('rt-name').value.trim();if(!n)return toast('Введите название');if(relationTypes.some(t=>t.name.toLowerCase()===n.toLowerCase()))return toast('Тип связи с таким названием уже существует');relationTypes.push({id:uid('rt'),name:n,system:false});saveRegistryPrototypeState();closeModal();renderAdmin();toast('Тип связи создан')}
-function deleteRelationType(id){const t=relationTypes.find(x=>x.id===id);if(!t)return;if(t.system)return toast('Системный тип связи удалить нельзя');if(relationTypeUsageCount(id))return toast('Тип связи используется правилами');relationTypes=relationTypes.filter(x=>x.id!==id);saveRegistryPrototypeState();renderAdmin();toast('Тип связи удалён')}
-function cardinalityBadge(c){
- const cls=c==='1:1'?'b-violet':c==='N:1'?'b-blue':c==='1:N'?'b-amber':'b-green';
- return`<span class="badge ${cls}">${esc(c||'N:M')}</span>`
+function renderRelationTypeSettings(){return`
+ <div class="toolbar">
+   <div><b>Типы связей ${tip('relations.types')}</b><div class="hint">Все типы связей равноправны: их можно создавать и редактировать. Удаление блокируется, если тип используется правилом.</div></div>
+   <button onclick="openRelationTypeEdit()">➕ Добавить тип связи</button>
+ </div>
+ <div class="content">${relationTypes.map(t=>{
+   const used=relationTypeUsageCount(t.id);
+   return`<div class="card">
+     <div class="card-main"><span class="icon">🔗</span><div>
+       <div class="card-title">${esc(t.name)}</div>
+       <div class="meta">${t.description?esc(t.description):'Описание не задано'}</div>
+       <div class="pill-row">${used?`<span class="badge">Используется в правилах: ${used}</span>`:'<span class="badge">Не используется</span>'}</div>
+     </div></div>
+     <div class="actions">
+       <button class="xs outline" onclick="openRelationTypeEdit(${q(t.id)})">Редактировать</button>
+       ${!used?`<button class="xs danger" onclick="confirmDeleteRelationType(${q(t.id)})">Удалить</button>`:''}
+     </div>
+   </div>`
+ }).join('')}</div>`
+}
+function openRelationTypeEdit(id=''){
+ const t=id?relationTypes.find(x=>x.id===id):null;
+ openModal(t?'Редактировать тип связи':'Добавить тип связи',
+   'Тип связи — это одно название факта связи. Направление и обратное название не задаются.',
+   `<div class="field"><label>Название *</label><input id="rt-name" class="wide" value="${esc(t?.name||'')}" placeholder="Например: Размещён на"></div>
+    <div class="field"><label>Описание</label><textarea id="rt-description" class="wide" rows="3" placeholder="Необязательное пояснение для команды и администраторов">${esc(t?.description||'')}</textarea></div>
+    ${t?`<div class="field"><label>ID типа</label><input class="wide mono" value="${esc(t.id)}" disabled><div class="hint">ID не меняется при переименовании типа связи, поэтому существующие правила продолжают ссылаться на тот же RelationType.</div></div>`:''}
+    <div class="box blue-box"><b>Связь ненаправленная.</b><br>Это же название отображается при просмотре связи с любой из двух сторон.</div>`,
+   `<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveRelationType(${q(id)})">${t?'Сохранить':'Добавить'}</button>`,
+   true)
+}
+function saveRelationType(id=''){
+ const n=$('rt-name').value.trim(),description=$('rt-description').value.trim();
+ if(!n)return toast('Введите название');
+ const duplicate=relationTypes.find(t=>t.id!==id&&t.name.toLowerCase()===n.toLowerCase());
+ if(duplicate)return toast('Тип связи с таким названием уже существует');
+ if(id){
+   const t=relationTypes.find(x=>x.id===id);if(!t)return;
+   t.name=n;t.description=description;
+   saveRegistryPrototypeState();closeModal();renderAdmin();renderRegistry();toast('Тип связи обновлён')
+ }else{
+   relationTypes.push({id:uid('rt'),name:n,description});
+   saveRegistryPrototypeState();closeModal();renderAdmin();toast('Тип связи создан')
+ }
+}
+function confirmDeleteRelationType(id){
+ const t=relationTypes.find(x=>x.id===id);if(!t)return;
+ const used=relationTypeUsageCount(id);
+ if(used)return toast(`Тип связи используется правилами: ${used}`);
+ openModal('Удалить тип связи',t.name,
+   `<div class="box red-box"><b>Тип связи будет удалён.</b><br>Это действие доступно только потому, что тип не используется ни одним правилом.</div>`,
+   `<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="closeModal();deleteRelationType(${q(id)})">Удалить</button>`,
+   true)
+}
+function deleteRelationType(id){
+ if(relationTypeUsageCount(id))return toast('Тип связи используется правилами');
+ relationTypes=relationTypes.filter(x=>x.id!==id);
+ saveRegistryPrototypeState();renderAdmin();toast('Тип связи удалён')
 }
 function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = одно правило формирования ненаправленной связи ${tip('relations.rules')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие сопоставления</th><th>Кардинальность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${esc(r.name)}</b><div class="cell-sub mono">${esc(r.id)}</div></td><td><span class="badge b-violet">${esc(relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—')}</span></td><td class="mono">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</td><td>${cardinalityBadge(r.cardinality)}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ конфликт: ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
 function typeOptions(sel){return Object.keys(objectTypes).map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}
