@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.8.0 — прототип</title>
+<title>MARS v0.8.1 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -72,6 +72,23 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 .help-rule{margin-top:10px;padding:9px 10px;border-radius:8px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
 .persistence-indicator{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#64748b;padding:5px 8px;border-radius:7px;background:#f8fafc;border:1px solid var(--line)}
 
+
+/* v0.8.1 — вертикальный сайдбар фильтров для Постановки на мониторинг */
+.filter-layout{display:grid;grid-template-columns:260px minmax(0,1fr);align-items:start;min-height:420px}
+.filter-sidebar{border-right:1px solid var(--line);background:#f8fafc;padding:16px 14px;min-height:100%;position:sticky;top:0}
+.filter-sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.filter-sidebar-title{font-size:15px;font-weight:900;color:#0f172a}
+.filter-sidebar .field{margin-bottom:12px}.filter-sidebar .field:last-child{margin-bottom:0}
+.filter-sidebar .field label{font-size:12px;margin-bottom:5px}
+.filter-sidebar input,.filter-sidebar select{width:100%;min-width:0}
+.filter-sidebar-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.filter-main{min-width:0;background:#fff}
+.filter-main>.toolbar:first-child{border-top:0}
+.filter-active-count{font-size:11px;font-weight:850;color:#1d4ed8;background:#dbeafe;border-radius:999px;padding:3px 7px}
+@media(max-width:1100px){.filter-layout{grid-template-columns:220px minmax(0,1fr)}}
+@media(max-width:900px){.filter-layout{grid-template-columns:1fr}.filter-sidebar{position:static;border-right:0;border-bottom:1px solid var(--line)}.filter-sidebar-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.filter-sidebar .field{margin-bottom:0}}
+@media(max-width:620px){.filter-sidebar-fields{grid-template-columns:1fr}}
+
 @media(max-width:900px){.registry-summary{grid-template-columns:1fr}.registry-source-row{grid-template-columns:1fr}}
 
 @media(max-width:900px){
@@ -85,7 +102,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.0</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.1</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -274,7 +291,7 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=7;
-const MARS_MOCKUP_VERSION='0.8.0';
+const MARS_MOCKUP_VERSION='0.8.1';
 const PROTOTYPE_HELP_VERSION=`18.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
@@ -460,7 +477,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.8.0. Постановка на мониторинг приведена к актуальной рабочей документации; Реестр объектов мониторинга в этой итерации не менялся.',
+   body:'Текущая версия интерактивного прототипа: v0.8.1. Фильтры в разделах Постановки на мониторинг перенесены в постоянный вертикальный сайдбар; Реестр объектов мониторинга в этой итерации не менялся.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -1853,6 +1870,103 @@ function renderAuditAdminV08(){const f=monUi.audit,acts=[...new Set(state.dataAd
 const _saveServiceV080=saveServiceV08;
 saveServiceV08=function(id='',fromTemplate=false){if($('svc-expert-toggle')?.checked){try{JSON.parse($('svc-json').value)}catch(e){return toast('Экспертная конфигурация должна быть валидным JSON')}}return _saveServiceV080(id,fromTemplate)};
 
+
+
+/* === v0.8.1: filters are persistent vertical sidebars, not modals/inline rows. === */
+function countActiveFiltersV081(key){
+ const f=monUi[key];
+ const defaults={
+  hosts:{search:'',nameMode:'contains',proxy:'all',source:'all',service:'all',hasService:'all',group:'all',collection:'all',author:'all',dateFrom:'',dateTo:''},
+  services:{search:'',type:'all',protocol:'all',mtls:'all',auth:'all',collection:'all',group:'all',author:'all',port:''},
+  templates:{search:'',type:'all',protocol:'all',author:'all',port:''},
+  collections:{search:'',author:'all',service:'all'}
+ }[key]||{};
+ return Object.keys(defaults).filter(k=>f[k]!==defaults[k]).length;
+}
+function filterSidebarShellV081(title,key,fields,resetCall){
+ const n=countActiveFiltersV081(key);
+ return `<aside class="filter-sidebar"><div class="filter-sidebar-head"><div class="filter-sidebar-title">Фильтры</div>${n?`<span class="filter-active-count">${n}</span>`:''}</div><div class="filter-sidebar-fields">${fields}</div><div class="filter-sidebar-actions"><button class="ghost sm" onclick="${resetCall}">Сбросить</button></div></aside>`;
+}
+function hostFilterSidebarV081(){
+ const f=monUi.hosts;
+ const fields=`
+ <div class="field"><label>Поиск</label><input placeholder="Имя или IP/FQDN" value="${esc(f.search)}" oninput="monUi.hosts.search=this.value;monUi.hosts.page=1;renderHosts()"></div>
+ <div class="field"><label>Условие по имени</label><select onchange="monUi.hosts.nameMode=this.value;monUi.hosts.page=1;renderHosts()"><option value="contains" ${f.nameMode==='contains'?'selected':''}>содержит</option><option value="notcontains" ${f.nameMode==='notcontains'?'selected':''}>не содержит</option></select></div>
+ <div class="field"><label>Группа прокси</label><select onchange="monUi.hosts.proxy=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option>${state.proxyGroups.map(g=>`<option value="${g.id}" ${f.proxy===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Источник</label><select onchange="monUi.hosts.source=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option><option value="manual" ${f.source==='manual'?'selected':''}>Ручной</option><option value="manual-prefill" ${f.source==='manual-prefill'?'selected':''}>Реестр → ручной</option></select></div>
+ <div class="field"><label>Наличие сервисов</label><select onchange="monUi.hosts.hasService=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option><option value="yes" ${f.hasService==='yes'?'selected':''}>С сервисами</option><option value="no" ${f.hasService==='no'?'selected':''}>Без сервисов</option></select></div>
+ <div class="field"><label>Сервис</label><select onchange="monUi.hosts.service=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option>${visibleServices().map(s=>`<option value="${s.id}" ${f.service===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Коллекция</label><select onchange="monUi.hosts.collection=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option>${visibleCollections().map(c=>`<option value="${c.id}" ${f.collection===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Группа-владелец</label><select onchange="monUi.hosts.group=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option>${state.groups.filter(g=>isAdmin()||userGroupIds().has(g.id)).map(g=>`<option value="${g.id}" ${f.group===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Автор / изменил</label><select onchange="monUi.hosts.author=this.value;monUi.hosts.page=1;renderHosts()"><option value="all">Все</option>${state.users.map(u=>`<option value="${u.id}" ${f.author===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Дата создания с</label><input type="date" value="${f.dateFrom}" onchange="monUi.hosts.dateFrom=this.value;monUi.hosts.page=1;renderHosts()"></div>
+ <div class="field"><label>Дата создания по</label><input type="date" value="${f.dateTo}" onchange="monUi.hosts.dateTo=this.value;monUi.hosts.page=1;renderHosts()"></div>`;
+ return filterSidebarShellV081('Фильтры','hosts',fields,'resetHostFilters()');
+}
+function setServiceTypeFilterV081(v){monUi.services.type=v;if(v!=='ExporterScrapeAgent'){monUi.services.protocol='all';monUi.services.mtls='all'}monUi.services.page=1;renderServices()}
+function setServiceProtocolFilterV081(v){monUi.services.protocol=v;if(v!=='https')monUi.services.mtls='all';monUi.services.page=1;renderServices()}
+function resetServiceFiltersV081(){Object.assign(monUi.services,{search:'',type:'all',protocol:'all',mtls:'all',auth:'all',collection:'all',group:'all',author:'all',port:'',page:1});renderServices()}
+function serviceFilterSidebarV081(){
+ const f=monUi.services;
+ const fields=`
+ <div class="field"><label>Поиск</label><input placeholder="По видимым столбцам" value="${esc(f.search)}" oninput="monUi.services.search=this.value;monUi.services.page=1;renderServices()"></div>
+ <div class="field"><label>Тип сервиса</label><select onchange="setServiceTypeFilterV081(this.value)"><option value="all">Все</option>${SERVICE_TYPES.map(t=>`<option value="${t}" ${f.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+ <div class="field"><label>Протокол</label><select ${f.type!=='ExporterScrapeAgent'?'disabled':''} onchange="setServiceProtocolFilterV081(this.value)"><option value="all">Все</option><option value="http" ${f.protocol==='http'?'selected':''}>http</option><option value="https" ${f.protocol==='https'?'selected':''}>https</option></select></div>
+ <div class="field"><label>mTLS</label><select ${!(f.type==='ExporterScrapeAgent'&&f.protocol==='https')?'disabled':''} onchange="monUi.services.mtls=this.value;monUi.services.page=1;renderServices()"><option value="all">Все</option><option value="yes" ${f.mtls==='yes'?'selected':''}>Есть</option><option value="no" ${f.mtls==='no'?'selected':''}>Нет</option></select></div>
+ <div class="field"><label>Авторизация</label><select onchange="monUi.services.auth=this.value;monUi.services.page=1;renderServices()"><option value="all">Все</option><option value="yes" ${f.auth==='yes'?'selected':''}>С авторизацией</option><option value="no" ${f.auth==='no'?'selected':''}>Без авторизации</option></select></div>
+ <div class="field"><label>Коллекция</label><select onchange="monUi.services.collection=this.value;monUi.services.page=1;renderServices()"><option value="all">Все</option>${visibleCollections().map(c=>`<option value="${c.id}" ${f.collection===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Группа-владелец</label><select onchange="monUi.services.group=this.value;monUi.services.page=1;renderServices()"><option value="all">Все</option>${state.groups.filter(g=>isAdmin()||userGroupIds().has(g.id)).map(g=>`<option value="${g.id}" ${f.group===g.id?'selected':''}>${esc(g.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Автор / изменил</label><select onchange="monUi.services.author=this.value;monUi.services.page=1;renderServices()"><option value="all">Все</option>${state.users.map(u=>`<option value="${u.id}" ${f.author===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Порт содержит</label><input value="${esc(f.port)}" oninput="monUi.services.port=this.value;monUi.services.page=1;renderServices()"></div>`;
+ return filterSidebarShellV081('Фильтры','services',fields,'resetServiceFiltersV081()');
+}
+function resetTemplateFiltersV081(){Object.assign(monUi.templates,{search:'',type:'all',protocol:'all',author:'all',port:'',page:1});renderTemplates()}
+function templateFilterSidebarV081(){
+ const f=monUi.templates;
+ const fields=`
+ <div class="field"><label>Поиск</label><input placeholder="По видимым столбцам" value="${esc(f.search)}" oninput="monUi.templates.search=this.value;monUi.templates.page=1;renderTemplates()"></div>
+ <div class="field"><label>Тип сервиса</label><select onchange="monUi.templates.type=this.value;monUi.templates.page=1;renderTemplates()"><option value="all">Все</option>${SERVICE_TYPES.map(t=>`<option value="${t}" ${f.type===t?'selected':''}>${t}</option>`).join('')}</select></div>
+ <div class="field"><label>Протокол</label><select onchange="monUi.templates.protocol=this.value;monUi.templates.page=1;renderTemplates()"><option value="all">Все</option><option value="http" ${f.protocol==='http'?'selected':''}>http</option><option value="https" ${f.protocol==='https'?'selected':''}>https</option></select></div>
+ <div class="field"><label>Автор</label><select onchange="monUi.templates.author=this.value;monUi.templates.page=1;renderTemplates()"><option value="all">Все</option>${state.users.map(u=>`<option value="${u.id}" ${f.author===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Порт содержит</label><input value="${esc(f.port)}" oninput="monUi.templates.port=this.value;monUi.templates.page=1;renderTemplates()"></div>`;
+ return filterSidebarShellV081('Фильтры','templates',fields,'resetTemplateFiltersV081()');
+}
+function resetCollectionFiltersV081(){Object.assign(monUi.collections,{search:'',author:'all',service:'all',page:1});renderCollections()}
+function collectionFilterSidebarV081(){
+ const f=monUi.collections;
+ const fields=`
+ <div class="field"><label>Поиск по названию</label><input value="${esc(f.search)}" oninput="monUi.collections.search=this.value;monUi.collections.page=1;renderCollections()"></div>
+ <div class="field"><label>Пользователь / автор</label><select onchange="monUi.collections.author=this.value;monUi.collections.page=1;renderCollections()"><option value="all">Все</option>${state.users.map(u=>`<option value="${u.id}" ${f.author===u.id?'selected':''}>${esc(u.name)}</option>`).join('')}</select></div>
+ <div class="field"><label>Сервис</label><select onchange="monUi.collections.service=this.value;monUi.collections.page=1;renderCollections()"><option value="all">Все</option>${visibleServices().map(s=>`<option value="${s.id}" ${f.service===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div>`;
+ return filterSidebarShellV081('Фильтры','collections',fields,'resetCollectionFiltersV081()');
+}
+
+function renderHosts(){monitoringGate('hosts',()=>{
+ const arr=hostView==='catalog'?catalogHosts():applyHostFilters(groupHosts()),p=paginate(arr,monUi.hosts.page);monUi.hosts.page=p.page;
+ const canCreate=hasAnyMonitoringPermission()&&state.proxyGroups.length>0;
+ const bulk=selectedHostIds.size&&hostView==='connected'?`<span class="muted">Выбрано: <b>${selectedHostIds.size}</b></span><button class="sm outline" onclick="openBulkAttachModal()">＋ Сервис</button><button class="sm outline" onclick="openBulkDetachModalV08()">− Сервис</button><button class="sm outline" onclick="openBulkCollectionModal()">＋ Коллекция</button><button class="sm outline" onclick="openBulkUnlinkCollectionV08()">− Коллекция</button><button class="sm danger" onclick="bulkDeleteHostsV08()">Удалить</button><button class="sm ghost" onclick="selectedHostIds.clear();renderHosts()">Снять выбор</button>`:'';
+ const main=`<div class="filter-main"><div class="toolbar"><div class="actions">${bulk}</div><div class="actions">${hostView==='connected'?`<button class="outline" onclick="openColumnsModal('hosts',HOST_COLS,['name'])">Столбцы</button><button ${canCreate?'':'disabled title="Создание требует права и хотя бы одной группы прокси"'} onclick="openHostCreateModal()">➕ Создать хост</button>`:'<button class="outline" onclick="syncCatalogHosts()">🔄 Обновить</button>'}</div></div>${hostTableV08(p.items)}${pagerHtml('hosts',p)}</div>`;
+ const body=hostView==='connected'?`<div class="filter-layout">${hostFilterSidebarV081()}${main}</div>`:main;
+ page('hosts',hostView==='catalog'?'Хосты из реестра объектов':'Хосты моей группы',hostView==='catalog'?'Синхронизируемые CMDB-хосты. Реестр объектов в этой итерации не меняется.':'Ручные Host вашей группы отображаются независимо от наличия сервисов.',`<button class="outline" onclick="resetDemo()">↺ Сбросить демо</button>`,`<div class="panel"><div class="host-switch"><button class="${hostView==='connected'?'active':''}" onclick="hostView='connected';selectedHostIds.clear();renderHosts()">Хосты моей группы</button><button class="${hostView==='catalog'?'active':''}" onclick="hostView='catalog';selectedHostIds.clear();renderHosts()">Хосты из реестра объектов</button></div>${roNote()}${body}</div>`)
+ })}
+function renderServices(){monitoringGate('services',()=>{
+ const arr=applyServiceFilters(visibleServices()),p=paginate(arr,monUi.services.page);monUi.services.page=p.page;const createOk=hasAnyMonitoringPermission()&&configuredTypes().length>0;
+ const bulk=monUi.selectedServices.size?`<span class="muted">Выбрано: ${monUi.selectedServices.size}</span><button class="danger" onclick="bulkDeleteServicesV08()">Удалить</button><button class="ghost" onclick="monUi.selectedServices.clear();renderServices()">Снять выбор</button>`:'';
+ const main=`<div class="filter-main"><div class="toolbar"><div class="actions">${bulk}</div><div class="actions"><button class="outline" onclick="openColumnsModal('services',SERVICE_COLS,['name'])">Столбцы</button></div></div>${serviceTableV08(p.items)}${pagerHtml('services',p)}</div>`;
+ page('services','🔌 Сервисы','Конфигурации сбора метрик, доступные вашей группе.',`<button ${createOk?'':'disabled'} onclick="openServiceModal()">➕ Добавить сервис</button>`,`<div class="panel">${roNote()}<div class="info"><b>Тип сервиса можно создать только при наличии глобальной настройки в «Сбор данных».</b> Настроены: ${configuredTypes().map(t=>`<span class="badge b-green">${t}</span>`).join(' ')||'нет'}.</div><div class="filter-layout">${serviceFilterSidebarV081()}${main}</div></div>`)
+ })}
+function renderTemplates(){monitoringGate('templates',()=>{
+ const arr=applyTemplateFilters(visibleTemplates()),p=paginate(arr,monUi.templates.page);monUi.templates.page=p.page;
+ const bulk=monUi.selectedTemplates.size&&hasAnyMonitoringPermission()?`<span>Выбрано: ${monUi.selectedTemplates.size}</span><button class="danger" onclick="bulkDeleteTemplatesV08()">Удалить</button><button class="ghost" onclick="monUi.selectedTemplates.clear();renderTemplates()">Снять выбор</button>`:'';
+ const main=`<div class="filter-main"><div class="toolbar"><div class="actions">${bulk}</div><div class="actions"><button class="outline" onclick="openColumnsModal('templates',TEMPLATE_COLS,['name'])">Столбцы</button></div></div>${templateTableV08(p.items)}${pagerHtml('templates',p)}</div>`;
+ page('templates','🧩 Шаблоны сервисов','Публичная библиотека заготовок для создания сервисов.',`<button ${canCreateTemplate()?'':'disabled'} onclick="chooseServiceForTemplateV08()">➕ Добавить шаблон</button>`,`<div class="panel">${roNote()}${!state.templates.length?`<div class="empty"><h3>Шаблоны ещё не созданы</h3><p>Для создания шаблона сначала создайте или выберите существующий сервис.</p><button onclick="switchSection('services')">Перейти к сервисам</button></div>`:`<div class="filter-layout">${templateFilterSidebarV081()}${main}</div>`}</div>`)
+ })}
+function renderCollections(){monitoringGate('collections',()=>{
+ const arr=applyCollectionFilters(visibleCollections()),p=paginate(arr,monUi.collections.page);monUi.collections.page=p.page;
+ const bulk=monUi.selectedCollections.size?`<span>Выбрано: ${monUi.selectedCollections.size}</span><button class="danger" onclick="bulkDeleteCollectionsV08()">Удалить</button><button class="ghost" onclick="monUi.selectedCollections.clear();renderCollections()">Снять выбор</button>`:'';
+ const main=`<div class="filter-main"><div class="toolbar"><div class="actions">${bulk}</div><div class="actions"><button class="outline" onclick="openColumnsModal('collections',COLLECTION_COLS,['name'])">Столбцы</button></div></div>${collectionTableV08(p.items)}${pagerHtml('collections',p)}</div>`;
+ page('collections','📦 Коллекции','Живые desired-state конфигурации сервисов для Host.',`<button ${hasAnyMonitoringPermission()?'':'disabled'} onclick="openCollectionModal()">➕ Добавить коллекцию</button>`,`<div class="panel">${roNote()}<div class="info"><b>Коллекцию можно создать пустой.</b> Изменение состава автоматически применяется к привязанным Host без дублей Host–Service.</div><div class="filter-layout">${collectionFilterSidebarV081()}${main}</div></div>`)
+ })}
 
 loadState();migrateMonitoringV080();loadRegistryPrototypeState();normalizeRelationModel();refreshSelectedSourceCollections();ensureAllRegistrySourceRaw();renderAll();renderRegistry();renderAdmin();renderProductSidebar();
 saveRegistryPrototypeState();
