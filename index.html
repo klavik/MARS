@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.8.1 — прототип</title>
+<title>MARS v0.8.3 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -73,7 +73,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 .persistence-indicator{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#64748b;padding:5px 8px;border-radius:7px;background:#f8fafc;border:1px solid var(--line)}
 
 
-/* v0.8.1 — вертикальный сайдбар фильтров для Постановки на мониторинг */
+/* v0.8.3 — вертикальный сайдбар фильтров + единый редактор группы прокси */
 .filter-layout{display:grid;grid-template-columns:260px minmax(0,1fr);align-items:start;min-height:420px}
 .filter-sidebar{border-right:1px solid var(--line);background:#f8fafc;padding:16px 14px;min-height:100%;position:sticky;top:0}
 .filter-sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
@@ -97,12 +97,28 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
  .app-section{margin-left:0}.sidebar-label{display:none}
  main{padding:14px}.row,.row3,.stats,.rule-flow,.grid3cards{grid-template-columns:1fr}.input{width:100%}.nav{padding:0 14px}.tab{padding:10px}.page-head{gap:10px}
 }
+
+.proxy-group-editor{display:grid;grid-template-columns:minmax(340px,460px) minmax(420px,1fr);gap:24px;align-items:start}
+.proxy-group-editor .side-title{font-size:14px;font-weight:700;margin:0 0 10px;color:var(--text)}
+.proxy-group-editor .left-col{padding-right:6px}
+.proxy-group-editor .right-col{display:flex;flex-direction:column;gap:12px}
+.proxy-group-empty{min-height:420px;border:1px dashed var(--line);border-radius:18px;background:rgba(255,255,255,.02);display:flex;align-items:center;justify-content:center;text-align:center;padding:24px}
+.proxy-group-empty .empty-illustration{display:flex;flex-direction:column;align-items:center;gap:18px;max-width:320px}
+.proxy-group-empty .ghost-cat{font-size:84px;opacity:.22;line-height:1}
+.proxy-group-empty .empty-title{font-weight:700;font-size:18px}
+.proxy-group-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.proxy-group-list{display:flex;flex-direction:column;gap:12px;max-height:520px;overflow:auto;padding-right:4px}
+.proxy-group-card{border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(255,255,255,.02);display:flex;justify-content:space-between;gap:16px;align-items:flex-start}
+.proxy-group-card .meta{margin-top:4px}
+.proxy-group-card .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width: 1180px){.proxy-group-editor{grid-template-columns:1fr}.proxy-group-empty{min-height:280px}}
+
 </style>
 </head>
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.1</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.3</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -136,6 +152,7 @@ let activeSection='hosts',hostView='connected',showHostsWithoutServices=false;
 let selectedHostIds=new Set(),attachServiceIds=new Set(),attachHostId=null,bulkAttachServiceIds=new Set(),collectionServicePickerIds=new Set();
 let hostDraft={mode:'manual',catalogId:'',selectedServiceIds:[],editingId:null,ownerGroupId:'',cloneFromId:null};
 let collectionDraft={id:null,name:'',description:'',ownerGroupId:'',serviceIds:[],originalServiceIds:[]};
+let proxyGroupDraft=null;
 const $=id=>document.getElementById(id);const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));const q=v=>"'"+String(v).replace(/\\/g,'\\\\').replace(/'/g,"\\'")+"'";const uid=p=>p+'-'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);const now=()=>new Date().toLocaleString('ru-RU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 function toast(msg){const e=$('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2400)}
 function openModal(title,sub,body,foot,small=false){$('modal-title').textContent=title;$('modal-sub').textContent=sub||'';$('modal-body').innerHTML=body;$('modal-foot').innerHTML=foot||'<button onclick="closeModal()">Закрыть</button>';$('modal').classList.toggle('small',small);$('modal-wrap').classList.add('show')}
@@ -291,7 +308,7 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=7;
-const MARS_MOCKUP_VERSION='0.8.1';
+const MARS_MOCKUP_VERSION='0.8.2';
 const PROTOTYPE_HELP_VERSION=`18.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
@@ -477,7 +494,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.8.1. Фильтры в разделах Постановки на мониторинг перенесены в постоянный вертикальный сайдбар; Реестр объектов мониторинга в этой итерации не менялся.',
+   body:'Текущая версия интерактивного прототипа: v0.8.3. Редактирование параметров группы прокси и управление составом прокси объединены в одно окно; Реестр объектов мониторинга в этой итерации не менялся.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -1801,17 +1818,82 @@ function renderAccess(){const rules=[['Без группы','Заглушка «
 // DATA ADMIN
 function renderDataAdmin(){if(!isAdmin())return`<div class="info"><b>Сбор данных доступен Администратору MARS.</b></div><div class="empty">Переключитесь на MARS Admin для изменения настроек.</div>`;return`<div class="info"><b>Сбор данных — административная основа «Постановки на мониторинг».</b> Группы прокси обязательны для Host, глобальная конфигурация типа обязательна для создания сервиса.</div><div class="inner-tabs"><button class="${monUi.dataTab==='proxy'?'active':''}" onclick="monUi.dataTab='proxy';renderAdmin()">Группы прокси</button><button class="${monUi.dataTab==='settings'?'active':''}" onclick="monUi.dataTab='settings';renderAdmin()">Настройки сбора данных</button><button class="${monUi.dataTab==='history'?'active':''}" onclick="monUi.dataTab='history';renderAdmin()">История</button></div>${monUi.dataTab==='proxy'?renderProxyGroupsAdminV08():monUi.dataTab==='settings'?renderCollectorSettingsAdminV08():renderAuditAdminV08()}`}
 function renderProxyGroupsAdminV08(){return`<div class="toolbar"><div><b>Группы прокси</b><div class="hint">Прокси создаются только внутри группы.</div></div><button onclick="openProxyGroupV08()">➕ Добавить группу прокси</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Режим</th><th>Домены</th><th>Сети</th><th>Прокси</th><th>Изменено</th><th>Действия</th></tr></thead><tbody>${state.proxyGroups.map(g=>`<tr class="data-row" onclick="openProxyGroupDetailsV08(${q(g.id)})"><td><b>${esc(g.name)}</b></td><td>${g.mode==='active'?'Активный':'Пассивный'}</td><td>${esc((g.domains||[]).join(', ')||'—')}</td><td>${esc((g.networks||[]).join(', ')||'—')}</td><td><span class="badge">${(g.proxies||[]).length}</span></td><td>${esc(g.updatedAt||'—')}</td><td onclick="event.stopPropagation()"><button class="xs outline" onclick="openProxyGroupV08(${q(g.id)})">Изменить</button><button class="xs danger" ${(g.proxies||[]).length||state.hosts.some(h=>h.proxyGroup===g.id)?'disabled':''} onclick="deleteProxyGroupV08(${q(g.id)})">Удалить</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Отсутствуют группы для создания прокси</td></tr>'}</tbody></table></div>`}
-function openProxyGroupV08(id=''){const g=id?state.proxyGroups.find(x=>x.id===id):null;openModal(g?'Изменить группу прокси':'Добавить группу прокси','',`<div class="row"><div class="field"><label>Название</label><input id="pg-name" class="wide" value="${esc(g?.name||'')}"></div><div class="field"><label>Режим</label><select id="pg-mode" class="wide" ${g?.proxies.length?'disabled':''}><option value="active" ${g?.mode!=='passive'?'selected':''}>Активный</option><option value="passive" ${g?.mode==='passive'?'selected':''}>Пассивный</option></select></div></div><div class="field"><label>Описание</label><textarea id="pg-desc" class="wide">${esc(g?.description||'')}</textarea></div><div class="row3"><div class="field"><label>Связанные домены</label><input id="pg-domains" class="wide" value="${esc((g?.domains||[]).join(', '))}"></div><div class="field"><label>Связанные сети</label><input id="pg-networks" class="wide" value="${esc((g?.networks||[]).join(', '))}"></div><div class="field"><label>Таймаут, сек</label><input id="pg-timeout" class="wide" type="number" value="${g?.timeoutSec||30}"></div></div><div class="field"><label>Авторизация</label><select id="pg-auth" class="wide"><option value="none" ${g?.auth!=='bearer'?'selected':''}>No auth</option><option value="bearer" ${g?.auth==='bearer'?'selected':''}>Bearer Token</option></select></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveProxyGroupV08(${q(id)})">${g?'Изменить':'Добавить'}</button>`)}
-function saveProxyGroupV08(id){const name=$('pg-name').value.trim();if(!name)return toast('Введите название');if(state.proxyGroups.some(g=>g.id!==id&&g.name.toLowerCase()===name.toLowerCase()))return toast('Группа прокси с таким названием уже существует');const old=id?state.proxyGroups.find(g=>g.id===id):null,d={name,description:$('pg-desc').value.trim(),domains:$('pg-domains').value.split(',').map(x=>x.trim()).filter(Boolean),networks:$('pg-networks').value.split(',').map(x=>x.trim()).filter(Boolean),timeoutSec:Number($('pg-timeout').value)||30,auth:$('pg-auth').value,mode:old?.proxies.length?old.mode:$('pg-mode').value,updatedAt:now(),updatedBy:currentUser().id};if(old)Object.assign(old,d);else state.proxyGroups.push({id:uid('pg'),...d,createdAt:now(),proxies:[]});auditMon(old?'Обновление группы прокси':'Создание группы прокси',{name});saveState();closeModal();renderAdmin();renderHosts();toast('Группа прокси сохранена')}
+function openProxyGroupV08(id=''){
+ const g=id?state.proxyGroups.find(x=>x.id===id):null;
+ proxyGroupDraft=g?JSON.parse(JSON.stringify({...g,pendingMoves:[],auditDraft:[]})):{id:null,name:'',description:'',mode:'active',domains:[],networks:[],timeoutSec:30,auth:'none',createdAt:'',updatedAt:'',updatedBy:currentUser().id,proxies:[],pendingMoves:[],auditDraft:[]};
+ renderProxyGroupEditorV082();
+}
+function captureProxyGroupDraftV082(){
+ if(!proxyGroupDraft)return;
+ if($('pg-name'))proxyGroupDraft.name=$('pg-name').value.trim();
+ if($('pg-desc'))proxyGroupDraft.description=$('pg-desc').value.trim();
+ if($('pg-domains'))proxyGroupDraft.domains=$('pg-domains').value.split(',').map(x=>x.trim()).filter(Boolean);
+ if($('pg-networks'))proxyGroupDraft.networks=$('pg-networks').value.split(',').map(x=>x.trim()).filter(Boolean);
+ if($('pg-timeout'))proxyGroupDraft.timeoutSec=Number($('pg-timeout').value)||30;
+ const authChecked=document.querySelector('input[name="pg-auth"]:checked');if(authChecked)proxyGroupDraft.auth=authChecked.value;
+ const modeChecked=document.querySelector('input[name="pg-mode"]:checked');if(modeChecked&&!modeChecked.disabled)proxyGroupDraft.mode=modeChecked.value;
+}
+function renderProxyGroupEditorV082(){
+ const g=proxyGroupDraft;if(!g)return;
+ const existing=!!g.id;
+ const proxies=g.proxies||[];
+ const proxyCards=proxies.map(p=>`<div class="proxy-group-card"><div class="card-main"><span class="icon">🌐</span><div><div class="card-title">${esc(p.name)}</div><div class="meta">${esc(p.address)} · <span class="badge ${p.enabled?'b-green':'b-amber'}">${p.enabled?'Активно':'Неактивно'}</span></div><div class="hint">${esc(p.description||'Без описания')} · Последний контакт: ${esc(p.lastContact||'—')}</div></div></div><div class="actions"><button class="xs outline" onclick="toggleProxyV08(${q(g.id||'draft')},${q(p.id)})">${p.enabled?'Отключить':'Включить'}</button><button class="xs outline" onclick="openProxyEditV08(${q(g.id||'draft')},${q(p.id)})">Изменить</button><button class="xs outline" onclick="moveProxyV08(${q(g.id||'draft')},${q(p.id)})">Переместить</button><button class="xs danger" onclick="deleteProxyV08(${q(g.id||'draft')},${q(p.id)})">Удалить</button></div></div>`).join('');
+ const rightHtml=proxies.length?`
+ <div class="proxy-group-actions"><div><h3 class="side-title">Прокси в группе</h3><div class="hint">Управление составом выполняется в этой же модалке.</div></div><div class="actions"><button class="outline" ${proxies.some(p=>p.enabled)?'':'disabled'} onclick="bulkProxyStateV08(${q(g.id||'draft')},false)">Отключить активные</button><button class="outline" ${proxies.some(p=>!p.enabled)?'':'disabled'} onclick="bulkProxyStateV08(${q(g.id||'draft')},true)">Включить неактивные</button><button onclick="openProxyEditV08(${q(g.id||'draft')})">Добавить прокси</button></div></div>
+ <div class="proxy-group-list">${proxyCards}</div>`:`
+ <h3 class="side-title">Добавление прокси</h3>
+ <div class="proxy-group-empty"><div class="empty-illustration"><button onclick="openProxyEditV08(${q(g.id||'draft')})">Добавить прокси</button><div class="ghost-cat">🐈‍⬛</div><div class="hint">В группе пока нет ни одного прокси. Можно добавить прокси сейчас или сначала сохранить пустую группу.</div></div></div>`;
+ openModal(existing?`Изменить группу прокси`:'Добавить группу прокси',existing?'Основные настройки и состав группы редактируются в одном окне.':'Сначала задайте параметры группы. Прокси можно добавить сразу в этом же окне.',`
+ <div class="proxy-group-editor">
+   <div class="left-col">
+     <h3 class="side-title">Основные настройки</h3>
+     <div class="field"><label>Название</label><input id="pg-name" class="wide" value="${esc(g.name||'')}"></div>
+     <div class="field"><label>Описание</label><textarea id="pg-desc" class="wide">${esc(g.description||'')}</textarea></div>
+     <div class="field"><label>Связанные домены</label><input id="pg-domains" class="wide" value="${esc((g.domains||[]).join(', '))}"></div>
+     <div class="field"><label>Связанные сети</label><input id="pg-networks" class="wide" value="${esc((g.networks||[]).join(', '))}"></div>
+     <div class="field"><label>Таймаут, сек</label><div class="stepper"><button class="ghost" type="button" onclick="changeProxyTimeoutV083(-1)">−</button><input id="pg-timeout" class="wide" type="number" min="1" value="${g.timeoutSec||30}"><button class="ghost" type="button" onclick="changeProxyTimeoutV083(1)">+</button></div></div>
+     <div class="field"><label>Авторизация</label><div class="radio-row"><label><input type="radio" name="pg-auth" value="none" ${g.auth!=='bearer'?'checked':''}> No auth</label><label><input type="radio" name="pg-auth" value="bearer" ${g.auth==='bearer'?'checked':''}> Bearer Token</label></div></div>
+     <div class="field"><label>Режим работы</label><div class="radio-row"><label><input type="radio" name="pg-mode" value="active" ${g.mode!=='passive'?'checked':''} ${proxies.length?'disabled':''}> Активный</label><label><input type="radio" name="pg-mode" value="passive" ${g.mode==='passive'?'checked':''} ${proxies.length?'disabled':''}> Пассивный</label></div>${proxies.length?'<div class="hint">Режим можно изменить только у пустой группы.</div>':''}</div>
+   </div>
+   <div class="right-col">${rightHtml}</div>
+ </div>`,
+ `<button class="ghost" onclick="proxyGroupDraft=null;closeModal()">Отменить</button><button onclick="saveProxyGroupV08(${q(g.id||'')})">${existing?'Сохранить':'Добавить'}</button>`,true);
+}
+function changeProxyTimeoutV083(delta){const input=$('pg-timeout');if(!input)return;const current=Math.max(1,Number(input.value)||1);input.value=Math.max(1,current+delta)}
+function saveProxyGroupV08(id){
+ captureProxyGroupDraftV082();const d=proxyGroupDraft;if(!d)return;
+ const name=d.name.trim();if(!name)return toast('Введите название');
+ if(state.proxyGroups.some(g=>g.id!==id&&g.name.toLowerCase()===name.toLowerCase()))return toast('Группа прокси с таким названием уже существует');
+ const old=id?state.proxyGroups.find(g=>g.id===id):null;
+ const committed={name,description:d.description,domains:d.domains,networks:d.networks,timeoutSec:d.timeoutSec||30,auth:d.auth,mode:d.proxies.length?(old?.mode||d.mode):d.mode,updatedAt:now(),updatedBy:currentUser().id,proxies:d.proxies.map(p=>({...p}))};
+ if(old)Object.assign(old,committed);else state.proxyGroups.push({id:uid('pg'),...committed,createdAt:now()});
+ (d.pendingMoves||[]).forEach(m=>{const dst=state.proxyGroups.find(x=>x.id===m.targetId);if(dst&&!dst.proxies.some(x=>x.id===m.proxy.id))dst.proxies.push({...m.proxy})});
+ auditMon(old?'Обновление группы прокси':'Создание группы прокси',{name});
+ (d.auditDraft||[]).forEach(a=>auditMon(a.action,a.payload));
+ proxyGroupDraft=null;saveState();closeModal();renderAdmin();renderHosts();toast('Группа прокси сохранена');
+}
 function deleteProxyGroupV08(id){const g=state.proxyGroups.find(x=>x.id===id);if(!g)return;if(g.proxies.length||state.hosts.some(h=>h.proxyGroup===id))return toast('Группу нельзя удалить: есть прокси или она используется Host');state.proxyGroups=state.proxyGroups.filter(x=>x.id!==id);auditMon('Удаление группы прокси',{name:g.name});saveState();renderAdmin();renderHosts();toast('Группа прокси удалена')}
-function openProxyGroupDetailsV08(id){const g=state.proxyGroups.find(x=>x.id===id);if(!g)return;openModal(`Группа прокси: ${g.name}`,g.mode==='active'?'Активный режим':'Пассивный режим',`<div class="toolbar"><div><b>Прокси</b></div><div class="actions"><button class="outline" onclick="bulkProxyStateV08(${q(id)},false)">Отключить активные</button><button class="outline" onclick="bulkProxyStateV08(${q(id)},true)">Включить неактивные</button><button onclick="openProxyEditV08(${q(id)})">Добавить прокси</button></div></div>${g.proxies.map(p=>`<div class="card"><div class="card-main"><span class="icon">🌐</span><div><div class="card-title">${esc(p.name)}</div><div class="meta">${esc(p.address)} · <span class="badge ${p.enabled?'b-green':'b-amber'}">${p.enabled?'Активно':'Неактивно'}</span></div><div class="hint">Последний контакт: ${esc(p.lastContact||'—')}</div></div></div><div class="actions"><button class="xs outline" onclick="toggleProxyV08(${q(id)},${q(p.id)})">${p.enabled?'Отключить':'Включить'}</button><button class="xs outline" onclick="openProxyEditV08(${q(id)},${q(p.id)})">Изменить</button><button class="xs outline" onclick="moveProxyV08(${q(id)},${q(p.id)})">Переместить</button><button class="xs danger" onclick="deleteProxyV08(${q(id)},${q(p.id)})">Удалить</button></div></div>`).join('')||'<div class="empty">В группе нет прокси</div>'}`,`<button onclick="closeModal()">Закрыть</button>`)}
-function openProxyEditV08(gid,pid=''){const g=state.proxyGroups.find(x=>x.id===gid),p=pid?g.proxies.find(x=>x.id===pid):null;openModal(p?'Изменить прокси':'Добавить прокси',g.name,`<div class="field"><label>Название</label><input id="px-name" class="wide" value="${esc(p?.name||'')}"></div><div class="field"><label>Описание</label><textarea id="px-desc" class="wide">${esc(p?.description||'')}</textarea></div><div class="field"><label>Адрес IP/FQDN</label><input id="px-address" class="wide" value="${esc(p?.address||'')}"></div><label class="badge"><input id="px-enabled" type="checkbox" ${p?.enabled!==false?'checked':''}> Включить прокси</label>`,`<button class="ghost" onclick="closeModal();openProxyGroupDetailsV08(${q(gid)})">Назад</button><button onclick="saveProxyV08(${q(gid)},${q(pid)})">${p?'Изменить':'Создать'}</button>`)}
-function saveProxyV08(gid,pid){const g=state.proxyGroups.find(x=>x.id===gid),name=$('px-name').value.trim(),address=$('px-address').value.trim();if(!name||!address)return toast('Название и адрес обязательны');const p=pid?g.proxies.find(x=>x.id===pid):null,d={name,description:$('px-desc').value.trim(),address,enabled:$('px-enabled').checked,updatedAt:now(),updatedBy:currentUser().id,lastContact:p?.lastContact||'—'};if(p)Object.assign(p,d);else g.proxies.push({id:uid('px'),...d,createdAt:now()});auditMon(p?'Обновление прокси':'Создание прокси',{group:g.name,proxy:name});saveState();closeModal();openProxyGroupDetailsV08(gid);toast('Прокси сохранён')}
-function toggleProxyV08(gid,pid){const g=state.proxyGroups.find(x=>x.id===gid),p=g.proxies.find(x=>x.id===pid);p.enabled=!p.enabled;p.updatedAt=now();auditMon(p.enabled?'Активация прокси':'Отключение прокси',{proxy:p.name});saveState();openProxyGroupDetailsV08(gid)}
-function bulkProxyStateV08(gid,on){const g=state.proxyGroups.find(x=>x.id===gid);g.proxies.forEach(p=>p.enabled=on);auditMon(on?'Массовая активация прокси':'Массовое отключение прокси',{group:g.name});saveState();openProxyGroupDetailsV08(gid);toast('Состояние прокси обновлено')}
-function deleteProxyV08(gid,pid){const g=state.proxyGroups.find(x=>x.id===gid),p=g.proxies.find(x=>x.id===pid);if(g.proxies.length===1&&state.hosts.some(h=>h.proxyGroup===gid))return toast('Нельзя удалить последний прокси: группа используется Host');g.proxies=g.proxies.filter(x=>x.id!==pid);auditMon('Удаление прокси',{proxy:p?.name||pid});saveState();openProxyGroupDetailsV08(gid)}
-function moveProxyV08(gid,pid){const g=state.proxyGroups.find(x=>x.id===gid),targets=state.proxyGroups.filter(x=>x.id!==gid&&x.mode===g.mode);if(g.proxies.length===1&&state.hosts.some(h=>h.proxyGroup===gid))return toast('Нельзя переместить последний прокси: группа используется Host');openModal('Переместить прокси','Целевая группа должна иметь тот же режим',`<div class="field"><label>Целевая группа</label><select id="px-move-target" class="wide">${targets.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></div>`,`<button class="ghost" onclick="closeModal();openProxyGroupDetailsV08(${q(gid)})">Отмена</button><button ${targets.length?'':'disabled'} onclick="applyMoveProxyV08(${q(gid)},${q(pid)})">Переместить</button>`,true)}
-function applyMoveProxyV08(gid,pid){const src=state.proxyGroups.find(x=>x.id===gid),dst=state.proxyGroups.find(x=>x.id===$('px-move-target').value),p=src.proxies.find(x=>x.id===pid);src.proxies=src.proxies.filter(x=>x.id!==pid);dst.proxies.push(p);auditMon('Перемещение прокси',{proxy:p.name,from:src.name,to:dst.name});saveState();closeModal();renderAdmin();toast('Прокси перемещён')}
+function openProxyGroupDetailsV08(id){openProxyGroupV08(id)}
+function openProxyEditV08(gid,pid=''){
+ captureProxyGroupDraftV082();const g=proxyGroupDraft;if(!g)return;
+ const p=pid?(g.proxies||[]).find(x=>x.id===pid):null;
+ openModal(p?'Изменить прокси':'Добавить прокси',g.name||'Новая группа',`<div class="field"><label>Название</label><input id="px-name" class="wide" value="${esc(p?.name||'')}"></div><div class="field"><label>Описание</label><textarea id="px-desc" class="wide">${esc(p?.description||'')}</textarea></div><div class="field"><label>Адрес IP/FQDN</label><input id="px-address" class="wide" value="${esc(p?.address||'')}"></div><label class="badge"><input id="px-enabled" type="checkbox" ${p?.enabled!==false?'checked':''}> Включить прокси</label>`,`<button class="ghost" onclick="renderProxyGroupEditorV082()">Назад</button><button onclick="saveProxyV08(${q(gid)},${q(pid)})">${p?'Изменить':'Создать'}</button>`,true)
+}
+function saveProxyV08(gid,pid){
+ const g=proxyGroupDraft;if(!g)return;const name=$('px-name').value.trim(),address=$('px-address').value.trim();if(!name||!address)return toast('Название и адрес обязательны');
+ const p=pid?g.proxies.find(x=>x.id===pid):null,d={name,description:$('px-desc').value.trim(),address,enabled:$('px-enabled').checked,updatedAt:now(),updatedBy:currentUser().id,lastContact:p?.lastContact||'—'};
+ if(p)Object.assign(p,d);else g.proxies.push({id:uid('px'),...d,createdAt:now()});
+ g.auditDraft.push({action:p?'Обновление прокси':'Создание прокси',payload:{group:g.name||'Новая группа',proxy:name}});renderProxyGroupEditorV082();toast('Изменения прокси будут сохранены вместе с группой')
+}
+function toggleProxyV08(gid,pid){captureProxyGroupDraftV082();const g=proxyGroupDraft,p=g?.proxies.find(x=>x.id===pid);if(!p)return;p.enabled=!p.enabled;p.updatedAt=now();g.auditDraft.push({action:p.enabled?'Активация прокси':'Отключение прокси',payload:{proxy:p.name}});renderProxyGroupEditorV082()}
+function bulkProxyStateV08(gid,on){captureProxyGroupDraftV082();const g=proxyGroupDraft;if(!g)return;g.proxies.forEach(p=>p.enabled=on);g.auditDraft.push({action:on?'Массовая активация прокси':'Массовое отключение прокси',payload:{group:g.name||'Новая группа'}});renderProxyGroupEditorV082();toast('Состояние прокси изменено в черновике группы')}
+function deleteProxyV08(gid,pid){captureProxyGroupDraftV082();const g=proxyGroupDraft,p=g?.proxies.find(x=>x.id===pid);if(!g||!p)return;if(g.proxies.length===1&&g.id&&state.hosts.some(h=>h.proxyGroup===g.id))return toast('Нельзя удалить последний прокси: группа используется Host');g.proxies=g.proxies.filter(x=>x.id!==pid);g.auditDraft.push({action:'Удаление прокси',payload:{proxy:p.name}});renderProxyGroupEditorV082()}
+function moveProxyV08(gid,pid){
+ captureProxyGroupDraftV082();const g=proxyGroupDraft;if(!g)return;const targets=state.proxyGroups.filter(x=>x.id!==g.id&&x.mode===g.mode);
+ if(g.proxies.length===1&&g.id&&state.hosts.some(h=>h.proxyGroup===g.id))return toast('Нельзя переместить последний прокси: группа используется Host');
+ openModal('Переместить прокси','Целевая группа должна иметь тот же режим',`<div class="field"><label>Целевая группа</label><select id="px-move-target" class="wide">${targets.map(x=>`<option value="${x.id}">${esc(x.name)}</option>`).join('')}</select></div>`,`<button class="ghost" onclick="renderProxyGroupEditorV082()">Отмена</button><button ${targets.length?'':'disabled'} onclick="applyMoveProxyV08(${q(gid)},${q(pid)})">Переместить</button>`,true)
+}
+function applyMoveProxyV08(gid,pid){const g=proxyGroupDraft,p=g?.proxies.find(x=>x.id===pid),targetId=$('px-move-target').value,dst=state.proxyGroups.find(x=>x.id===targetId);if(!g||!p||!dst)return;g.proxies=g.proxies.filter(x=>x.id!==pid);g.pendingMoves.push({proxy:{...p},targetId});g.auditDraft.push({action:'Перемещение прокси',payload:{proxy:p.name,from:g.name||'Новая группа',to:dst.name}});renderProxyGroupEditorV082();toast('Перемещение будет применено при сохранении группы')}
 function renderCollectorSettingsAdminV08(){const x=state.dataAdmin.collectorSettings;return`<div class="grid3cards">${SERVICE_TYPES.map(t=>{const s=x[t];return`<div class="card"><div class="card-main"><span class="icon">${s.configured?'✅':'⚪'}</span><div><div class="card-title">${t}</div><div class="meta">${s.configured?'Настроено':'Глобальные настройки отсутствуют'}</div>${s.updatedAt?`<div class="hint">${esc(s.updatedAt)} · ${esc(userById(s.updatedBy)?.name||'')}</div>`:''}</div></div><button class="xs ${s.configured?'outline':''}" onclick="openCollectorSettingV08(${q(t)})">${s.configured?'Изменить':'Настроить'}</button></div>`}).join('')}</div>`}
 function openCollectorSettingV08(type){const s=state.dataAdmin.collectorSettings[type];if(type!=='ExporterScrapeAgent')return openModal(type,'Детальная спецификация параметров будет описана отдельно',`<div class="info">В текущей рабочей документации детальный набор полей для ${type} пока не определён. Для демонстрации зависимости можно включить/отключить наличие глобальной настройки.</div><label class="badge"><input id="collector-configured" type="checkbox" ${s.configured?'checked':''}> Глобальная настройка существует</label>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveCollectorConfiguredV08(${q(type)})">Сохранить</button>`,true);openModal('ExporterScrapeAgent','Глобальная настройка',`<div class="row"><div class="field"><label>scrape_interval, сек (5–600)</label><input id="cs-int" class="wide" type="number" min="5" max="600" value="${s.scrapeInterval||15}"></div><div class="field"><label>scrape_timeout, сек (1–30)</label><input id="cs-timeout" class="wide" type="number" min="1" max="30" value="${s.scrapeTimeout||10}"></div></div><div class="field"><label>Глобальные лейблы, до 3 (ключ:значение, по одному на строке)</label><textarea id="cs-labels" class="wide">${esc((s.labels||[]).map(x=>x.key+':'+x.value).join('\n'))}</textarea></div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveExporterSettingV08()">Сохранить</button>`)}
 function saveCollectorConfiguredV08(type){const s=state.dataAdmin.collectorSettings[type];s.configured=$('collector-configured').checked;s.updatedAt=now();s.updatedBy=currentUser().id;auditMon('Обновление глобальной конфигурации',{type,configured:s.configured});saveState();closeModal();renderAdmin();renderAll();toast('Глобальная настройка обновлена')}
@@ -1872,7 +1954,7 @@ saveServiceV08=function(id='',fromTemplate=false){if($('svc-expert-toggle')?.che
 
 
 
-/* === v0.8.1: filters are persistent vertical sidebars, not modals/inline rows. === */
+/* === v0.8.3: filters are persistent vertical sidebars; proxy group settings + composition use one editor modal. === */
 function countActiveFiltersV081(key){
  const f=monUi[key];
  const defaults={
