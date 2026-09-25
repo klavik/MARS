@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.8.6 — прототип</title>
+<title>MARS v0.8.7 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -140,7 +140,7 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.6</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.7</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -330,8 +330,8 @@ let registryMappings={
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
 const REGISTRY_STORE_VERSION=7;
-const MARS_MOCKUP_VERSION='0.8.6';
-const PROTOTYPE_HELP_VERSION=`21.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
+const MARS_MOCKUP_VERSION='0.8.7';
+const PROTOTYPE_HELP_VERSION=`25.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
 function registryCurrentCollectionForType(type){return registryAssignedCollection(type)}
@@ -516,7 +516,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.8.6. Уточнён UX списка групп прокси: клик по строке раскрывает детали, а изменение и удаление доступны через меню действий ⋮. Единая широкая модалка по-прежнему объединяет основные настройки и состав группы. Групповые переиспользуемые «Данные авторизации» сохранены; Реестр объектов мониторинга в этой итерации не менялся.',
+   body:'Текущая версия интерактивного прототипа: v0.8.7. Экспертный режим настройки сервисов переведён в Future: в текущем объёме реализуется только стандартный режим, а экспертный явно показан как будущая недоступная возможность. Остальная механика v0.8.6, включая группы прокси, переиспользуемые «Данные авторизации» и Реестр объектов мониторинга, сохранена без изменений.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -528,6 +528,11 @@ const PROTOTYPE_HELP={
    title:'Данные авторизации',
    body:'Переиспользуемые групповые сущности с реквизитами Basic Auth или Bearer Token. Сервис хранит ссылку на выбранную сущность, поэтому одни реквизиты можно использовать в нескольких сервисах своей группы.',
    constraints:['Секреты не отображаются в списках, карточках сервисов и при повторном выборе.','Сервис может ссылаться только на данные авторизации своей группы-владельца.','Удаление сущности блокируется, пока на неё ссылается хотя бы один сервис.','Изменение общей сущности влияет на все сервисы, которые её используют.']
+ },
+ 'monitoring.serviceExpertFuture':{
+   title:'Экспертный режим — Future',
+   body:'Экспертный режим предназначен для расширенной конфигурации сервиса сверх набора параметров стандартной формы, но в текущий объём разработки не входит.',
+   constraints:['В текущем релизе реализуется и используется только стандартный режим.','Экспертный режим отображается в интерфейсе как Future и недоступен для выбора.','Полноценная реализация будет выполняться после определения контракта расширенных параметров, серверной валидации и правил их отображения и редактирования.','JSON-редактор экспертной конфигурации в текущем интерфейсе не показывается.']
  },
  'nav.registry':{
    title:'Реестр объектов мониторинга',
@@ -997,8 +1002,7 @@ function openObjectTypeAttributes(type){
  const usedInRules=new Set(relationRules.flatMap(r=>[
    r.sourceType===type?r.sourceAttr:null,
    r.targetType===type?r.targetAttr:null
- ].filter(Boolean)));
- const assigned=registryAssignedCollection(type);
+ ].filter(Boolean)));const assigned=registryAssignedCollection(type);
  const mapping=assigned?registryEnsureMapping(type,assigned,registryAssignedSource(type)):null;
  const externalRows=assigned?objectTypeExternalRows(type,assigned,mapping):[];
  const externalIds=new Set(externalRows.map(r=>r.attrId));
@@ -1997,8 +2001,7 @@ function countActiveFiltersV081(key){
 function filterSidebarShellV081(title,key,fields,resetCall){
  const n=countActiveFiltersV081(key);
  return `<aside class="filter-sidebar"><div class="filter-sidebar-head"><div class="filter-sidebar-title">Фильтры</div>${n?`<span class="filter-active-count">${n}</span>`:''}</div><div class="filter-sidebar-fields">${fields}</div><div class="filter-sidebar-actions"><button class="ghost sm" onclick="${resetCall}">Сбросить</button></div></aside>`;
-}
-function hostFilterSidebarV081(){
+}function hostFilterSidebarV081(){
  const f=monUi.hosts;
  const fields=`
  <div class="field"><label>Поиск</label><input placeholder="Имя или IP/FQDN" value="${esc(f.search)}" oninput="monUi.hosts.search=this.value;monUi.hosts.page=1;renderHosts()"></div>
@@ -2162,8 +2165,8 @@ function createAuthorizationFromServiceV084(serviceId=''){const draft=captureSer
 function openServiceModal(id='',seed=null){
  if(!hasAnyMonitoringPermission())return toast('Нет права «Постановка на мониторинг»');const x=id?serviceById(id):null;if(!x&&!configuredTypes().length)return toast('Нет настроенных типов сервисов');const base=x||{name:'',type:configuredTypes()[0]||'',defaultPort:80,metrics:'/metrics',description:'',ownerGroupId:manageableGroups()[0]?.id||'',authorizationId:null,protocol:'http',skipVerify:false,clientCert:'',clientKey:'',caCert:'',expertConfig:'{}'},s={...base,...(seed||{})},editing=!!x,groupSelect=isAdmin()||!editing;
  const title=editing?'Изменить сервис':s._clone?'Клонировать сервис':s._fromTemplate?'Создать сервис из шаблона':'Добавить сервис';
- openModal(title,'',`<div class="toolbar"><div><b>Режим настройки</b></div><label class="badge"><input id="svc-expert-toggle" type="checkbox" ${s._expert?'checked':''} onchange="toggleServiceExpertV084(this.checked)"> Экспертный режим</label></div><div class="row"><div class="field"><label>Название</label><input id="svc-name" class="wide" value="${esc(editing?x.name:(s.name||''))}" ${editing?'disabled':''}><div class="hint">Уникальное имя, минимум 3 символа.</div></div><div class="field"><label>Группа-владелец</label>${groupSelect?`<select id="svc-group" class="wide" onchange="renderServiceAuthorizationSelectorV084()">${(isAdmin()?state.groups:manageableGroups()).map(g=>`<option value="${g.id}" ${g.id===s.ownerGroupId?'selected':''}>${esc(g.name)}</option>`).join('')}</select>`:`<input id="svc-group-ro" class="wide" disabled value="${esc(groupById(s.ownerGroupId)?.name||'')}">`}</div><div class="field"><label>Тип</label><select id="svc-type" class="wide" ${editing?'disabled':''} onchange="renderServiceDependentV084()">${serviceFormTypeOptions(s.type)}</select></div></div><div id="svc-auth-container" data-service-id="${esc(id)}" data-owner="${esc(s.ownerGroupId||'')}" data-flow="${s._clone?'clone':s._fromTemplate?'template':''}"></div><div id="svc-standard-v084"><div class="row"><div class="field"><label>Порт</label><input id="svc-port" class="wide" type="number" min="1" max="65535" value="${s.defaultPort}"></div><div class="field"><label>Путь к метрикам</label><input id="svc-metrics" class="wide mono" value="${esc(s.metrics||'/metrics')}"></div></div><div class="field"><label>Описание</label><textarea id="svc-desc" class="wide">${esc(s.description||'')}</textarea></div><div id="svc-dependent"></div></div><div id="svc-expert-v084" style="display:none"><div class="field"><label>JSON-конфигурация</label><textarea id="svc-json" class="wide mono" style="min-height:220px">${esc(s.expertConfig||'{}')}</textarea></div></div>${editing&&serviceUsage(id).hosts.length?'<div class="box amber-box"><b>Сервис используется на Host.</b> Изменения конфигурации повлияют на действующие подключения.</div>':''}`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveServiceV08(${q(id)})">${editing?'Изменить':s._clone?'Клонировать':'Добавить'}</button>`);
- setTimeout(()=>{renderServiceAuthorizationSelectorV084(s.authorizationId||'');renderServiceDependentV084(s);toggleServiceExpertV084(!!s._expert)},0)
+ openModal(title,'',`<div class="toolbar"><div><b>Режим настройки</b></div><div class="actions"><span class="badge b-blue">● Стандартный</span><button class="outline sm" type="button" disabled title="Экспертный режим — будущая функциональность">Экспертный <span class="badge b-violet">Future</span></button>${tip('monitoring.serviceExpertFuture')}</div></div><div class="row"><div class="field"><label>Название</label><input id="svc-name" class="wide" value="${esc(editing?x.name:(s.name||''))}" ${editing?'disabled':''}><div class="hint">Уникальное имя, минимум 3 символа.</div></div><div class="field"><label>Группа-владелец</label>${groupSelect?`<select id="svc-group" class="wide" onchange="renderServiceAuthorizationSelectorV084()">${(isAdmin()?state.groups:manageableGroups()).map(g=>`<option value="${g.id}" ${g.id===s.ownerGroupId?'selected':''}>${esc(g.name)}</option>`).join('')}</select>`:`<input id="svc-group-ro" class="wide" disabled value="${esc(groupById(s.ownerGroupId)?.name||'')}">`}</div><div class="field"><label>Тип</label><select id="svc-type" class="wide" ${editing?'disabled':''} onchange="renderServiceDependentV084()">${serviceFormTypeOptions(s.type)}</select></div></div><div id="svc-auth-container" data-service-id="${esc(id)}" data-owner="${esc(s.ownerGroupId||'')}" data-flow="${s._clone?'clone':s._fromTemplate?'template':''}"></div><div id="svc-standard-v084"><div class="row"><div class="field"><label>Порт</label><input id="svc-port" class="wide" type="number" min="1" max="65535" value="${s.defaultPort}"></div><div class="field"><label>Путь к метрикам</label><input id="svc-metrics" class="wide mono" value="${esc(s.metrics||'/metrics')}"></div></div><div class="field"><label>Описание</label><textarea id="svc-desc" class="wide">${esc(s.description||'')}</textarea></div><div id="svc-dependent"></div></div>${editing&&serviceUsage(id).hosts.length?'<div class="box amber-box"><b>Сервис используется на Host.</b> Изменения конфигурации повлияют на действующие подключения.</div>':''}`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveServiceV08(${q(id)})">${editing?'Изменить':s._clone?'Клонировать':'Добавить'}</button>`);
+ setTimeout(()=>{renderServiceAuthorizationSelectorV084(s.authorizationId||'');renderServiceDependentV084(s)},0)
 }
 function toggleServiceExpertV084(on){if($('svc-standard-v084'))$('svc-standard-v084').style.display=on?'none':'';if($('svc-expert-v084'))$('svc-expert-v084').style.display=on?'':'none'}
 function renderServiceDependentV084(seed){const type=$('svc-type')?.value||seed?.type,s=seed||{};const el=$('svc-dependent');if(!el)return;if(type!=='ExporterScrapeAgent'){el.innerHTML='<div class="info">Для этого типа отображается индивидуальный набор полей. Детальная спецификация будет добавляться по мере готовности требований.</div>';return}el.innerHTML=`<div class="field"><label>Протокол</label><select id="svc-protocol" class="wide" onchange="renderHttpsFieldsV08(${q(s.clientCert||'')},${q(s.clientKey||'')},${q(s.caCert||'')})"><option value="http" ${s.protocol!=='https'?'selected':''}>http</option><option value="https" ${s.protocol==='https'?'selected':''}>https</option></select></div><div id="svc-https-fields"></div>`;renderHttpsFieldsV08(s.clientCert||'',s.clientKey||'',s.caCert||'',s.skipVerify)}
