@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MARS v0.8.7 — прототип</title>
+<title>MARS v0.8.8 — прототип</title>
 <style>
 :root{--blue:#2563eb;--blue2:#1d4ed8;--blue50:#eff6ff;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--text:#0f172a;--muted:#64748b;--green:#15803d;--greenbg:#dcfce7;--amber:#b45309;--amberbg:#fef3c7;--red:#b91c1c;--redbg:#fee2e2;--violet:#6d28d9;--violetbg:#ede9fe;--slate:#334155;--slatebg:#f8fafc}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -135,12 +135,14 @@ input,select,textarea{border:1px solid #cbd5e1;border-radius:8px;padding:8px 10p
 .proxy-action-menu button.danger{color:#ef6b73!important}
 .proxy-action-menu button:disabled{opacity:.42;cursor:not-allowed}
 
+
+.registry-attr-compact{display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-width:260px;max-width:620px}.registry-attr-compact .badge{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.registry-attribute-filter{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.registry-attribute-filter .input{min-width:220px}.registry-relation-group{border-top:1px solid var(--line);padding-top:8px;margin-top:12px}.registry-relation-group:first-of-type{border-top:0}.linkish{background:none!important;border:0!important;padding:0!important;color:var(--blue)!important;cursor:pointer!important;min-height:auto!important}
 </style>
 </head>
 <body>
 <aside id="product-sidebar" class="product-sidebar">
   <div class="sidebar-head">
-    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.7</span></div>
+    <div class="sidebar-brand">🖥️ MARS <span class="mars-version" onclick="showPrototypeHelp(event,\'prototype.version\')" title="Версия макета">v0.8.8</span></div>
     <div id="sidebar-context" class="sidebar-context">Основное меню</div>
   </div>
   <div id="sidebar-menu" class="sidebar-menu"></div>
@@ -216,17 +218,17 @@ function renderAccess(){const rules=[['Идентичность Host','Усто�
 
 /* Реестр объектов мониторинга */
 const registry={
- search:'',type:'all',source:'all',environment:'all',relation:'all',cardTab:'overview',
+ search:'',type:'all',source:'all',actuality:'all',attributeFilters:[],cardTab:'overview',
  objects:[
-  {id:'OBJ-H-100',type:'Host',name:'web-prod-01',source:'Galaxy/HOSTOS',externalId:'srv-1001',lifecycle:'active',lastSync:'01.09.2026, 14:15',values:{fqdn:'web-prod-01.example.internal',ip:'10.0.1.50',environment:'prod',owner:'Linux Platform',informationSystemId:'IS-101'},raw:{name:'web-prod-01',fqdn:'web-prod-01.example.internal',ip:'10.0.1.50',environment:'prod',owner:'Linux Platform',informationSystemId:'IS-101'},manual:{},relations:[{dir:'out',type:'Относится к',object:'Payments',objectType:'InformationSystem',rule:'Host → ИС по systemId'}]},
-  {id:'OBJ-H-101',type:'Host',name:'db-analytics',source:'Galaxy/HOSTOS',externalId:'srv-1002',lifecycle:'active',lastSync:'01.09.2026, 14:15',identityNote:'Объект был создан вручную, затем Galaxy external_id srv-1002 был привязан к тому же object_id. Идентичность объекта сохранилась.',values:{fqdn:'db-analytics.internal.example.com',ip:'10.0.3.17',environment:'test',owner:'DB Team',informationSystemId:'IS-202'},raw:{name:'db-analytics',fqdn:'db-analytics.internal.example.com',ip:'10.0.3.17',environment:'prod',owner:'DB Team',informationSystemId:'IS-202'},manual:{environment:'test'},relations:[{dir:'out',type:'Относится к',object:'Analytics Platform',objectType:'InformationSystem',rule:'Host → ИС по systemId'},{dir:'in',type:'Размещён на',object:'orders',objectType:'Database',rule:'Database → Host'}]},
-  {id:'OBJ-H-102',type:'Host',name:'cache-01',source:'Manual',externalId:'',lifecycle:'active',lastSync:'',values:{ip:'192.168.1.10',environment:'stage',owner:'Linux Platform'},raw:{},manual:{name:'cache-01',ip:'192.168.1.10',environment:'stage',owner:'Linux Platform'},relations:[]},
-  {id:'OBJ-IS-200',type:'InformationSystem',name:'Payments',source:'Manual',externalId:'IS-101',lifecycle:'active',lastSync:'',values:{externalId:'IS-101',criticality:'Высокая',owner:'Payments Team'},raw:{},manual:{name:'Payments',externalId:'IS-101',criticality:'Высокая',owner:'Payments Team'},relations:[{dir:'in',type:'Относится к',object:'web-prod-01',objectType:'Host',rule:'Host → ИС по systemId'}]},
-  {id:'OBJ-IS-201',type:'InformationSystem',name:'Analytics Platform',source:'Manual',externalId:'IS-202',lifecycle:'active',lastSync:'',values:{externalId:'IS-202',criticality:'Средняя',owner:'Data Platform'},raw:{},manual:{name:'Analytics Platform',externalId:'IS-202',criticality:'Средняя',owner:'Data Platform'},relations:[{dir:'in',type:'Относится к',object:'db-analytics',objectType:'Host',rule:'Host → ИС по systemId'}]},
-  {id:'OBJ-DB-300',type:'Database',name:'orders',source:'Manual',externalId:'',lifecycle:'active',lastSync:'',values:{hostName:'db-analytics',engine:'PostgreSQL',environment:'prod'},raw:{},manual:{name:'orders',hostName:'db-analytics',engine:'PostgreSQL',environment:'prod'},relations:[{dir:'out',type:'Размещён на',object:'db-analytics',objectType:'Host',rule:'Database → Host'}]}
+  {id:'OBJ-H-100',type:'Host',name:'web-prod-01',source:'Galaxy/HOSTOS',externalId:'srv-1001',actuality:'actual',lastSeenAt:'30.09.2026, 09:59',values:{fqdn:'web-prod-01.example.internal',ip:'10.0.1.50',environment:'prod',owner:'Linux Platform',informationSystemId:'IS-101'},raw:{name:'web-prod-01',fqdn:'web-prod-01.example.internal',ip:'10.0.1.50',environment:'prod',owner:'Linux Platform',informationSystemId:'IS-101'},manual:{},relations:[{dir:'out',type:'Относится к',object:'Payments',objectType:'InformationSystem',rule:'Host → ИС по systemId'}]},
+  {id:'OBJ-H-101',type:'Host',name:'db-analytics',source:'Galaxy/HOSTOS',externalId:'srv-1002',actuality:'stale',lastSeenAt:'27.09.2026, 03:12',identityNote:'Объект был создан вручную, затем Galaxy external_id srv-1002 был привязан к тому же object_id. Идентичность объекта сохранилась.',values:{fqdn:'db-analytics.internal.example.com',ip:'10.0.3.17',environment:'test',owner:'DB Team',informationSystemId:'IS-202'},raw:{name:'db-analytics',fqdn:'db-analytics.internal.example.com',ip:'10.0.3.17',environment:'prod',owner:'DB Team',informationSystemId:'IS-202'},manual:{environment:'test'},relations:[{dir:'out',type:'Относится к',object:'Analytics Platform',objectType:'InformationSystem',rule:'Host → ИС по systemId'},{dir:'in',type:'Размещён на',object:'orders',objectType:'Database',rule:'Database → Host'}]},
+  {id:'OBJ-H-102',type:'Host',name:'cache-01',source:'Manual',externalId:'',actuality:null,lastSeenAt:'',values:{ip:'192.168.1.10',environment:'stage',owner:'Linux Platform'},raw:{},manual:{name:'cache-01',ip:'192.168.1.10',environment:'stage',owner:'Linux Platform'},relations:[]},
+  {id:'OBJ-IS-200',type:'InformationSystem',name:'Payments',source:'Galaxy/IT System',externalId:'IS-101',actuality:'actual',lastSeenAt:'30.09.2026, 09:58',values:{external_id:'IS-101',criticality:'Высокая',owner:'Payments Team'},raw:{name:'Payments',external_id:'IS-101',criticality:'Высокая',owner:'Payments Team'},manual:{},relations:[{dir:'in',type:'Относится к',object:'web-prod-01',objectType:'Host',rule:'Host → ИС по systemId'}]},
+  {id:'OBJ-IS-201',type:'InformationSystem',name:'Analytics Platform',source:'Galaxy/IT System',externalId:'IS-202',actuality:'actual',lastSeenAt:'30.09.2026, 09:58',values:{external_id:'IS-202',criticality:'Средняя',owner:'Data Platform'},raw:{name:'Analytics Platform',external_id:'IS-202',criticality:'Средняя',owner:'Data Platform'},manual:{},relations:[{dir:'in',type:'Относится к',object:'db-analytics',objectType:'Host',rule:'Host → ИС по systemId'}]},
+  {id:'OBJ-DB-300',type:'Database',name:'orders',source:'Manual',externalId:'',actuality:null,lastSeenAt:'',values:{hostName:'db-analytics',engine:'PostgreSQL',environment:'prod'},raw:{},manual:{name:'orders',hostName:'db-analytics',engine:'PostgreSQL',environment:'prod'},relations:[{dir:'out',type:'Размещён на',object:'db-analytics',objectType:'Host',rule:'Database → Host'}]}
  ]
 };
-const objectTypes={Host:[{id:'name',label:'Имя'},{id:'fqdn',label:'FQDN'},{id:'ip',label:'IP'},{id:'environment',label:'Окружение'},{id:'owner',label:'Ответственный'},{id:'informationSystemId',label:'ID информационной системы'}],InformationSystem:[{id:'name',label:'Имя'},{id:'externalId',label:'External ID'},{id:'criticality',label:'Критичность'},{id:'owner',label:'Ответственный'}],Database:[{id:'name',label:'Имя'},{id:'hostName',label:'Host name'},{id:'engine',label:'СУБД'},{id:'environment',label:'Окружение'}],Application:[{id:'name',label:'Имя'},{id:'databaseName',label:'Database name'},{id:'informationSystemId',label:'ID информационной системы'},{id:'owner',label:'Ответственный'}]};
+const objectTypes={Host:[{id:'name',label:'Имя'},{id:'fqdn',label:'FQDN'},{id:'ip',label:'IP'},{id:'environment',label:'Окружение'},{id:'owner',label:'Ответственный'},{id:'informationSystemId',label:'ID информационной системы'}],InformationSystem:[{id:'name',label:'Имя'},{id:'external_id',label:'External ID',origin:'external',identityRole:'externalId'},{id:'criticality',label:'Критичность'},{id:'owner',label:'Ответственный'}],Database:[{id:'name',label:'Имя'},{id:'hostName',label:'Host name'},{id:'engine',label:'СУБД'},{id:'environment',label:'Окружение'}],Application:[{id:'name',label:'Имя'},{id:'databaseName',label:'Database name'},{id:'informationSystemId',label:'ID информационной системы'},{id:'owner',label:'Ответственный'}]};
 let relationTypes=[
  {id:'belongs',name:'Относится к',description:''},
  {id:'hosted',name:'Размещён на',description:''},
@@ -236,10 +238,12 @@ let relationTypes=[
  {id:'partof',name:'Является частью',description:''}
 ];
 let relationRules=[
- {id:'RR-001',name:'Host ↔ ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'externalId',relationTypeId:'belongs',cardinality:'N:1',active:true,formed:1180,missing:61,ambiguous:13},
+ {id:'RR-001',name:'Host ↔ ИТ-система по systemId',sourceType:'Host',sourceAttr:'informationSystemId',operator:'=',targetType:'InformationSystem',targetAttr:'external_id',relationTypeId:'belongs',cardinality:'N:1',active:true,formed:1180,missing:61,ambiguous:13},
  {id:'RR-002',name:'Database ↔ Host по имени хоста',sourceType:'Database',sourceAttr:'hostName',operator:'=',targetType:'Host',targetAttr:'name',relationTypeId:'hosted',cardinality:'N:1',active:true,formed:322,missing:8,ambiguous:2},
  {id:'RR-003',name:'Application ↔ Database',sourceType:'Application',sourceAttr:'databaseName',operator:'=',targetType:'Database',targetAttr:'name',relationTypeId:'uses',cardinality:'N:M',active:false,formed:0,missing:0,ambiguous:0}
 ];
+const registryObjectTypeIds={Host:'OT-HOST',InformationSystem:'OT-IS',Database:'OT-DB',Application:'OT-APP'};
+const registryAdminObjectFilter={search:'',type:'all',source:'all'};
 let adminTab='data',registrySettingsTab='objects';
 let activeProduct='monitoring',lastMainProduct='monitoring';
 
@@ -258,16 +262,31 @@ let registrySourceSyncSettings={
    timeoutSec:60,
    batchSize:1000,
    retryCount:3,
-   lastRun:'04.09.2026, 12:30',
-   nextRun:'04.09.2026, 13:00',
-   lastDuration:'2 мин 18 сек',
-   lastResult:'Успешно'
+   lastRun:'30.09.2026, 09:56',
+   nextRun:'30.09.2026, 10:30',
+   lastDuration:'2 мин 39 сек',
+   lastResult:'Завершено с ошибками',
+   lastRunDetails:{
+     workflow_id:'galaxy-sync-cycle',
+     run_id:'01a0f11a-2569-72f2-9f7d-0035da9d5f57',
+     status:'completed',
+     started_at:'30.09.2026, 09:56:57',
+     close_time:'30.09.2026, 09:59:36',
+     result:{
+       synced:[
+         {type_id:'OT-HOST',type_name:'Host',fetched:20382,created_objects:20381,updated_objects:1,projected:374608,deleted_objects:0,purged_objects:0,added_attributes:[],deprecated_attributes:[]},
+         {type_id:'OT-IS',type_name:'InformationSystem',fetched:56,created_objects:56,updated_objects:0,projected:1108,deleted_objects:0,purged_objects:0,added_attributes:[],deprecated_attributes:[]}
+       ],
+       failed:[{type_id:'OT-APP',type_name:'Application',error:'Galaxy collection not found'}]
+     },
+     error:null
+   }
  }
 };
 function registrySyncSettingsFor(sourceId){
  if(!registrySourceSyncSettings[sourceId])registrySourceSyncSettings[sourceId]={
    enabled:true,frequency:'30m',timeoutSec:60,batchSize:1000,retryCount:3,
-   lastRun:'—',nextRun:'—',lastDuration:'—',lastResult:'Не запускалась'
+   lastRun:'—',nextRun:'—',lastDuration:'—',lastResult:'Не запускалась',lastRunDetails:null
  };
  return registrySourceSyncSettings[sourceId]
 }
@@ -279,7 +298,7 @@ let registryCmdbCollections=[
  {id:'PhyServer',name:'PhyServer',description:'Физические серверы',available:3188,selected:false,status:'not_selected',lastSync:'—'},
  {id:'Storage',name:'Storage',description:'Системы хранения данных',available:426,selected:false,status:'not_selected',lastSync:'—'},
  {id:'SANSW',name:'SANSW',description:'SAN-коммутаторы',available:212,selected:false,status:'not_selected',lastSync:'—'},
- {id:'IT System',name:'IT System',description:'Информационные системы',available:687,selected:false,status:'not_selected',lastSync:'—'}
+ {id:'IT System',name:'IT System',description:'Информационные системы',available:687,selected:true,status:'synced',lastSync:'30.09.2026, 09:58'}
 ];
 let registrySourceCollections={'galaxy-main':registryCmdbCollections};
 function cloneDefaultGalaxyCollections(){
@@ -307,7 +326,7 @@ const registryCmdbCollectionFields={
 };
 
 let registryMappingEditor={type:'Host'};
-let registryCollectionAssignments={Host:{sourceId:'galaxy-main',collectionId:'HOSTOS'}};
+let registryCollectionAssignments={Host:{sourceId:'galaxy-main',collectionId:'HOSTOS'},InformationSystem:{sourceId:'galaxy-main',collectionId:'IT System'}};
 let registryMappings={
  'Host|HOSTOS':{
    objectNameField:'name',
@@ -320,6 +339,13 @@ let registryMappings={
      informationSystemId:'itsysrisid'
    },
    updatedAt:'01.09.2026, 14:15'
+ },
+ 'InformationSystem|IT System':{
+   objectNameField:'name',
+   externalIdField:'external_id',
+   externalIdAttrId:'external_id',
+   attrs:{criticality:'criticality',owner:'owner'},
+   updatedAt:'30.09.2026, 09:58'
  }
 };
 
@@ -329,9 +355,9 @@ let registryMappings={
    Оно намеренно не смешивается с STORE_KEY раздела "Постановка на мониторинг".
    -------------------------------------------------------------------------- */
 const REGISTRY_STORE_KEY='mars-registry-prototype-v4';
-const REGISTRY_STORE_VERSION=7;
-const MARS_MOCKUP_VERSION='0.8.7';
-const PROTOTYPE_HELP_VERSION=`25.09.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
+const REGISTRY_STORE_VERSION=8;
+const MARS_MOCKUP_VERSION='0.8.8';
+const PROTOTYPE_HELP_VERSION=`07.10.2026 · MARS mockup v${MARS_MOCKUP_VERSION}`;
 
 
 function registryCurrentCollectionForType(type){return registryAssignedCollection(type)}
@@ -425,6 +451,7 @@ function registrySerializableState(){
    version:REGISTRY_STORE_VERSION,
    objects:registry.objects,
    objectTypes,
+   objectTypeIds:registryObjectTypeIds,
    relationTypes,
    relationRules,
    sourceTypes:registrySourceTypes,
@@ -444,6 +471,10 @@ function applyRegistryPrototypeState(s){
  if(s.objectTypes&&typeof s.objectTypes==='object'){
    Object.keys(objectTypes).forEach(k=>delete objectTypes[k]);
    Object.entries(s.objectTypes).forEach(([k,v])=>objectTypes[k]=v)
+ }
+ if(s.objectTypeIds&&typeof s.objectTypeIds==='object'){
+   Object.keys(registryObjectTypeIds).forEach(k=>delete registryObjectTypeIds[k]);
+   Object.entries(s.objectTypeIds).forEach(([k,v])=>registryObjectTypeIds[k]=v)
  }
  if(Array.isArray(s.relationTypes)){
    relationTypes=s.relationTypes.map(t=>({id:t.id,name:t.name,description:t.description||''}))
@@ -471,7 +502,25 @@ function applyRegistryPrototypeState(s){
  if(s.mappings&&typeof s.mappings==='object')registryMappings=s.mappings;
  if(s.syncSelection&&typeof s.syncSelection==='object')registrySyncSelection={...registrySyncSelection,...s.syncSelection};
  if(!registrySources.some(x=>x.id===registrySyncSelection.sourceId))registrySyncSelection.sourceId=registrySources[0]?.id||'';
- refreshSelectedSourceCollections()
+ refreshSelectedSourceCollections();normalizeRegistryModelV088()
+}
+function normalizeRegistryModelV088(){
+ registry.objects.forEach(o=>{
+   if(o.actuality===undefined)o.actuality=o.source==='Manual'?null:(o.lifecycle==='active'?'actual':'stale');
+   if(o.lastSeenAt===undefined)o.lastSeenAt=o.lastSync||'';
+   delete o.lifecycle;
+   if(o.type==='InformationSystem'){
+     if(o.values?.externalId!==undefined){o.values.external_id=o.values.externalId;delete o.values.externalId}
+     if(o.raw?.externalId!==undefined){o.raw.external_id=o.raw.externalId;delete o.raw.externalId}
+     if(o.manual?.externalId!==undefined){o.manual.external_id=o.manual.externalId;delete o.manual.externalId}
+     if(o.source==='Manual'&&o.externalId){o.source='Galaxy/IT System';o.raw=o.raw||{};o.raw.external_id=o.externalId;delete o.manual?.external_id;o.actuality=o.actuality||'actual'}
+   }
+ });
+ if(objectTypes.InformationSystem){
+   const a=objectTypes.InformationSystem.find(x=>x.id==='externalId');if(a)a.id='external_id'
+ }
+ relationRules.forEach(r=>{if(r.targetType==='InformationSystem'&&r.targetAttr==='externalId')r.targetAttr='external_id'});
+ Object.keys(objectTypes).forEach(t=>{if(!registryObjectTypeIds[t])registryObjectTypeIds[t]=`OT-${String(t).replace(/[^A-Za-z0-9]/g,'').toUpperCase()||Date.now()}`})
 }
 function normalizeRelationModel(){
  relationTypes=relationTypes.map(t=>({id:t.id,name:t.name,description:t.description||''}));
@@ -516,7 +565,7 @@ function confirmResetRegistryPrototypeState(){
 const PROTOTYPE_HELP={
  'prototype.version':{
    title:'Версия макета MARS',
-   body:'Текущая версия интерактивного прототипа: v0.8.7. Экспертный режим настройки сервисов переведён в Future: в текущем объёме реализуется только стандартный режим, а экспертный явно показан как будущая недоступная возможность. Остальная механика v0.8.6, включая группы прокси, переиспользуемые «Данные авторизации» и Реестр объектов мониторинга, сохранена без изменений.',
+   body:'Текущая версия интерактивного прототипа: v0.8.8. Обновлены административный и пользовательский разделы Реестра объектов мониторинга по согласованным требованиям: актуальность вместо архивного lifecycle, универсальные атрибуты и фильтры, группировка связей, результат последнего запуска Galaxy и административные операции с объектами/типами. Экспертный режим настройки сервисов остаётся Future и недоступен. Остальная механика v0.8.7 сохранена без изменений.',
    constraints:['Версия относится к макету, а не к промышленной версии продукта MARS.','При каждой следующей функциональной доработке макета номер версии увеличивается.','Номер версии в интерфейсе и пояснения в тултипах должны обновляться одновременно.']
  },
  'nav.monitoring':{
@@ -534,10 +583,35 @@ const PROTOTYPE_HELP={
    body:'Экспертный режим предназначен для расширенной конфигурации сервиса сверх набора параметров стандартной формы, но в текущий объём разработки не входит.',
    constraints:['В текущем релизе реализуется и используется только стандартный режим.','Экспертный режим отображается в интерфейсе как Future и недоступен для выбора.','Полноценная реализация будет выполняться после определения контракта расширенных параметров, серверной валидации и правил их отображения и редактирования.','JSON-редактор экспертной конфигурации в текущем интерфейсе не показывается.']
  },
+ 'registry.attributesCompact':{
+   title:'Атрибуты объекта в списке и обзоре',
+   body:'Используется один набор атрибутов без деления на «основные» и «все». Компонент показывает столько effective-значений, сколько помещается в компактное представление.',
+   constraints:['В прототипе одновременно показывается до пяти заполненных атрибутов; в продукте количество видимых значений определяется доступной шириной.','+N означает количество невидимых атрибутов, а не общее количество.','По нажатию +N открывается полный список атрибутов.','Порядок соответствует порядку атрибутов ObjectType.']
+ },
+ 'registry.searchFilters':{
+   title:'Поиск и фильтры Реестра',
+   body:'Поиск единый: по имени объекта и значениям его атрибутов. Базовые фильтры — тип, источник и актуальность.',
+   constraints:['После выбора ObjectType можно добавить несколько фильтров по его атрибутам.','Окружение, IP и FQDN не являются специальными системными фильтрами — это обычные атрибуты типа.','Фильтр по RelationType в общем списке не используется.','Актуальность не применяется к Manual-объектам.']
+ },
+ 'registry.actuality':{
+   title:'Актуальность объекта',
+   body:'Состояние актуальности относится только к объектам, подтверждаемым внешним источником.',
+   constraints:['Для внешнего объекта отображается «Актуален» или «Неактуален».','Для Manual-объекта отображается «—».','Правило и срок перехода в stale пока не финализированы и в прототипе не настраиваются.','Отсутствие объекта в одном неуспешном/неполном запуске не переводит его в stale автоматически.']
+ },
+ 'registry.relationsGrouped':{
+   title:'Связи объекта',
+   body:'Фактические связи ненаправленные и на пользовательской вкладке группируются по RelationType.',
+   constraints:['Нет входящих/исходящих и родительских/дочерних групп.','Одно и то же имя RelationType показывается с обеих сторон связи.','Из группы можно перейти в карточку связанного объекта.']
+ },
+ 'sync.lastRun':{
+   title:'Последний запуск синхронизации',
+   body:'Показывается только последний запуск. Техническое состояние workflow отделено от результата обработки данных по типам объектов.',
+   constraints:['status=completed означает завершение workflow и не гарантирует успешную синхронизацию всех типов.','Если result.failed не пуст, продуктовый результат — «Завершено с ошибками».','История запусков в текущий этап не входит.','workflow_id и run_id доступны как диагностические идентификаторы.']
+ },
  'nav.registry':{
    title:'Реестр объектов мониторинга',
-   body:'Пользовательский read-only раздел для поиска объектов, просмотра effective-атрибутов, источников и навигации по связям.',
-   constraints:['Создание и изменение объектов доступны только Администратору через Администрирование.','Событие сопоставляется по event.host только с объектом типа Host по Host.name. Другие типы с тем же именем в первичном сопоставлении не участвуют.']
+   body:'Пользовательский read-only раздел для единого поиска объектов, просмотра effective-атрибутов, актуальности, источников и навигации по сгруппированным ненаправленным связям.',
+   constraints:['Создание и изменение объектов доступны только Администратору через Администрирование.','В списке атрибуты показаны адаптивно: +N — количество скрытых атрибутов.','Базовые фильтры: тип, источник, актуальность; после выбора типа доступны фильтры по атрибутам.','Событие сопоставляется по event.host только с объектом типа Host по Host.name. Другие типы с тем же именем в первичном сопоставлении не участвуют.']
  },
  'nav.admin':{
    title:'Администрирование',
@@ -562,7 +636,7 @@ const PROTOTYPE_HELP={
  'registry.objects':{
    title:'Объекты реестра',
    body:'Конкретные экземпляры MARS с постоянным object_id. Пользовательский раздел только показывает результат, административная вкладка позволяет создавать и переопределять значения.',
-   constraints:['object_id — постоянная идентичность объекта MARS и не меняется при переименовании.','Для текущей модели name + type уникальны.','Ручной объект при появлении соответствующей записи Galaxy должен получить внешний external_id без создания дубля.']
+   constraints:['object_id — постоянная идентичность объекта MARS и не меняется при переименовании.','Для текущей модели name + type уникальны.','Чисто Manual-объект можно удалить; его фактические связи исчезают, RelationshipRule сохраняются.','Внешне управляемый объект вручную не удаляется.','Ручной объект при появлении соответствующей записи Galaxy должен получить внешний external_id без создания дубля.']
  },
  'registry.effective':{
    title:'Effective value',
@@ -582,7 +656,7 @@ const PROTOTYPE_HELP={
  'types.section':{
    title:'Типы объектов',
    body:'Тип объекта определяет внутренний набор логических атрибутов MARS. Здесь же настраивается привязка типа к внешней коллекции и mapping.',
-   constraints:['Тип может работать полностью вручную без Galaxy.','Один тип MARS может быть связан максимум с одной коллекцией Galaxy/CMDB.','Одна коллекция конкретного экземпляра источника Galaxy/CMDB может быть связана максимум с одним типом MARS.']
+   constraints:['Тип имеет неизменяемый внутренний id и редактируемое наименование.','Переименование не пересоздаёт объекты и не ломает ссылки RelationshipRule.','Тип может работать полностью вручную без Galaxy.','Один тип MARS может быть связан максимум с одной коллекцией Galaxy/CMDB.','Одна коллекция конкретного экземпляра источника Galaxy/CMDB может быть связана максимум с одним типом MARS.','Удаление блокируется при наличии объектов или правил.']
  },
  'types.collection':{
    title:'Коллекция Galaxy / CMDB для типа',
@@ -612,7 +686,7 @@ const PROTOTYPE_HELP={
  'sync.section':{
    title:'Источники и синхронизация',
    body:'Определяет тип внешнего источника, конкретный настроенный источник, какие данные MARS из него забирает и с какими параметрами выполняется синхронизация.',
-   constraints:['Тип источника выбирается отдельно от конкретного экземпляра источника. Сейчас реализован тип Galaxy / CMDB, но модель допускает добавление других типов.','Набор параметров и сущностей синхронизации может отличаться для разных типов источников.','Mapping не настраивается здесь — он относится к типу объекта.','Коллекцию нельзя исключить из синхронизации, пока она назначена типу MARS.']
+   constraints:['Тип источника выбирается отдельно от конкретного экземпляра источника. Сейчас реализован тип Galaxy / CMDB, но модель допускает добавление других типов.','Показывается только последний запуск; история не входит в текущий этап.','Технический status workflow отделён от продуктового результата обработки типов.','Mapping не настраивается здесь — он относится к типу объекта.','Коллекцию нельзя исключить из синхронизации, пока она назначена типу MARS.']
  },
  'sync.sourceType':{
    title:'Тип источника',
@@ -691,21 +765,30 @@ function registryEffectiveValue(o,id){return id==='name'?o.name:o.values?.[id]}
 function registryIsOverride(o,id){return o.manual?.[id]!==undefined&&o.raw?.[id]!==undefined&&String(o.manual[id])!==String(o.raw[id])}
 function registryEndpoint(o){if(o.type!=='Host')return'—';return o.values?.fqdn||o.values?.ip||'—'}
 function registrySourceKind(o){return o.source==='Manual'?'manual':'external'}
-function registryRelationNames(){return[...new Set(registry.objects.flatMap(o=>(o.relations||[]).map(r=>r.type)))].sort((a,b)=>a.localeCompare(b,'ru'))}
-function registryEnvironments(){return[...new Set(registry.objects.map(o=>o.values?.environment).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'))}
+function registrySourceNames(){return[...new Set(registry.objects.map(o=>o.source).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru'))}
 function registryObjectByRelation(type,name){return registry.objects.find(o=>o.type===type&&o.name===name)}
+function registryActualityLabel(o){if(o.source==='Manual')return'<span class="muted">—</span>';return o.actuality==='stale'?'<span class="badge b-amber">Неактуален</span>':'<span class="badge b-green">Актуален</span>'}
+function registryAttributeEntries(o){return (objectTypes[o.type]||[]).filter(a=>a.id!=='name').map(a=>({attr:a,value:registryEffectiveValue(o,a.id)})).filter(x=>x.value!==undefined&&x.value!==null&&String(x.value)!=='')}
+function renderRegistryAttributeCompact(o,limit=5){const items=registryAttributeEntries(o),visible=items.slice(0,limit),hidden=Math.max(0,items.length-visible.length);return`<div class="registry-attr-compact">${visible.length?visible.map(x=>`<span class="badge"><b>${esc(x.attr.label)}:</b> ${esc(x.value)}</span>`).join(' '):'<span class="muted">—</span>'}${hidden?` <button class="xs outline" onclick="event.stopPropagation();openRegistryAttributeQuickView(${q(o.id)})">+${hidden}</button>`:''}</div>`}
+function openRegistryAttributeQuickView(id){const o=registry.objects.find(x=>x.id===id);if(!o)return;openModal(`Атрибуты: ${o.name}`,'Полный список effective-атрибутов',renderRegistryAttributes(o,false),`<button onclick="closeModal()">Закрыть</button>`)}
+function registryMatchesAttributeFilters(o){return (registry.attributeFilters||[]).every(f=>String(registryEffectiveValue(o,f.attrId)||'').toLowerCase().includes(String(f.value||'').toLowerCase()))}
+function registryAttributeFilterControls(){if(registry.type==='all')return'';const attrs=(objectTypes[registry.type]||[]).filter(a=>a.id!=='name');return`<div class="registry-attribute-filter"><select id="reg-attr-key"><option value="">Атрибут…</option>${attrs.map(a=>`<option value="${esc(a.id)}">${esc(a.label)}</option>`).join('')}</select><input id="reg-attr-value" class="input" placeholder="Значение"><button class="sm outline" onclick="addRegistryAttributeFilter()">＋ Добавить фильтр</button></div>`}
+function addRegistryAttributeFilter(){const attrId=$('reg-attr-key')?.value,value=$('reg-attr-value')?.value.trim();if(!attrId||!value)return toast('Выберите атрибут и задайте значение');registry.attributeFilters=registry.attributeFilters||[];registry.attributeFilters.push({attrId,value});renderRegistry()}
+function removeRegistryAttributeFilter(i){registry.attributeFilters.splice(i,1);renderRegistry()}
+function renderRegistryAppliedFilters(){const base=[];if(registry.type!=='all')base.push(`Тип: ${registry.type}`);if(registry.source!=='all')base.push(`Источник: ${registry.source}`);if(registry.actuality!=='all')base.push(`Актуальность: ${registry.actuality==='actual'?'Актуален':'Неактуален'}`);const attrs=(registry.attributeFilters||[]).map((f,i)=>{const a=(objectTypes[registry.type]||[]).find(x=>x.id===f.attrId);return`<span class="badge b-blue">${esc(a?.label||f.attrId)}: ${esc(f.value)} <button class="linkish" onclick="removeRegistryAttributeFilter(${i})">×</button></span>`});if(!base.length&&!attrs.length)return'';return`<div class="pill-row" style="margin-top:10px"><span class="muted">Применено:</span>${base.map(x=>`<span class="badge">${esc(x)}</span>`).join('')}${attrs.join('')}</div>`}
 
 function renderRegistry(){
- const qv=registry.search.toLowerCase();
+ const qv=registry.search.trim().toLowerCase();
  const arr=registry.objects.filter(o=>{
-  const bag=[o.name,o.type,registryEndpoint(o),o.values?.environment,o.source,o.externalId,...Object.values(o.values||{}),(o.relations||[]).map(r=>r.object).join(' ')].join(' ').toLowerCase();
-  return(registry.type==='all'||o.type===registry.type)&&(registry.source==='all'||registrySourceKind(o)===registry.source)&&(registry.environment==='all'||o.values?.environment===registry.environment)&&(registry.relation==='all'||(o.relations||[]).some(r=>r.type===registry.relation))&&(!qv||bag.includes(qv));
+  const searchBag=[o.name,...registryAttributeEntries(o).map(x=>x.value)].join(' ').toLowerCase();
+  const actualityOk=registry.actuality==='all'||(o.source!=='Manual'&&o.actuality===registry.actuality);
+  return(registry.type==='all'||o.type===registry.type)&&(registry.source==='all'||o.source===registry.source)&&actualityOk&&registryMatchesAttributeFilters(o)&&(!qv||searchBag.includes(qv));
  });
- const envs=registryEnvironments(),rels=registryRelationNames();
- $('registry-main').innerHTML=`<div class="page-head"><div><h1 class="title">Реестр объектов мониторинга ${tip('nav.registry')}</h1><div class="sub">Пользовательский раздел: поиск объектов, effective-атрибуты и навигация по связям.</div></div><div class="actions"><span id="registry-save-indicator" class="persistence-indicator">💾 Сохраняется локально ${tip('persistence')}</span></div></div><div class="panel"><div class="info"><b>Раздел доступен для просмотра и навигации.</b> Создание объектов и изменение Manual/Override выполняются администратором в «Администрирование → Настройки реестра объектов мониторинга → Объекты».</div><div class="toolbar"><div class="registry-filters"><input id="reg-search" class="input" value="${esc(registry.search)}" placeholder="Имя, IP/FQDN, External ID…"><select id="reg-type"><option value="all">Все типы</option>${Object.keys(objectTypes).map(t=>`<option value="${t}" ${registry.type===t?'selected':''}>${t}</option>`).join('')}</select><select id="reg-source"><option value="all">Все источники</option><option value="external" ${registry.source==='external'?'selected':''}>Внешний источник</option><option value="manual" ${registry.source==='manual'?'selected':''}>Manual</option></select><select id="reg-env"><option value="all">Все окружения</option>${envs.map(v=>`<option value="${esc(v)}" ${registry.environment===v?'selected':''}>${esc(v)}</option>`).join('')}</select><select id="reg-rel"><option value="all">Любые связи</option>${rels.map(v=>`<option value="${esc(v)}" ${registry.relation===v?'selected':''}>Связь: ${esc(v)}</option>`).join('')}</select><button class="sm outline" onclick="resetRegistryFilters()">Сбросить</button></div></div><div class="stats"><div class="stat"><label>Всего объектов</label><b>${registry.objects.length}</b></div><div class="stat"><label>После фильтра</label><b>${arr.length}</b></div><div class="stat"><label>С внешним источником</label><b>${registry.objects.filter(o=>o.source!=='Manual').length}</b></div><div class="stat"><label>С ручным override</label><b>${registry.objects.filter(o=>Object.keys(o.manual||{}).some(k=>registryIsOverride(o,k))).length}</b></div></div><div class="table-wrap"><table><thead><tr><th>Имя</th><th>Тип</th><th>IP / FQDN</th><th>Окружение</th><th>Источник</th><th>Связи</th><th>Состояние</th></tr></thead><tbody>${arr.length?arr.map(o=>`<tr class="data-row" onclick="openRegistryObject(${q(o.id)},'overview')"><td><div class="registry-object-name">${esc(o.name)}</div></td><td><span class="badge b-blue">${esc(o.type)}</span></td><td class="mono">${esc(registryEndpoint(o))}</td><td>${o.values?.environment?`<span class="badge">${esc(o.values.environment)}</span>${registryIsOverride(o,'environment')?' <span class="badge b-amber">Переопределено</span>':''}`:'<span class="muted">—</span>'}</td><td>${o.source==='Manual'?'<span class="badge">✍️ Manual</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</td><td><span class="badge b-green">🔗 ${(o.relations||[]).length}</span></td><td><span class="badge ${o.lifecycle==='active'?'b-green':'b-amber'}">${o.lifecycle==='active'?'Активен':'Архив'}</span></td></tr>`).join(''):`<tr><td colspan="7" class="empty">Объекты не найдены</td></tr>`}</tbody></table></div></div>`;
- $('reg-search').oninput=e=>{registry.search=e.target.value;renderRegistry()};$('reg-type').onchange=e=>{registry.type=e.target.value;renderRegistry()};$('reg-source').onchange=e=>{registry.source=e.target.value;renderRegistry()};$('reg-env').onchange=e=>{registry.environment=e.target.value;renderRegistry()};$('reg-rel').onchange=e=>{registry.relation=e.target.value;renderRegistry()};
+ const sources=registrySourceNames();
+ $('registry-main').innerHTML=`<div class="page-head"><div><h1 class="title">Реестр объектов мониторинга ${tip('nav.registry')}</h1><div class="sub">Пользовательский read-only раздел: единый поиск, effective-атрибуты, актуальность и навигация по связям.</div></div><div class="actions"><span id="registry-save-indicator" class="persistence-indicator">💾 Сохраняется локально ${tip('persistence')}</span></div></div><div class="panel"><div class="info"><b>Раздел доступен только для просмотра и навигации.</b> ${tip('registry.searchFilters')} Создание и изменение данных выполняются в «Администрирование → Настройки реестра объектов мониторинга».</div><div class="toolbar"><div class="registry-filters"><input id="reg-search" class="input" value="${esc(registry.search)}" placeholder="Имя или значение атрибута…"><select id="reg-type"><option value="all">Все типы</option>${Object.keys(objectTypes).map(t=>`<option value="${t}" ${registry.type===t?'selected':''}>${t}</option>`).join('')}</select><select id="reg-source"><option value="all">Все источники</option>${sources.map(v=>`<option value="${esc(v)}" ${registry.source===v?'selected':''}>${esc(v)}</option>`).join('')}</select><select id="reg-actuality"><option value="all">Любая актуальность</option><option value="actual" ${registry.actuality==='actual'?'selected':''}>Актуален</option><option value="stale" ${registry.actuality==='stale'?'selected':''}>Неактуален</option></select><button class="sm outline" onclick="resetRegistryFilters()">Сбросить</button></div>${registryAttributeFilterControls()}${renderRegistryAppliedFilters()}</div><div class="stats"><div class="stat"><label>Всего объектов</label><b>${registry.objects.length}</b></div><div class="stat"><label>После фильтра</label><b>${arr.length}</b></div><div class="stat"><label>С внешним источником</label><b>${registry.objects.filter(o=>o.source!=='Manual').length}</b></div><div class="stat"><label>С ручным override</label><b>${registry.objects.filter(o=>Object.keys(o.manual||{}).some(k=>registryIsOverride(o,k))).length}</b></div></div><div class="table-wrap"><table><thead><tr><th>Имя</th><th>Тип</th><th>Атрибуты ${tip('registry.attributesCompact')}</th><th>Источник</th><th>Актуальность ${tip('registry.actuality')}</th><th>Связи</th></tr></thead><tbody>${arr.length?arr.map(o=>`<tr class="data-row" onclick="openRegistryObject(${q(o.id)},'overview')"><td><div class="registry-object-name">${esc(o.name)}</div></td><td><span class="badge b-blue">${esc(o.type)}</span></td><td>${renderRegistryAttributeCompact(o,5)}</td><td>${o.source==='Manual'?'<span class="badge">✍️ Manual</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</td><td>${registryActualityLabel(o)}</td><td><span class="badge b-green">🔗 ${(o.relations||[]).length}</span></td></tr>`).join(''):`<tr><td colspan="6" class="empty">Объекты не найдены</td></tr>`}</tbody></table></div></div>`;
+ $('reg-search').oninput=e=>{registry.search=e.target.value;renderRegistry()};$('reg-type').onchange=e=>{registry.type=e.target.value;registry.attributeFilters=[];renderRegistry()};$('reg-source').onchange=e=>{registry.source=e.target.value;renderRegistry()};$('reg-actuality').onchange=e=>{registry.actuality=e.target.value;renderRegistry()};
 }
-function resetRegistryFilters(){registry.search='';registry.type='all';registry.source='all';registry.environment='all';registry.relation='all';renderRegistry()}
+function resetRegistryFilters(){registry.search='';registry.type='all';registry.source='all';registry.actuality='all';registry.attributeFilters=[];renderRegistry()}
 
 function registryCardTabs(id,tab){return`<div class="registry-card-tabs"><button class="${tab==='overview'?'active':''}" onclick="openRegistryObject(${q(id)},'overview')">Обзор</button><button class="${tab==='attributes'?'active':''}" onclick="openRegistryObject(${q(id)},'attributes')">Атрибуты</button><button class="${tab==='relations'?'active':''}" onclick="openRegistryObject(${q(id)},'relations')">Связи</button><button class="${tab==='sources'?'active':''}" onclick="openRegistryObject(${q(id)},'sources')">Источники</button></div>`}
 function openRegistryObject(id,tab='overview'){
@@ -718,20 +801,20 @@ function openRegistryObject(id,tab='overview'){
  openModal(`${o.type}: ${o.name}`,`${o.id}${o.externalId?' · External ID: '+o.externalId:''}`,body,`<button onclick="closeModal()">Закрыть</button>`);
 }
 function renderRegistryOverview(o){
- const key=(objectTypes[o.type]||[]).filter(a=>a.id!=='name').slice(0,6);
- return`<div class="box blue-box"><b>${esc(o.name)}</b> · <span class="mono">${esc(o.id)}</span><br><span class="hint">object_id — постоянная идентичность объекта MARS.</span></div><div class="registry-summary"><div class="box"><b>Тип</b><br><span class="badge b-blue">${esc(o.type)}</span></div><div class="box"><b>Источник объекта</b><br>${o.source==='Manual'?'<span class="badge">✍️ Manual</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</div><div class="box"><b>Связи</b><br><span class="badge b-green">🔗 ${(o.relations||[]).length}</span></div></div><h3>Ключевые effective-значения</h3><div class="grid3cards">${key.map(a=>{const v=registryEffectiveValue(o,a.id);return`<div class="box"><b>${esc(a.label)}</b><br><span class="effective-main">${esc(v||'—')}</span>${registryIsOverride(o,a.id)?'<div class="effective-note"><span class="badge b-amber">Переопределено вручную</span> · Galaxy: '+esc(o.raw[a.id])+'</div>':''}</div>`}).join('')}</div>${(o.relations||[]).length?`<h3>Контекст по связям</h3>${renderRelationCards(o.relations.slice(0,3))}`:''}`;
+ return`<div class="box blue-box"><b>${esc(o.name)}</b> · <span class="mono">${esc(o.id)}</span><br><span class="hint">object_id — постоянная идентичность объекта MARS.</span></div><div class="registry-summary"><div class="box"><b>Тип</b><br><span class="badge b-blue">${esc(o.type)}</span></div><div class="box"><b>Источник объекта</b><br>${o.source==='Manual'?'<span class="badge">✍️ Manual</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</div><div class="box"><b>Актуальность ${tip('registry.actuality')}</b><br>${registryActualityLabel(o)}</div><div class="box"><b>Связи</b><br><span class="badge b-green">🔗 ${(o.relations||[]).length}</span></div></div><h3>Атрибуты ${tip('registry.attributesCompact')}</h3><div class="box">${renderRegistryAttributeCompact(o,5)}</div>${(o.relations||[]).length?`<h3>Контекст по связям</h3>${renderRegistryRelationsPreview(o)}`:''}`;
 }
 function renderRegistryAttributes(o,adminMode=false){const attrs=objectTypes[o.type]||[];return`<div class="table-wrap" style="max-height:none"><table><thead><tr><th>Атрибут</th><th>Effective value</th><th>Источник effective</th><th>${adminMode?'Управление':'Исходное значение'}</th></tr></thead><tbody>${attrs.map(a=>{const eff=registryEffectiveValue(o,a.id),m=o.manual?.[a.id],x=o.raw?.[a.id],ov=registryIsOverride(o,a.id),hasExternal=x!==undefined;let src=ov?'<span class="badge b-amber">Переопределено вручную</span>':m!==undefined?'<span class="badge">Manual</span>':hasExternal?`<span class="badge b-violet">${esc(o.source)}</span>`:'<span class="muted">—</span>';let last=adminMode?renderRegistryAttrAdminActions(o,a,m,x,ov):hasExternal?`<span class="mono">${esc(x)}</span>${ov?`<div class="cell-sub">Manual: ${esc(m)}</div>`:''}`:'<span class="muted">—</span>';return`<tr><td><b>${esc(a.label)}</b><div class="cell-sub mono">${esc(a.id)}</div></td><td><span class="effective-main">${esc(eff||'—')}</span></td><td>${src}</td><td>${last}</td></tr>`}).join('')}</tbody></table></div>`}
 function renderRegistryAttrAdminActions(o,a,m,x,ov){
  if(x!==undefined){return`<div class="registry-attr-actions">${ov?`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">Изменить override</button><button class="xs danger" onclick="removeRegistryOverride(${q(o.id)},${q(a.id)})">Удалить override</button>`:`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">Переопределить вручную ${tip('registry.override')}</button>`}</div>`}
  return`<button class="xs outline" onclick="openRegistryValueEdit(${q(o.id)},${q(a.id)})">${m!==undefined?'Изменить Manual':'Задать вручную'}</button>`;
 }
+function renderRegistryRelationsPreview(o){const groups=[...new Set((o.relations||[]).map(r=>r.type))].slice(0,2);return groups.map(type=>{const rels=(o.relations||[]).filter(r=>r.type===type);return`<div class="box"><b>${esc(type)}</b> <span class="badge">${rels.length}</span><div class="pill-row" style="margin-top:8px">${rels.slice(0,3).map(r=>`<span class="badge b-blue">${esc(r.objectType)}: ${esc(r.object)}</span>`).join('')}</div></div>`}).join('')}
 function renderRegistryRelations(o){
- const rels=o.relations||[];
- return`<div class="box blue-box"><b>Связи ненаправленные.</b> ${tip('relations.rules')} Название типа связи показывается одинаково с обеих сторон. Нажмите на связанный объект, чтобы открыть его карточку.</div><h3>Связи</h3>${rels.length?renderRelationCards(rels):'<div class="empty">Связей нет</div>'}`
+ const rels=o.relations||[],types=[...new Set(rels.map(r=>r.type))];
+ return`<div class="box blue-box"><b>Связи ненаправленные и сгруппированы по RelationType.</b> ${tip('registry.relationsGrouped')} Нажмите на связанный объект, чтобы открыть его карточку.</div>${types.length?types.map(type=>{const list=rels.filter(r=>r.type===type);return`<div class="registry-relation-group"><h3>${esc(type)} <span class="badge">${list.length}</span></h3>${renderRelationCards(list)}</div>`}).join(''):'<div class="empty">Связей нет</div>'}`
 }
-function renderRelationCards(list){return list.map(r=>{const target=registryObjectByRelation(r.objectType,r.object);return`<div class="card registry-relation" ${target?`onclick="openRegistryObject(${q(target.id)},'overview')"`:''}><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${esc(r.object)}</div><div class="meta"><span class="badge b-blue">${esc(r.objectType)}</span> · <b>${esc(r.type)}</b><br>Правило: ${esc(r.rule)}</div></div></div>${target?'<button class="xs outline">Открыть</button>':'<span class="badge b-amber">Объект не найден</span>'}</div>`}).join('')}
-function renderRegistrySources(o){const attrs=objectTypes[o.type]||[];const ext=attrs.filter(a=>o.raw?.[a.id]!==undefined),man=attrs.filter(a=>o.manual?.[a.id]!==undefined);return`${o.identityNote?`<div class="box blue-box"><b>Идентичность сохранена:</b> ${esc(o.identityNote)}</div>`:''}<div class="registry-summary"><div class="box"><b>Основной источник</b><br>${o.source==='Manual'?'<span class="badge">Manual</span>':`<span class="badge b-violet">${esc(o.source)}</span>`}</div><div class="box"><b>External ID</b><br><span class="mono">${esc(o.externalId||'—')}</span></div><div class="box"><b>Последняя синхронизация</b><br>${esc(o.lastSync||'—')}</div></div><h3>Внешние значения</h3>${ext.length?ext.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.raw[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">не effective</span>':''}</div></div>`).join(''):'<div class="empty">Внешний источник не подключён</div>'}<h3>Ручные значения</h3>${man.length?man.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.manual[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">Override / Effective</span>':' <span class="badge">Manual</span>'}</div></div>`).join(''):'<div class="empty">Ручных значений нет</div>'}`}
+function renderRelationCards(list){return list.map(r=>{const target=registryObjectByRelation(r.objectType,r.object);return`<div class="card registry-relation" ${target?`onclick="openRegistryObject(${q(target.id)},'overview')"`:''}><div class="card-main"><span class="icon">🔗</span><div><div class="card-title">${esc(r.object)}</div><div class="meta"><span class="badge b-blue">${esc(r.objectType)}</span></div></div></div>${target?'<button class="xs outline">Открыть</button>':'<span class="badge b-amber">Объект не найден</span>'}</div>`}).join('')}
+function renderRegistrySources(o){const attrs=objectTypes[o.type]||[];const ext=attrs.filter(a=>o.raw?.[a.id]!==undefined),man=attrs.filter(a=>o.manual?.[a.id]!==undefined);const manual=o.source==='Manual';return`${o.identityNote?`<div class="box blue-box"><b>Идентичность сохранена:</b> ${esc(o.identityNote)}</div>`:''}<div class="registry-summary"><div class="box"><b>Источник</b><br>${manual?'<span class="badge">✍️ Создан и поддерживается в MARS</span>':`<span class="badge b-violet">📚 ${esc(o.source)}</span>`}</div><div class="box"><b>External ID</b><br><span class="mono">${esc(manual?'—':(o.externalId||'—'))}</span></div><div class="box"><b>Актуальность ${tip('registry.actuality')}</b><br>${registryActualityLabel(o)}</div><div class="box"><b>Последнее подтверждение</b><br>${esc(manual?'—':(o.lastSeenAt||'—'))}</div></div>${!manual?`<h3>Внешние значения</h3>${ext.length?ext.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.raw[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">не effective</span>':''}</div></div>`).join(''):'<div class="empty">Внешние значения отсутствуют</div>'}`:''}<h3>Ручные значения</h3>${man.length?man.map(a=>`<div class="registry-source-row"><b>${esc(a.label)}</b><div><span class="mono">${esc(o.manual[a.id])}</span>${registryIsOverride(o,a.id)?' <span class="badge b-amber">Override / Effective</span>':' <span class="badge">Manual</span>'}</div></div>`).join(''):'<div class="empty">Ручных значений нет</div>'}`}
 
 /* Администрирование */
 function renderAdmin(){
@@ -743,9 +826,13 @@ function renderAdmin(){
 }
 function renderDataAdmin(){return`<div class="info"><b>Сбор данных — административная часть постановки на мониторинг.</b> Пользовательская механика раздела «Постановка на мониторинг» остаётся отдельно и не меняется.</div><div class="content"><div class="grid3cards"><div class="card"><div class="card-main"><span class="icon">📚</span><div><div class="card-title">Источники инфраструктурных данных</div><div class="meta">CMDB Main</div></div></div></div><div class="card"><div class="card-main"><span class="icon">🌐</span><div><div class="card-title">Группы прокси</div><div class="meta">Production DMZ · Analytics · K8s</div></div></div></div><div class="card"><div class="card-main"><span class="icon">🔄</span><div><div class="card-title">Синхронизация справочника</div><div class="meta">Параметры получения данных для постановки на мониторинг.</div></div></div></div></div><div class="readonly-note" style="margin-top:14px">Этот подраздел не изменяет сценарии Хосты / Сервисы / Шаблоны / Коллекции в пользовательской «Постановке на мониторинг».</div></div>`}
 function renderRegistrySettings(){let c='';if(registrySettingsTab==='objects')c=renderAdminObjects();if(registrySettingsTab==='types')c=renderTypeSettings();if(registrySettingsTab==='sync')c=renderSyncSettings();if(registrySettingsTab==='reltypes')c=renderRelationTypeSettings();if(registrySettingsTab==='rules')c=renderRuleSettings();return`<div class="info"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>Здесь администратор управляет объектами и внутренней моделью реестра MARS.</b> ${tip('admin.registry')}</div><div class="actions"><span id="registry-save-indicator" class="persistence-indicator">💾 Сохраняется локально ${tip('persistence')}</span><button class="xs outline" onclick="confirmResetRegistryPrototypeState()">↺ Сбросить демо-данные</button></div></div></div><div class="inner-tabs"><button class="${registrySettingsTab==='objects'?'active':''}" onclick="registrySettingsTab='objects';renderAdmin()">Объекты ${tip('registry.objects')}</button><button class="${registrySettingsTab==='types'?'active':''}" onclick="registrySettingsTab='types';renderAdmin()">Типы объектов ${tip('types.section')}</button><button class="${registrySettingsTab==='sync'?'active':''}" onclick="registrySettingsTab='sync';renderAdmin()">Источники и синхронизация ${tip('sync.section')}</button><button class="${registrySettingsTab==='reltypes'?'active':''}" onclick="registrySettingsTab='reltypes';renderAdmin()">Типы связей ${tip('relations.types')}</button><button class="${registrySettingsTab==='rules'?'active':''}" onclick="registrySettingsTab='rules';renderAdmin()">Правила связей ${tip('relations.rules')}</button></div>${c}`}
-function renderAdminObjects(){return`<div class="toolbar admin-object-toolbar"><div><b>Ручное управление объектами ${tip('registry.objects')}</b><div class="hint">Создание объектов и ручные переопределения доступны только MARS Admin.</div></div><button onclick="openAdminRegistryObjectCreate()">➕ Создать объект ${tip('registry.create')}</button></div><div class="content admin-object-list">${registry.objects.map(o=>`<div class="card"><div class="card-main"><span class="icon">${o.type==='Host'?'🖥️':o.type==='Database'?'🗄️':'📦'}</span><div><div class="card-title">${esc(o.name)}</div><div class="meta"><span class="badge b-blue">${esc(o.type)}</span> · <span class="mono">${esc(o.id)}</span> · ${o.source==='Manual'?'<span class="badge">Manual</span>':`<span class="badge b-violet">${esc(o.source)}</span>`}${Object.keys(o.manual||{}).some(k=>registryIsOverride(o,k))?' · <span class="badge b-amber">Есть override</span>':''}</div></div></div><div class="actions"><button class="xs outline" onclick="openRegistryObject(${q(o.id)},'overview')">Просмотр</button><button class="xs" onclick="openAdminRegistryObject(${q(o.id)})">Управление</button></div></div>`).join('')}</div>`}
-function openAdminRegistryObjectCreate(){const type=Object.keys(objectTypes)[0];openModal('Создать объект мониторинга','Только MARS Admin. Объект создаётся с источником Manual.',`<div class="row"><div class="field"><label>Тип объекта *</label><select id="aro-type" class="wide">${Object.keys(objectTypes).map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div><div class="field"><label>Имя *</label><input id="aro-name" class="wide"></div></div><div id="aro-attrs"></div><div class="box blue-box"><b>Manual ≠ Override.</b> Для нового ручного объекта значения имеют источник Manual. Override возникает только если для этого же объекта позже появляется внешнее значение того же атрибута и ручное значение его переопределяет.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveAdminRegistryObject()">Создать</button>`);const render=()=>{$('aro-attrs').innerHTML=`<h3>Атрибуты</h3>${(objectTypes[$('aro-type').value]||[]).filter(a=>a.id!=='name'&&a.identityRole!=='externalId').map(a=>`<div class="field"><label>${esc(a.label)}</label><input class="wide" data-aro-attr="${esc(a.id)}"></div>`).join('')}`};$('aro-type').onchange=render;render()}
-function saveAdminRegistryObject(){if(!isAdmin())return toast('Недостаточно прав');const type=$('aro-type').value,name=$('aro-name').value.trim();if(!name)return toast('Введите имя');const existing=registry.objects.find(o=>o.type===type&&o.name.toLowerCase()===name.toLowerCase());if(existing){closeModal();openAdminRegistryObject(existing.id);return toast('Объект с таким name + type уже существует')};const values={},manual={name};document.querySelectorAll('[data-aro-attr]').forEach(i=>{const v=i.value.trim();if(v){values[i.dataset.aroAttr]=v;manual[i.dataset.aroAttr]=v}});const prefix=type==='Host'?'H':type==='InformationSystem'?'IS':type==='Database'?'DB':'APP';registry.objects.push({id:'OBJ-'+prefix+'-'+(100+registry.objects.length),type,name,source:'Manual',externalId:'',lifecycle:'active',lastSync:'',values,raw:{},manual,relations:[]});saveRegistryPrototypeState();closeModal();renderAdmin();renderRegistry();toast('Объект создан')}
+function registryObjectConflictReason(o){return o.mappingConflict?.reason||o.syncConflict||''}
+function registryAdminObjectsFiltered(){const f=registryAdminObjectFilter,qv=f.search.trim().toLowerCase();return registry.objects.filter(o=>(!qv||[o.name,o.type,o.id,o.externalId,...Object.values(o.values||{})].join(' ').toLowerCase().includes(qv))&&(f.type==='all'||o.type===f.type)&&(f.source==='all'||(f.source==='manual'?o.source==='Manual':o.source!=='Manual')))}
+function renderAdminObjects(){const arr=registryAdminObjectsFiltered();return`<div class="toolbar admin-object-toolbar"><div><b>Управление объектами ${tip('registry.objects')}</b><div class="hint">Создание Manual-объектов, Manual/Override и удаление чисто Manual-объектов доступны только MARS Admin.</div></div><button onclick="openAdminRegistryObjectCreate()">➕ Создать объект ${tip('registry.create')}</button></div><div class="toolbar"><div class="registry-filters"><input class="input" value="${esc(registryAdminObjectFilter.search)}" placeholder="Поиск объектов…" oninput="registryAdminObjectFilter.search=this.value;renderAdmin()"><select onchange="registryAdminObjectFilter.type=this.value;renderAdmin()"><option value="all">Все типы</option>${Object.keys(objectTypes).map(t=>`<option value="${t}" ${registryAdminObjectFilter.type===t?'selected':''}>${t}</option>`).join('')}</select><select onchange="registryAdminObjectFilter.source=this.value;renderAdmin()"><option value="all">Все источники</option><option value="external" ${registryAdminObjectFilter.source==='external'?'selected':''}>Внешний источник</option><option value="manual" ${registryAdminObjectFilter.source==='manual'?'selected':''}>Manual</option></select><button class="sm outline" onclick="registryAdminObjectFilter.search='';registryAdminObjectFilter.type='all';registryAdminObjectFilter.source='all';renderAdmin()">Сбросить</button></div></div><div class="content admin-object-list">${arr.length?arr.map(o=>{const conflict=registryObjectConflictReason(o),pureManual=o.source==='Manual'&&!o.externalId;return`<div class="card"><div class="card-main"><span class="icon">${o.type==='Host'?'🖥️':o.type==='Database'?'🗄️':'📦'}</span><div><div class="card-title">${esc(o.name)}</div><div class="meta"><span class="badge b-blue">${esc(o.type)}</span> · <span class="mono">${esc(o.id)}</span> · ${o.source==='Manual'?'<span class="badge">Manual</span>':`<span class="badge b-violet">${esc(o.source)}</span>`}${Object.keys(o.manual||{}).some(k=>registryIsOverride(o,k))?' · <span class="badge b-amber">Есть override</span>':''}${conflict?` · <span class="badge b-red" title="${esc(conflict)}">Конфликт: ${esc(conflict)}</span>`:''}</div></div></div><div class="actions"><button class="xs outline" onclick="openRegistryObject(${q(o.id)},'overview')">Просмотр</button><button class="xs" onclick="openAdminRegistryObject(${q(o.id)})">Управление</button>${pureManual?`<button class="xs danger" onclick="confirmDeleteRegistryManualObject(${q(o.id)})">Удалить</button>`:`<button class="xs danger" disabled title="Внешне управляемый объект вручную не удаляется">Удалить</button>`}</div></div>`}).join(''):'<div class="empty">Объекты не найдены</div>'}</div>`}
+function confirmDeleteRegistryManualObject(id){const o=registry.objects.find(x=>x.id===id);if(!o||o.source!=='Manual'||o.externalId)return toast('Внешне управляемый объект вручную не удаляется');openModal('Удалить Manual-объект',`${o.type}: ${o.name}`,`<div class="box red-box"><b>Объект будет удалён.</b><br>Все фактические связи с этим объектом перестанут существовать. Правила связей сохраняются.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="deleteRegistryManualObject(${q(id)})">Удалить</button>`,true)}
+function deleteRegistryManualObject(id){const o=registry.objects.find(x=>x.id===id);if(!o||o.source!=='Manual'||o.externalId)return;registry.objects.forEach(x=>{x.relations=(x.relations||[]).filter(r=>!(r.object===o.name&&r.objectType===o.type))});registry.objects=registry.objects.filter(x=>x.id!==id);saveRegistryPrototypeState();closeModal();renderAdmin();renderRegistry();toast('Manual-объект удалён; фактические связи удалены, правила сохранены')}
+function openAdminRegistryObjectCreate(){const type=Object.keys(objectTypes)[0];openModal('Создать объект мониторинга','Только MARS Admin. Объект создаётся с источником Manual.',`<div class="row"><div class="field"><label>Тип объекта *</label><select id="aro-type" class="wide">${Object.keys(objectTypes).map(t=>`<option value="${t}">${t}</option>`).join('')}</select></div><div class="field"><label>Имя *</label><input id="aro-name" class="wide"></div></div><div id="aro-attrs"></div><div class="box blue-box"><b>Manual ≠ Override.</b> Для нового ручного объекта значения имеют источник Manual. Override возникает только если для этого же объекта позже появляется внешнее значение того же атрибута и ручное значение его переопределяет.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button onclick="saveAdminRegistryObject()">Создать</button>`);const render=()=>{$('aro-attrs').innerHTML=`<h3>Атрибуты</h3>${objectTypeMappingInfo($('aro-type').value).manual.filter(a=>a.id!=='name'&&a.identityRole!=='externalId').map(a=>`<div class="field"><label>${esc(a.label)}</label><input class="wide" data-aro-attr="${esc(a.id)}"></div>`).join('')}`};$('aro-type').onchange=render;render()}
+function saveAdminRegistryObject(){if(!isAdmin())return toast('Недостаточно прав');const type=$('aro-type').value,name=$('aro-name').value.trim();if(!name)return toast('Введите имя');const existing=registry.objects.find(o=>o.type===type&&o.name.toLowerCase()===name.toLowerCase());if(existing){closeModal();openAdminRegistryObject(existing.id);return toast('Объект с таким name + type уже существует')};const values={},manual={name};document.querySelectorAll('[data-aro-attr]').forEach(i=>{const v=i.value.trim();if(v){values[i.dataset.aroAttr]=v;manual[i.dataset.aroAttr]=v}});const prefix=type==='Host'?'H':type==='InformationSystem'?'IS':type==='Database'?'DB':'APP';registry.objects.push({id:'OBJ-'+prefix+'-'+(100+registry.objects.length),type,name,source:'Manual',externalId:'',actuality:null,lastSeenAt:'',values,raw:{},manual,relations:[]});saveRegistryPrototypeState();closeModal();renderAdmin();renderRegistry();toast('Объект создан')}
 function openAdminRegistryObject(id){const o=registry.objects.find(x=>x.id===id);if(!o)return;openModal(`Управление: ${o.name}`,`${o.type} · ${o.id}`,`<div class="box blue-box"><b>Effective value ${tip('registry.effective')}</b> используется в реестре, событиях и последующей маршрутизации. Внешнее значение продолжает храниться и синхронизироваться даже при Manual override.</div>${renderRegistryAttributes(o,true)}<div class="separator"></div><h3>Источники</h3>${renderRegistrySources(o)}`,`<button class="ghost" onclick="closeModal()">Закрыть</button><button class="outline" onclick="openRegistryObject(${q(o.id)},'overview')">Открыть карточку</button>`)}
 function openRegistryValueEdit(id,attr){if(!isAdmin())return toast('Недостаточно прав');const o=registry.objects.find(x=>x.id===id),a=(objectTypes[o.type]||[]).find(x=>x.id===attr);if(!o||!a)return;const current=registryEffectiveValue(o,attr)||'';const external=o.raw?.[attr];const title=external!==undefined?(registryIsOverride(o,attr)?'Изменить ручное переопределение':'Переопределить вручную'):'Изменить ручное значение';openModal(title,`${o.type}: ${o.name} · ${a.label}`,`${external!==undefined?`<div class="box"><b>Значение внешнего источника:</b> <span class="mono">${esc(external)}</span><div class="hint">Оно сохранится и продолжит обновляться после создания override.</div></div>`:''}<div class="field"><label>Ручное значение</label><input id="aro-value" class="wide" value="${esc(o.manual?.[attr]!==undefined?o.manual[attr]:current)}"></div>`,`<button class="ghost" onclick="openAdminRegistryObject(${q(id)})">Отмена</button><button onclick="saveRegistryManualValue(${q(id)},${q(attr)})">Сохранить</button>`,true)}
 function saveRegistryManualValue(id,attr){const o=registry.objects.find(x=>x.id===id);if(!o||!isAdmin())return;const v=$('aro-value').value.trim();if(!v)return toast('Введите значение');o.manual=o.manual||{};o.manual[attr]=v;if(attr==='name')o.name=v;else o.values[attr]=v;saveRegistryPrototypeState();renderRegistry();openAdminRegistryObject(id);toast(o.raw?.[attr]!==undefined?'Manual override сохранён':'Manual-значение сохранено')}
@@ -766,23 +853,9 @@ function objectTypeMappingInfo(type){
    manual:attrs.filter(a=>!externalAttrIds.has(a.id))
  }
 }
+function objectTypeDeleteCheck(type){const objs=registry.objects.filter(o=>o.type===type),rules=relationRules.filter(r=>r.sourceType===type||r.targetType===type);if(objs.length)return{ok:false,reason:`Есть объекты типа: ${objs.length}`};if(rules.length)return{ok:false,reason:`Тип используется правилами: ${rules.length}`};return{ok:true,reason:''}}
 function renderTypeSettings(){
- return`<div class="info"><b>Тип объекта определяет внутреннюю модель MARS. ${tip('types.section')}</b> При выборе коллекции Galaxy / CMDB её поля можно автоматически добавить как внешние атрибуты типа. Дополнительно тип можно расширять собственными ручными атрибутами MARS.</div>
- <div class="toolbar">
-   <div><b>Типы объектов MARS</b><div class="hint">Коллекция необязательна. Тип без коллекции полностью поддерживается вручную.</div></div>
-   <button onclick="openObjectTypeCreate()">➕ Добавить тип объекта</button>
- </div>
- <div class="content">${Object.entries(objectTypes).map(([t,a])=>{
-   const info=objectTypeMappingInfo(t);
-   return`<div class="card">
-     <div class="card-main"><span class="icon">🧩</span><div>
-       <div class="card-title">${esc(t)}</div>
-       <div class="meta">${a.length} атрибутов · ${info.collection?`<span class="badge b-violet">${esc(info.collection)}</span> · внешних: ${info.external.length} · ручных: ${info.manual.length}`:'<span class="badge">Только Manual</span>'}</div>
-       <div class="pill-row" style="margin-top:8px">${a.slice(0,10).map(x=>`<span class="badge">${esc(x.label)} · <span class="mono">${esc(x.id)}</span></span>`).join('')}${a.length>10?`<span class="badge">+${a.length-10}</span>`:''}</div>
-     </div></div>
-     <div class="actions"><button class="xs" onclick="openObjectTypeAttributes(${q(t)})">⚙️ Настроить</button></div>
-   </div>`
- }).join('')}</div>`
+ return`<div class="info"><b>Тип объекта определяет внутреннюю модель MARS. ${tip('types.section')}</b> Имя типа можно менять; его внутренний id остаётся неизменным, а объекты и правила продолжают ссылаться на тот же тип.</div><div class="toolbar"><div><b>Типы объектов MARS</b><div class="hint">Коллекция необязательна. Тип без коллекции полностью поддерживается вручную.</div></div><button onclick="openObjectTypeCreate()">➕ Добавить тип объекта</button></div><div class="content">${Object.entries(objectTypes).map(([t,a])=>{const info=objectTypeMappingInfo(t),check=objectTypeDeleteCheck(t),conflicts=registry.objects.filter(o=>o.type===t&&registryObjectConflictReason(o)).length;return`<div class="card"><div class="card-main"><span class="icon">🧩</span><div><div class="card-title">${esc(t)}</div><div class="meta"><span class="mono">${esc(registryObjectTypeIds[t]||'—')}</span> · ${a.length} атрибутов · ${info.collection?`<span class="badge b-violet">${esc(info.collection)}</span> · внешних: ${info.external.length} · ручных: ${info.manual.length}`:'<span class="badge">Только Manual</span>'}${conflicts?` · <span class="badge b-red">Конфликт: ${conflicts}</span>`:''}</div><div class="pill-row" style="margin-top:8px">${a.slice(0,10).map(x=>`<span class="badge">${esc(x.label)} · <span class="mono">${esc(x.id)}</span></span>`).join('')}${a.length>10?`<span class="badge">+${a.length-10}</span>`:''}</div></div></div><div class="actions"><button class="xs" onclick="openObjectTypeAttributes(${q(t)})">⚙️ Настроить</button><button class="xs danger" ${check.ok?'':`disabled title="${esc(check.reason)}"`} onclick="confirmDeleteObjectType(${q(t)})">Удалить</button></div></div>`}).join('')}</div>`
 }
 function objectTypeAvailableCollectionOptions(type,current=''){
  const currentBinding=registryAssignedBinding(type);
@@ -883,7 +956,7 @@ function openObjectTypeCreate(){
  if(!isAdmin())return toast('Недостаточно прав');
 
  openModal('Добавить тип объекта','Создайте тип MARS. Если выбрать Galaxy / CMDB коллекцию, её поля будут автоматически добавлены как внешние атрибуты.',`
-   <div class="field"><label>ID типа *</label><input id="ot-id" class="wide" placeholder="Например: Cluster"><div class="hint">Уникальный идентификатор типа. Используется в объектах и правилах связей.</div></div>
+   <div class="field"><label>Наименование типа *</label><input id="ot-name" class="wide" placeholder="Например: Cluster"><div class="hint">Внутренний неизменяемый id типа MARS будет сгенерирован автоматически.</div></div>
    <div class="field"><label>Коллекция Galaxy / CMDB ${tip('types.collection')}</label>
      <select id="ot-collection" class="wide" onchange="updateObjectTypeCreateSourceFields()">
        ${objectTypeAvailableCollectionOptions('__new__','')}
@@ -900,20 +973,15 @@ function updateObjectTypeCreateSourceFields(){
 }
 function saveObjectType(){
  if(!isAdmin())return toast('Недостаточно прав');
- const id=$('ot-id').value.trim(),binding=parseSourceCollectionValue($('ot-collection').value),collection=binding.collectionId,sourceId=binding.sourceId;
- if(!id)return toast('Введите ID типа');
- if(/\s/.test(id))return toast('ID типа не должен содержать пробелы');
- if(objectTypes[id])return toast('Тип с таким ID уже существует');
- if(collection){
-   const c=collectionsForSource(sourceId).find(x=>x.id===collection);
-   if(!c?.selected)return toast('Коллекция не включена для синхронизации');
-   const owner=registryTypeForCollection(collection,sourceId);
-   if(owner)return toast(`Коллекция ${collection} источника ${registrySources.find(s=>s.id===sourceId)?.name||sourceId} уже используется типом ${owner}`)
- }
- objectTypes[id]=[{id:'name',label:collection?'name':'Имя',origin:collection?'external':'manual',identityRole:'name'}];
- registryCollectionAssignments[id]=collection?{sourceId,collectionId:collection}:{sourceId:'',collectionId:''};
- if(collection)autoMapCollectionToType(id,collection,false);
- saveRegistryPrototypeState();closeModal();renderAdmin();openObjectTypeAttributes(id);toast(`Тип ${id} создан`)
+ const name=$('ot-name').value.trim(),binding=parseSourceCollectionValue($('ot-collection').value),collection=binding.collectionId,sourceId=binding.sourceId;
+ if(!name)return toast('Введите наименование типа');
+ if(objectTypes[name])return toast('Тип с таким наименованием уже существует');
+ if(collection){const c=collectionsForSource(sourceId).find(x=>x.id===collection);if(!c?.selected)return toast('Коллекция не включена для синхронизации');const owner=registryTypeForCollection(collection,sourceId);if(owner)return toast(`Коллекция ${collection} источника ${registrySources.find(s=>s.id===sourceId)?.name||sourceId} уже используется типом ${owner}`)}
+ objectTypes[name]=[{id:'name',label:collection?'name':'Имя',origin:collection?'external':'manual',identityRole:'name'}];
+ registryObjectTypeIds[name]=uid('OT');
+ registryCollectionAssignments[name]=collection?{sourceId,collectionId:collection}:{sourceId:'',collectionId:''};
+ if(collection)autoMapCollectionToType(name,collection,false);
+ saveRegistryPrototypeState();closeModal();renderAdmin();openObjectTypeAttributes(name);toast(`Тип ${name} создан`)
 }
 function changeObjectTypeCollection(type,value){
  if(!isAdmin())return toast('Недостаточно прав');
@@ -964,7 +1032,12 @@ function setObjectTypeAttributeMapping(type,attr,value){
  saveRegistryPrototypeState();
  toast('Mapping изменён. Новая конфигурация будет применена при следующей синхронизации.')
 }
+function renameObjectType(type,newName){newName=String(newName||'').trim();if(!newName||newName===type)return type;if(objectTypes[newName]){toast('Тип с таким наименованием уже существует');return null}objectTypes[newName]=objectTypes[type];delete objectTypes[type];registryObjectTypeIds[newName]=registryObjectTypeIds[type];delete registryObjectTypeIds[type];registry.objects.forEach(o=>{if(o.type===type)o.type=newName;(o.relations||[]).forEach(r=>{if(r.objectType===type)r.objectType=newName})});relationRules.forEach(r=>{if(r.sourceType===type)r.sourceType=newName;if(r.targetType===type)r.targetType=newName});if(registryCollectionAssignments[type]){registryCollectionAssignments[newName]=registryCollectionAssignments[type];delete registryCollectionAssignments[type]}Object.keys(registryMappings).filter(k=>k.startsWith(type+'|')).forEach(k=>{const nk=newName+k.slice(type.length);registryMappings[nk]=registryMappings[k];delete registryMappings[k]});if(registryMappingEditor.type===type)registryMappingEditor.type=newName;return newName}
+function confirmDeleteObjectType(type){const check=objectTypeDeleteCheck(type);if(!check.ok)return toast(check.reason);openModal('Удалить тип объекта',type,`<div class="box red-box"><b>Тип будет удалён без каскадного удаления.</b><br>Операция доступна только когда нет объектов и RelationshipRule, использующих этот тип.</div>`,`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="deleteObjectType(${q(type)})">Удалить</button>`,true)}
+function deleteObjectType(type){const check=objectTypeDeleteCheck(type);if(!check.ok)return toast(check.reason);delete objectTypes[type];delete registryObjectTypeIds[type];delete registryCollectionAssignments[type];Object.keys(registryMappings).filter(k=>k.startsWith(type+'|')).forEach(k=>delete registryMappings[k]);saveRegistryPrototypeState();closeModal();renderAdmin();toast('Тип объекта удалён')}
 function saveObjectTypeSettings(type){
+ const requestedName=$('ot-name-edit')?.value.trim()||type;
+ const renamed=renameObjectType(type,requestedName);if(!renamed)return;type=renamed;
  const collection=registryAssignedCollection(type);
  let pending=false;
  if(collection){
@@ -1002,7 +1075,8 @@ function openObjectTypeAttributes(type){
  const usedInRules=new Set(relationRules.flatMap(r=>[
    r.sourceType===type?r.sourceAttr:null,
    r.targetType===type?r.targetAttr:null
- ].filter(Boolean)));const assigned=registryAssignedCollection(type);
+ ].filter(Boolean)));
+ const assigned=registryAssignedCollection(type);
  const mapping=assigned?registryEnsureMapping(type,assigned,registryAssignedSource(type)):null;
  const externalRows=assigned?objectTypeExternalRows(type,assigned,mapping):[];
  const externalIds=new Set(externalRows.map(r=>r.attrId));
@@ -1012,6 +1086,7 @@ function openObjectTypeAttributes(type){
  const missingFields=sourceFields.filter(f=>!mappedSourceFields.has(f));
 
  openModal(`Настройка типа: ${type}`,'Внешние и ручные атрибуты настраиваются отдельно внутри одного типа объекта.',`
+   <div class="row"><div class="field"><label>Наименование типа</label><input id="ot-name-edit" class="wide" value="${esc(type)}"><div class="hint">Можно изменить без пересоздания объектов и правил.</div></div><div class="field"><label>ObjectType ID</label><input class="wide mono" disabled value="${esc(registryObjectTypeIds[type]||'—')}"><div class="hint">Неизменяемый внутренний id.</div></div></div>
    <div class="field"><label>Коллекция Galaxy / CMDB ${tip('types.collection')}</label>
      <select class="wide" onchange="changeObjectTypeCollection(${q(type)},this.value)">${objectTypeAvailableCollectionOptions(type,`${registryAssignedSource(type)}|||${assigned}`)}</select>
      <div class="hint">Один тип MARS ↔ максимум одна коллекция Galaxy / CMDB. Одна коллекция конкретного источника ↔ максимум один тип MARS.</div>
@@ -1277,21 +1352,19 @@ function applyPendingMappingsForSelectedSource(){
 function syncRegistryCmdbCollections(){
  if(!registrySyncSettings.enabled)return toast('Синхронизация источника выключена');
  const selected=registrySelectedCmdbCollections();if(!selected.length)return toast('Выберите хотя бы одну коллекцию для синхронизации');
- const ts=now();
- selected.forEach(c=>{c.status='synced';c.lastSync=ts});
- const applied=applyPendingMappingsForSelectedSource();
- registrySyncSettings.lastRun=ts;
- registrySyncSettings.lastDuration='1 мин 42 сек';
- registrySyncSettings.lastResult='Успешно';
- saveRegistryPrototypeState();renderAdmin();renderRegistry();
- const extra=applied.changedTypes?` · применён mapping типов: ${applied.changedTypes}${applied.renamed?` · переименовано объектов: ${applied.renamed}`:''}${applied.conflicts?` · конфликтов: ${applied.conflicts}`:''}`:'';
- toast(`Синхронизировано коллекций: ${selected.length}${extra}`)
+ const ts=now();selected.forEach(c=>{c.status='synced';c.lastSync=ts});const applied=applyPendingMappingsForSelectedSource();
+ const syncedTypes=Object.keys(registryCollectionAssignments).filter(t=>registryAssignedSource(t)===registrySyncSelection.sourceId&&selected.some(c=>c.id===registryAssignedCollection(t))).map((t,i)=>({type_id:registryObjectTypeIds[t]||t,type_name:t,fetched:registry.objects.filter(o=>o.type===t&&o.source!=='Manual').length,created_objects:0,updated_objects:registry.objects.filter(o=>o.type===t&&o.source!=='Manual').length,projected:registry.objects.filter(o=>o.type===t&&o.source!=='Manual').reduce((n,o)=>n+Object.keys(o.raw||{}).length,0),deleted_objects:0,purged_objects:0,added_attributes:[],deprecated_attributes:[]}));
+ registrySyncSettings.lastRun=ts;registrySyncSettings.lastDuration='1 мин 42 сек';registrySyncSettings.lastResult='Успешно';registrySyncSettings.lastRunDetails={workflow_id:'galaxy-sync-cycle',run_id:uid('run'),status:'completed',started_at:ts,close_time:ts,result:{synced:syncedTypes,failed:[]},error:null};
+ registry.objects.filter(o=>o.source!=='Manual').forEach(o=>{o.lastSeenAt=ts;o.actuality='actual'});
+ saveRegistryPrototypeState();renderAdmin();renderRegistry();const extra=applied.changedTypes?` · применён mapping типов: ${applied.changedTypes}${applied.renamed?` · переименовано объектов: ${applied.renamed}`:''}${applied.conflicts?` · конфликтов: ${applied.conflicts}`:''}`:'';toast(`Синхронизировано коллекций: ${selected.length}${extra}`)
 }
 function registryCmdbCollectionStatus(c){
  if(!c.selected)return'<span class="badge">Не выбрана</span>';
  if(c.status==='synced')return'<span class="badge b-green">● Синхронизируется</span>';
  return'<span class="badge b-amber">Ожидает синхронизации</span>'
 }
+function registrySyncProductResult(run){if(!run)return'Не запускалась';if(run.error)return'Ошибка workflow';if(run.status==='completed'&&(run.result?.failed||[]).length)return'Завершено с ошибками';if(run.status==='completed')return'Успешно';return'Выполняется'}
+function renderRegistryLastRun(cfg){const run=cfg.lastRunDetails;if(!run)return`<div class="empty">Синхронизация ещё не запускалась</div>`;const synced=run.result?.synced||[],failed=run.result?.failed||[],result=registrySyncProductResult(run);return`<div class="box"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b>Последний запуск ${tip('sync.lastRun')}</b><div class="hint">История запусков не хранится в пользовательском интерфейсе текущего этапа.</div></div><div><span class="badge b-blue">workflow: ${esc(run.status||'—')}</span> <span class="badge ${failed.length?'b-amber':'b-green'}">${esc(result)}</span></div></div><div class="row3" style="margin-top:12px"><div><b>Начало</b><br>${esc(run.started_at||'—')}</div><div><b>Завершение</b><br>${esc(run.close_time||'—')}</div><div><b>Длительность</b><br>${esc(cfg.lastDuration||'—')}</div></div><details style="margin-top:10px"><summary>Диагностика workflow / run</summary><div class="hint mono">workflow_id: ${esc(run.workflow_id||'—')}<br>run_id: ${esc(run.run_id||'—')}</div></details></div><div class="table-wrap"><table><thead><tr><th>Тип объекта</th><th>Результат</th><th>fetched</th><th>created</th><th>updated</th><th>projected</th><th>deleted</th><th>purged</th><th>Атрибуты</th></tr></thead><tbody>${synced.map(x=>`<tr><td><b>${esc(x.type_name||x.type_id)}</b><div class="cell-sub mono">${esc(x.type_id)}</div></td><td><span class="badge b-green">Успешно</span></td><td>${x.fetched}</td><td>${x.created_objects}</td><td>${x.updated_objects}</td><td>${x.projected}</td><td>${x.deleted_objects}</td><td>${x.purged_objects}</td><td><span class="cell-sub">+ ${esc((x.added_attributes||[]).join(', ')||'—')}<br>deprecated: ${esc((x.deprecated_attributes||[]).join(', ')||'—')}</span></td></tr>`).join('')}${failed.map(x=>`<tr><td><b>${esc(x.type_name||x.type_id)}</b><div class="cell-sub mono">${esc(x.type_id)}</div></td><td colspan="8"><span class="badge b-red">Ошибка</span> ${esc(x.error||'—')}</td></tr>`).join('')}</tbody></table></div>${run.error?`<div class="box red-box"><b>Ошибка workflow:</b> ${esc(run.error)}</div>`:''}`}
 function renderSyncSettings(){
  const selectedSource=registrySelectedSource();
  const selectedType=registrySourceType(selectedSource);
@@ -1365,12 +1438,7 @@ function renderSyncSettings(){
      <div class="actions" style="justify-content:flex-end"><button onclick="saveRegistrySyncSettings()">Сохранить параметры</button></div>
    </div>
 
-   <div class="stats" style="margin:14px 0">
-     <div class="stat"><label>Последний запуск</label><b style="font-size:16px">${esc(registrySyncSettings.lastRun)}</b></div>
-     <div class="stat"><label>Результат</label><b style="font-size:16px">${esc(registrySyncSettings.lastResult)}</b></div>
-     <div class="stat"><label>Длительность</label><b style="font-size:16px">${esc(registrySyncSettings.lastDuration)}</b></div>
-     <div class="stat"><label>Выбрано коллекций</label><b>${selected.length}</b></div>
-   </div>
+   ${renderRegistryLastRun(registrySyncSettings)}
  </div>
 
  <div class="toolbar">
@@ -1534,7 +1602,9 @@ function renderRelationRuleDuplicateWarning(currentId=''){
  </div>`;
  return duplicate
 }
-function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = один уникальный способ формирования ненаправленной связи ${tip('relations.rules')} ${tip('relations.uniqueness')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие сопоставления</th><th>Кардинальность</th><th>Проверка</th><th>Статус</th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${esc(r.name)}</b><div class="cell-sub mono">${esc(r.id)}</div></td><td><span class="badge b-violet">${esc(relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—')}</span></td><td class="mono">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</td><td>${cardinalityBadge(r.cardinality)}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ конфликт: ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td></tr>`).join('')}</tbody></table></div>`}
+function renderRuleSettings(){return`<div class="toolbar"><span class="muted">Одна строка = один уникальный способ формирования ненаправленной связи ${tip('relations.rules')} ${tip('relations.uniqueness')}</span><button onclick="openRelationRule()">➕ Добавить правило</button></div><div class="table-wrap"><table><thead><tr><th>Название</th><th>Тип связи</th><th>Условие сопоставления</th><th>Кардинальность</th><th>Проверка</th><th>Статус</th><th></th></tr></thead><tbody>${relationRules.map(r=>`<tr onclick="openRelationRule(${q(r.id)})" style="cursor:pointer"><td><b>${esc(r.name)}</b><div class="cell-sub mono">${esc(r.id)}</div></td><td><span class="badge b-violet">${esc(relationTypes.find(t=>t.id===r.relationTypeId)?.name||'—')}</span></td><td class="mono">${esc(r.sourceType)}.${esc(r.sourceAttr)} ${esc(r.operator)} ${esc(r.targetType)}.${esc(r.targetAttr)}</td><td>${cardinalityBadge(r.cardinality)}</td><td><span class="badge b-green">✓ ${r.formed}</span> ${r.missing?`<span class="badge b-amber">0: ${r.missing}</span>`:''} ${r.ambiguous?`<span class="badge b-red">⚠ конфликт: ${r.ambiguous}</span>`:''}</td><td><span class="badge ${r.active?'b-green':'b-amber'}">${r.active?'Активно':'Выключено'}</span></td><td onclick="event.stopPropagation()"><button class="xs danger" onclick="confirmDeleteRelationRule(${q(r.id)})">Удалить</button></td></tr>`).join('')}</tbody></table></div>`}
+function confirmDeleteRelationRule(id){const r=relationRules.find(x=>x.id===id);if(!r)return;openModal('Удалить правило связи',r.name,'<div class="box red-box"><b>Правило будет удалено.</b><br>Фактические связи будут актуализированы механизмом пересчёта.</div>',`<button class="ghost" onclick="closeModal()">Отмена</button><button class="danger" onclick="deleteRelationRule(${q(id)})">Удалить</button>`,true)}
+function deleteRelationRule(id){relationRules=relationRules.filter(r=>r.id!==id);saveRegistryPrototypeState();closeModal();renderAdmin();toast('Правило удалено')}
 function typeOptions(sel){return Object.keys(objectTypes).map(t=>`<option ${t===sel?'selected':''}>${t}</option>`).join('')}
 function attrOptions(t,sel){return objectTypes[t].map(a=>`<option value="${a.id}" ${a.id===sel?'selected':''}>${a.label} · ${a.id}</option>`).join('')}
 function relationCardinalityOptions(value){
@@ -2001,7 +2071,8 @@ function countActiveFiltersV081(key){
 function filterSidebarShellV081(title,key,fields,resetCall){
  const n=countActiveFiltersV081(key);
  return `<aside class="filter-sidebar"><div class="filter-sidebar-head"><div class="filter-sidebar-title">Фильтры</div>${n?`<span class="filter-active-count">${n}</span>`:''}</div><div class="filter-sidebar-fields">${fields}</div><div class="filter-sidebar-actions"><button class="ghost sm" onclick="${resetCall}">Сбросить</button></div></aside>`;
-}function hostFilterSidebarV081(){
+}
+function hostFilterSidebarV081(){
  const f=monUi.hosts;
  const fields=`
  <div class="field"><label>Поиск</label><input placeholder="Имя или IP/FQDN" value="${esc(f.search)}" oninput="monUi.hosts.search=this.value;monUi.hosts.page=1;renderHosts()"></div>
